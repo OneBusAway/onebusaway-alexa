@@ -13,13 +13,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
-import org.onebusaway.io.ObaApi;
-import org.onebusaway.io.elements.ObaRegion;
-import org.onebusaway.io.elements.ObaStop;
-import org.onebusaway.io.request.ObaRegionsRequest;
-import org.onebusaway.io.request.ObaRegionsResponse;
-import org.onebusaway.io.request.ObaStopsForLocationRequest;
-import org.onebusaway.io.request.ObaStopsForLocationResponse;
+import org.onebusaway.io.client.ObaApi;
+import org.onebusaway.io.client.elements.ObaRegion;
+import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.io.client.request.ObaRegionsRequest;
+import org.onebusaway.io.client.request.ObaRegionsResponse;
+import org.onebusaway.io.client.request.ObaStopsForLocationRequest;
+import org.onebusaway.io.client.request.ObaStopsForLocationResponse;
+import org.onebusaway.location.Location;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.speechlet.IntentRequest;
@@ -30,8 +31,6 @@ import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-
-import android.location.Location;
 
 public class LambdaFunctionHandler implements RequestStreamHandler {
 
