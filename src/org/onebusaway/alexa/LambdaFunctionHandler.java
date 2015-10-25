@@ -22,6 +22,7 @@ import org.onebusaway.io.client.request.ObaRegionsRequest;
 import org.onebusaway.io.client.request.ObaRegionsResponse;
 import org.onebusaway.io.client.request.ObaStopsForLocationRequest;
 import org.onebusaway.io.client.request.ObaStopsForLocationResponse;
+import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
@@ -33,9 +34,18 @@ import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
 
+/**
+ * 
+ * @author @author barbeau
+ *
+ */
 public class LambdaFunctionHandler implements RequestStreamHandler {
-
+	
 	@Override
 	public void handleRequest(InputStream inputStream, OutputStream output, Context context) throws IOException {
     	byte serializedSpeechletRequest[] = IOUtils.toByteArray(inputStream);
@@ -52,17 +62,17 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
         	output.write(outString.getBytes());
         }
         
-//        URL url = new URL("http://regions.onebusaway.org/regions-v3.json");
-//        URLConnection yc = url.openConnection();
-//        BufferedReader in = new BufferedReader(new InputStreamReader(
-//                                    yc.getInputStream()));
-//        String inputLine;
-//        while ((inputLine = in.readLine()) != null) {
-//        	inputLine = inputLine + "\n";
-//            output.write(inputLine.getBytes());
-//        }
-//        
-//        in.close();
+        String zipCode = "33613";
+        Location location = null;
+        try {
+			location = GoogleApiUtil.geocode(zipCode);
+			
+			String latLng = "Lat/long for zip " + zipCode + " = " + location.getLatitude() + ", " + location.getLongitude() + "\n";
+			output.write(latLng.getBytes());
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+        
         ObaApi.getDefaultContext().setApiKey("TEST");
         ObaRegionsResponse response = null;
 		try {
@@ -71,34 +81,28 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 			e.printStackTrace();
 		}
         ArrayList<ObaRegion> regions = new ArrayList<ObaRegion>(Arrays.asList(response.getRegions()));
-//        for (ObaRegion r : regions) {
-//        	if (r.getName().equalsIgnoreCase("Tampa")) {
-//        		ObaApi.getDefaultContext().setRegion(r);
-//        		getStops(output);
-//        	}
-//        }
-        String url = "http://api.tampa.onebusaway.org/api/";
-		ObaApi.getDefaultContext().setBaseUrl(url);
-		getStops(output);
-	}
-	
-	private static void getStops(OutputStream output) throws IOException {
-		Location l = new Location("Test");
-		l.setLatitude(28.0664191);
-		l.setLongitude(-82.4298721);
-		ObaStopsForLocationResponse response2 = null;
-		try {
-			response2 = new ObaStopsForLocationRequest.Builder(l)
-					.setQuery("3105")
-			        .build()
-			        .call();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-        final ObaStop[] list = response2.getStops();
-        for (ObaStop s : list) {
-        	String outString = s.getName() + "\n";
-            output.write(outString.getBytes());
+        
+        if (location != null) {
+        	ObaRegion r = RegionUtils.getClosestRegion(regions, location);
+        	if (r != null) {
+        		ObaApi.getDefaultContext().setRegion(r);
+        		
+        		ObaStop[] nearbyStops = ObaApiUtil.getNearbyStops(location);
+        		
+        		output.write("Nearby stops:\n".getBytes());
+                for (ObaStop s : nearbyStops) {
+                	String outString = s.getName() + "\n";
+                    output.write(outString.getBytes());
+                }
+                
+                String stopCode = "3105";
+                ObaStop[] searchResults = ObaApiUtil.getStopFromCode(location, stopCode);
+                output.write("Search result:\n".getBytes());
+                for (ObaStop s : searchResults) {
+                	String outString = s.getName() + "\n";
+                    output.write(outString.getBytes());
+                }
+        	}
         }
 	}
 }
