@@ -12,6 +12,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import javax.ws.rs.core.UriBuilder;
+
 import org.apache.commons.io.IOUtils;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaRegion;
@@ -45,7 +47,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
   
         if (speechletRequest instanceof IntentRequest) {
         	IntentRequest ir = (IntentRequest) speechletRequest;
-        	String outString = "IntentRequest name: " + ir.getIntent().getName();
+        	String outString = "IntentRequest name: " + ir.getIntent().getName() + "\n";
         	context.getLogger().log(outString);
         	output.write(outString.getBytes());
         }
@@ -61,6 +63,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 //        }
 //        
 //        in.close();
+        ObaApi.getDefaultContext().setApiKey("TEST");
         ObaRegionsResponse response = null;
 		try {
 			response = ObaRegionsRequest.newRequest().call();
@@ -68,26 +71,34 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 			e.printStackTrace();
 		}
         ArrayList<ObaRegion> regions = new ArrayList<ObaRegion>(Arrays.asList(response.getRegions()));
-        for (ObaRegion r : regions) {
-        	if (r.getName().equalsIgnoreCase("Tampa")) {
-        		ObaApi.getDefaultContext().setRegion(r);
-        		Location l = new Location("Test");
-        		l.setLatitude(28.0664191);
-        		l.setLongitude(-82.4298721);
-        		ObaStopsForLocationResponse response2 = null;
-				try {
-					response2 = new ObaStopsForLocationRequest.Builder(l)
-					        .build()
-					        .call();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-                final ObaStop[] list = response2.getStops();
-                for (ObaStop s : list) {
-                	String outString = s.getName() + "\n";
-                    output.write(outString.getBytes());
-                }
-        	}
+//        for (ObaRegion r : regions) {
+//        	if (r.getName().equalsIgnoreCase("Tampa")) {
+//        		ObaApi.getDefaultContext().setRegion(r);
+//        		getStops(output);
+//        	}
+//        }
+        String url = "http://api.tampa.onebusaway.org/api/";
+		ObaApi.getDefaultContext().setBaseUrl(url);
+		getStops(output);
+	}
+	
+	private static void getStops(OutputStream output) throws IOException {
+		Location l = new Location("Test");
+		l.setLatitude(28.0664191);
+		l.setLongitude(-82.4298721);
+		ObaStopsForLocationResponse response2 = null;
+		try {
+			response2 = new ObaStopsForLocationRequest.Builder(l)
+					.setQuery("3105")
+			        .build()
+			        .call();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+        final ObaStop[] list = response2.getStops();
+        for (ObaStop s : list) {
+        	String outString = s.getName() + "\n";
+            output.write(outString.getBytes());
         }
 	}
 }
