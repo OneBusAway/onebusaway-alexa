@@ -1,18 +1,26 @@
-
+/*
+ * Copyright (C) 2015 Sean J. Barbeau (sjbarbeau@gmail.com).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.onebusaway.alexa;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.onebusaway.io.client.ObaApi;
@@ -20,28 +28,19 @@ import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.ObaRegionsRequest;
 import org.onebusaway.io.client.request.ObaRegionsResponse;
-import org.onebusaway.io.client.request.ObaStopsForLocationRequest;
-import org.onebusaway.io.client.request.ObaStopsForLocationResponse;
 import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.speechlet.IntentRequest;
-import com.amazon.speech.speechlet.LaunchRequest;
-import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletRequest;
-import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.model.GeocodingResult;
-import com.google.maps.model.LatLng;
 
 /**
+ * OneBusAway Alexa - main handler to receive and process messages from Alexa via Lambda
  * 
- * @author @author barbeau
+ * @author barbeau
  *
  */
 public class LambdaFunctionHandler implements RequestStreamHandler {
