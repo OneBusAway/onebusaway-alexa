@@ -4,7 +4,7 @@
     "sessionId": "session1234",
     "attributes": {},
     "user": {
-      "userId": null
+      "userId": "test"
     },
     "application": {
       "applicationId": "amzn1.echo-sdk-ams.app.[unique-value-here]"

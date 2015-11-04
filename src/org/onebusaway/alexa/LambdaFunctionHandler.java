@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
+import org.onebusaway.alexa.util.GoogleApiUtil;
+import org.onebusaway.alexa.util.ObaApiUtil;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
@@ -33,6 +35,7 @@ import org.onebusaway.location.Location;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.speechlet.IntentRequest;
+import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -51,15 +54,17 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
     	SpeechletRequestEnvelope requestEnvelope = SpeechletRequestEnvelope.fromJson(serializedSpeechletRequest);
 
         SpeechletRequest speechletRequest = requestEnvelope.getRequest();
-//        Session session = requestEnvelope.getSession();
+        Session session = requestEnvelope.getSession();
 //        String requestId = speechletRequest == null ? null : speechletRequest.getRequestId();
+        String userId = "User ID = " + session.getUser().getUserId() + "\n";
+        output.write(userId.getBytes());
   
-        if (speechletRequest instanceof IntentRequest) {
-        	IntentRequest ir = (IntentRequest) speechletRequest;
-        	String outString = "IntentRequest name: " + ir.getIntent().getName() + "\n";
-        	context.getLogger().log(outString);
-        	output.write(outString.getBytes());
-        }
+//        if (speechletRequest instanceof IntentRequest) {
+//        	IntentRequest ir = (IntentRequest) speechletRequest;
+//        	String outString = "IntentRequest name: " + ir.getIntent().getName() + "\n";
+//        	context.getLogger().log(outString);
+//        	output.write(outString.getBytes());
+//        }
         
         String zipCode = "33613";
         Location location = null;
