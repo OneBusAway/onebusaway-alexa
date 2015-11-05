@@ -1,4 +1,4 @@
-package org.onebusaway.alexa.io;
+package org.onebusaway.alexa.storage;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;

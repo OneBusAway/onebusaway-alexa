@@ -1,4 +1,4 @@
-package org.onebusaway.alexa.io;
+package org.onebusaway.alexa.storage;
 
 import com.amazon.speech.speechlet.Session;
 
