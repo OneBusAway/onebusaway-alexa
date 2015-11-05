@@ -31,14 +31,14 @@ public class GoogleApiUtil {
 	public static final String GEOCODE_API_KEY = "AIzaSyA6PiJXUmxic5fkIC4WEPIBldi6omdVZnQ";
 	
 	/**
-	 * Returns the location of a zip code using the Google Geocoding API
-	 * @param zipCode zip code to geocode
-	 * @return the location of a zip code using the Google Geocoding API
+	 * Returns the location of a city using the Google Geocoding API
+	 * @param cityName city to geocode
+	 * @return the location of a city using the Google Geocoding API
 	 * @throws Exception
 	 */
-	public static Location geocode(String zipCode) throws Exception {
+	public static Location geocode(String cityName) throws Exception {
 		GeoApiContext context = new GeoApiContext().setApiKey(GEOCODE_API_KEY);
-		GeocodingResult[] results =  GeocodingApi.geocode(context, zipCode).await();
+		GeocodingResult[] results =  GeocodingApi.geocode(context, cityName).await();
 		Location l = new Location("Google Geocoding API");
 		l.setLatitude(results[0].geometry.location.lat);
 		l.setLongitude(results[0].geometry.location.lng);
