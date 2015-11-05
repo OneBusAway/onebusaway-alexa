@@ -66,12 +66,12 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 //        	output.write(outString.getBytes());
 //        }
         
-        String zipCode = "33613";
+        String cityName = "Tampa";
         Location location = null;
         try {
-			location = GoogleApiUtil.geocode(zipCode);
+			location = GoogleApiUtil.geocode(cityName);
 			
-			String latLng = "Lat/long for zip " + zipCode + " = " + location.getLatitude() + ", " + location.getLongitude() + "\n";
+			String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude() + "\n";
 			output.write(latLng.getBytes());
 		} catch (Exception e1) {
 			e1.printStackTrace();
