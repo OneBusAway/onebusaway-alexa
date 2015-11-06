@@ -68,7 +68,12 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 //        	context.getLogger().log(outString);
 //        	output.write(outString.getBytes());
 //        }
-        
+
+        /**
+         * OneBusAway: "OneBusAway.  What city are you located in?"
+         * 
+         * User: "Tampa"
+         */
         String cityName = "Tampa";
         Location location = null;
         try {
@@ -93,6 +98,12 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
         	ObaRegion r = RegionUtils.getClosestRegion(regions, location);
         	if (r != null) {
         		ObaApi.getDefaultContext().setRegion(r);
+        		
+                /**
+                 * OneBusAway: "You can find your bus stop number on the sign near your stop. What is your stop number?"
+        		 *
+        		 * User: 3105
+                 */
         		
         		// Search for a stop with a specific ID
                 String stopCode = "3105";
