@@ -32,64 +32,65 @@ import org.onebusaway.location.Location;
  * @author barbeau
  */
 public class ObaApiUtil {
-	
+
 	public static final int DEFAULT_SEARCH_RADIUS = 40000;
 
 	/**
 	 * Returns a list of nearby stops for the given location
-	 * @param l location to search for nearby stops
+	 * 
+	 * @param l
+	 *            location to search for nearby stops
 	 * @return a list of nearby stops for the given location
 	 * @throws IOException
 	 */
 	public static ObaStop[] getNearbyStops(Location l) throws IOException {
 		ObaStopsForLocationResponse response = null;
 		try {
-			response = new ObaStopsForLocationRequest.Builder(l)
-					.setRadius(DEFAULT_SEARCH_RADIUS)
-			        .build()
-			        .call();
+			response = new ObaStopsForLocationRequest.Builder(l).setRadius(DEFAULT_SEARCH_RADIUS).build().call();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-        return response.getStops();
+		return response.getStops();
 	}
 
 	/**
-	 * Returns a stop for the given stopCode (user-facing stop ID), near the given location
-	 * @param l Location to search near
-	 * @param stopCode User-facing stop ID to search for
-	 * @return response that contains a stop for the given stopCode (user-facing stop ID), near the given location
+	 * Returns a stop for the given stopCode (user-facing stop ID), near the
+	 * given location
+	 * 
+	 * @param l
+	 *            Location to search near
+	 * @param stopCode
+	 *            User-facing stop ID to search for
+	 * @return response that contains a stop for the given stopCode (user-facing
+	 *         stop ID), near the given location
 	 * @throws IOException
 	 */
 	public static ObaStopsForLocationResponse getStopFromCode(Location l, String stopCode) throws IOException {
 		ObaStopsForLocationResponse response = null;
 		try {
-			response = new ObaStopsForLocationRequest.Builder(l)
-					.setQuery(stopCode)
-					.setRadius(DEFAULT_SEARCH_RADIUS)
-			        .build()
-			        .call();
+			response = new ObaStopsForLocationRequest.Builder(l).setQuery(stopCode).setRadius(DEFAULT_SEARCH_RADIUS)
+					.build().call();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-        return response;
+		return response;
 	}
-	
+
 	/**
 	 * Returns the arrivals and departures for the given stopId
-	 * @param stopId the stopId to return arrivals and departures for
+	 * 
+	 * @param stopId
+	 *            the stopId to return arrivals and departures for
 	 * @return the arrivals and departures for the given stopId
 	 * @throws IOException
 	 */
 	public static ObaArrivalInfo[] getArrivalsAndDeparturesForStop(String stopId) throws IOException {
 		ObaArrivalInfoResponse response = null;
 		try {
-			response = new ObaArrivalInfoRequest.Builder(stopId)
-			        .build()
-			        .call();
+			response = new ObaArrivalInfoRequest.Builder(stopId).build().call();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-        return response.getArrivalInfo();
+		return response.getArrivalInfo();
 	}
 }
