@@ -111,15 +111,12 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 				 */
 
 				// Search for a stop with a specific ID
-				String stopCode = "3105";
+				String stopCode = "6497";
 				ObaStopsForLocationResponse stopsResponse = ObaApiUtil.getStopFromCode(location, stopCode);
 				ObaStop[] searchResults = stopsResponse.getStops();
 				output.write("Stop search result:\n".getBytes());
 				for (ObaStop s : searchResults) {
 					String outString = s.getName() + "\n";
-					output.write(outString.getBytes());
-
-					outString = "ID=" + s.getId() + "\n";
 					output.write(outString.getBytes());
 
 					// Get arrival info for stop - convert from raw data to more
@@ -134,9 +131,10 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 					for (ArrivalInfo i : infoList) {
 						ObaArrivalInfo oai = i.getInfo();
 						if (i.getEta() < 0) {
+							long invertEta = -i.getEta();
 							// Route just left
 							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " departed "
-									+ i.getEta() + " minutes ago\n";
+									+ invertEta + " minutes ago\n";
 						} else if (i.getEta() == 0) {
 							// Route is now arriving
 							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is now arriving\n";
