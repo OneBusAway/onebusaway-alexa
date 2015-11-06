@@ -26,10 +26,13 @@ import org.apache.commons.io.IOUtils;
 import org.onebusaway.alexa.util.GoogleApiUtil;
 import org.onebusaway.alexa.util.ObaApiUtil;
 import org.onebusaway.io.client.ObaApi;
+import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.ObaRegionsRequest;
 import org.onebusaway.io.client.request.ObaRegionsResponse;
+import org.onebusaway.io.client.request.ObaStopsForLocationResponse;
+import org.onebusaway.io.client.util.ArrivalInfo;
 import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
@@ -91,20 +94,38 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
         	if (r != null) {
         		ObaApi.getDefaultContext().setRegion(r);
         		
-        		ObaStop[] nearbyStops = ObaApiUtil.getNearbyStops(location);
-        		
-        		output.write("Nearby stops:\n".getBytes());
-                for (ObaStop s : nearbyStops) {
-                	String outString = s.getName() + "\n";
-                    output.write(outString.getBytes());
-                }
-                
+        		// Search for a stop with a specific ID
                 String stopCode = "3105";
-                ObaStop[] searchResults = ObaApiUtil.getStopFromCode(location, stopCode);
-                output.write("Search result:\n".getBytes());
+                ObaStopsForLocationResponse stopsResponse = ObaApiUtil.getStopFromCode(location, stopCode); 
+                ObaStop[] searchResults = stopsResponse.getStops();
+                output.write("Stop search result:\n".getBytes());
                 for (ObaStop s : searchResults) {
                 	String outString = s.getName() + "\n";
                     output.write(outString.getBytes());
+                    
+                    outString = "ID=" + s.getId() + "\n";
+                    output.write(outString.getBytes());
+                    
+                    // Get arrival info for stop - convert from raw data to more human readable form
+                    ObaArrivalInfo[] info = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
+                    // TODO - handle timezone issues??  I think if we use the current region time we should be ok
+                    long currentTime = stopsResponse.getCurrentTime();
+                    ArrayList<ArrivalInfo> infoList = ArrivalInfo.convertObaArrivalInfo(info, new ArrayList<String>(), currentTime);
+                    // Print out route and ETA for all arrivals
+                    for (ArrivalInfo i : infoList) {
+                    	ObaArrivalInfo oai = i.getInfo();
+                    	if (i.getEta() < 0) {
+                    		// Route just left
+                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " departed " + i.getEta() + " minutes ago\n";
+                    	} else if (i.getEta() == 0) {
+                    		// Route is now arriving
+                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is now arriving\n";
+                    	} else {
+                    		// Route is arriving in future
+                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is arriving in " + i.getEta() + " minutes\n";
+                    	}
+                    	output.write(outString.getBytes());
+                    }
                 }
         	}
         }

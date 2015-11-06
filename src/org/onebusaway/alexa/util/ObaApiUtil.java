@@ -58,10 +58,10 @@ public class ObaApiUtil {
 	 * Returns a stop for the given stopCode (user-facing stop ID), near the given location
 	 * @param l Location to search near
 	 * @param stopCode User-facing stop ID to search for
-	 * @return a stop for the given stopCode (user-facing stop ID), near the given location
+	 * @return response that contains a stop for the given stopCode (user-facing stop ID), near the given location
 	 * @throws IOException
 	 */
-	public static ObaStop[] getStopFromCode(Location l, String stopCode) throws IOException {
+	public static ObaStopsForLocationResponse getStopFromCode(Location l, String stopCode) throws IOException {
 		ObaStopsForLocationResponse response = null;
 		try {
 			response = new ObaStopsForLocationRequest.Builder(l)
@@ -72,7 +72,7 @@ public class ObaApiUtil {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-        return response.getStops();
+        return response;
 	}
 	
 	/**
