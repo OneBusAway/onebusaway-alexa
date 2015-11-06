@@ -44,101 +44,111 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 /**
- * OneBusAway Alexa - main handler to receive and process messages from Alexa via Lambda
+ * OneBusAway Alexa - main handler to receive and process messages from Alexa
+ * via Lambda
  * 
  * @author barbeau
  *
  */
 public class LambdaFunctionHandler implements RequestStreamHandler {
-	
+
 	@Override
 	public void handleRequest(InputStream inputStream, OutputStream output, Context context) throws IOException {
-    	byte serializedSpeechletRequest[] = IOUtils.toByteArray(inputStream);
-    	SpeechletRequestEnvelope requestEnvelope = SpeechletRequestEnvelope.fromJson(serializedSpeechletRequest);
+		byte serializedSpeechletRequest[] = IOUtils.toByteArray(inputStream);
+		SpeechletRequestEnvelope requestEnvelope = SpeechletRequestEnvelope.fromJson(serializedSpeechletRequest);
 
-        SpeechletRequest speechletRequest = requestEnvelope.getRequest();
-        Session session = requestEnvelope.getSession();
-//        String requestId = speechletRequest == null ? null : speechletRequest.getRequestId();
-        String userId = "User ID = " + session.getUser().getUserId() + "\n";
-        output.write(userId.getBytes());
-  
-//        if (speechletRequest instanceof IntentRequest) {
-//        	IntentRequest ir = (IntentRequest) speechletRequest;
-//        	String outString = "IntentRequest name: " + ir.getIntent().getName() + "\n";
-//        	context.getLogger().log(outString);
-//        	output.write(outString.getBytes());
-//        }
+		SpeechletRequest speechletRequest = requestEnvelope.getRequest();
+		Session session = requestEnvelope.getSession();
+		// String requestId = speechletRequest == null ? null :
+		// speechletRequest.getRequestId();
+		String userId = "User ID = " + session.getUser().getUserId() + "\n";
+		output.write(userId.getBytes());
 
-        /**
-         * OneBusAway: "OneBusAway.  What city are you located in?"
-         * 
-         * User: "Tampa"
-         */
-        String cityName = "Tampa";
-        Location location = null;
-        try {
+		// if (speechletRequest instanceof IntentRequest) {
+		// IntentRequest ir = (IntentRequest) speechletRequest;
+		// String outString = "IntentRequest name: " + ir.getIntent().getName()
+		// + "\n";
+		// context.getLogger().log(outString);
+		// output.write(outString.getBytes());
+		// }
+
+		/**
+		 * OneBusAway: "OneBusAway.  What city are you located in?"
+		 * 
+		 * User: "Tampa"
+		 */
+		String cityName = "Tampa";
+		Location location = null;
+		try {
 			location = GoogleApiUtil.geocode(cityName);
-			
-			String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude() + "\n";
+
+			String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude()
+					+ "\n";
 			output.write(latLng.getBytes());
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-        
-        ObaApi.getDefaultContext().setApiKey("TEST");
-        ObaRegionsResponse response = null;
+
+		ObaApi.getDefaultContext().setApiKey("TEST");
+		ObaRegionsResponse response = null;
 		try {
 			response = ObaRegionsRequest.newRequest().call();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-        ArrayList<ObaRegion> regions = new ArrayList<ObaRegion>(Arrays.asList(response.getRegions()));
-        
-        if (location != null) {
-        	ObaRegion r = RegionUtils.getClosestRegion(regions, location);
-        	if (r != null) {
-        		ObaApi.getDefaultContext().setRegion(r);
-        		
-                /**
-                 * OneBusAway: "You can find your bus stop number on the sign near your stop. What is your stop number?"
-        		 *
-        		 * User: 3105
-                 */
-        		
-        		// Search for a stop with a specific ID
-                String stopCode = "3105";
-                ObaStopsForLocationResponse stopsResponse = ObaApiUtil.getStopFromCode(location, stopCode); 
-                ObaStop[] searchResults = stopsResponse.getStops();
-                output.write("Stop search result:\n".getBytes());
-                for (ObaStop s : searchResults) {
-                	String outString = s.getName() + "\n";
-                    output.write(outString.getBytes());
-                    
-                    outString = "ID=" + s.getId() + "\n";
-                    output.write(outString.getBytes());
-                    
-                    // Get arrival info for stop - convert from raw data to more human readable form
-                    ObaArrivalInfo[] info = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
-                    // TODO - handle timezone issues??  I think if we use the current region time we should be ok
-                    long currentTime = stopsResponse.getCurrentTime();
-                    ArrayList<ArrivalInfo> infoList = ArrivalInfo.convertObaArrivalInfo(info, new ArrayList<String>(), currentTime);
-                    // Print out route and ETA for all arrivals
-                    for (ArrivalInfo i : infoList) {
-                    	ObaArrivalInfo oai = i.getInfo();
-                    	if (i.getEta() < 0) {
-                    		// Route just left
-                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " departed " + i.getEta() + " minutes ago\n";
-                    	} else if (i.getEta() == 0) {
-                    		// Route is now arriving
-                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is now arriving\n";
-                    	} else {
-                    		// Route is arriving in future
-                    		outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is arriving in " + i.getEta() + " minutes\n";
-                    	}
-                    	output.write(outString.getBytes());
-                    }
-                }
-        	}
-        }
+		ArrayList<ObaRegion> regions = new ArrayList<ObaRegion>(Arrays.asList(response.getRegions()));
+
+		if (location != null) {
+			ObaRegion r = RegionUtils.getClosestRegion(regions, location);
+			if (r != null) {
+				ObaApi.getDefaultContext().setRegion(r);
+
+				/**
+				 * OneBusAway:
+				 * "You can find your bus stop number on the sign near your stop. What is your stop number?"
+				 *
+				 * User: 3105
+				 */
+
+				// Search for a stop with a specific ID
+				String stopCode = "3105";
+				ObaStopsForLocationResponse stopsResponse = ObaApiUtil.getStopFromCode(location, stopCode);
+				ObaStop[] searchResults = stopsResponse.getStops();
+				output.write("Stop search result:\n".getBytes());
+				for (ObaStop s : searchResults) {
+					String outString = s.getName() + "\n";
+					output.write(outString.getBytes());
+
+					outString = "ID=" + s.getId() + "\n";
+					output.write(outString.getBytes());
+
+					// Get arrival info for stop - convert from raw data to more
+					// human readable form
+					ObaArrivalInfo[] info = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
+					// TODO - handle timezone issues?? I think if we use the
+					// current region time we should be ok
+					long currentTime = stopsResponse.getCurrentTime();
+					ArrayList<ArrivalInfo> infoList = ArrivalInfo.convertObaArrivalInfo(info, new ArrayList<String>(),
+							currentTime);
+					// Print out route and ETA for all arrivals
+					for (ArrivalInfo i : infoList) {
+						ObaArrivalInfo oai = i.getInfo();
+						if (i.getEta() < 0) {
+							// Route just left
+							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " departed "
+									+ i.getEta() + " minutes ago\n";
+						} else if (i.getEta() == 0) {
+							// Route is now arriving
+							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is now arriving\n";
+						} else {
+							// Route is arriving in future
+							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is arriving in "
+									+ i.getEta() + " minutes\n";
+						}
+						output.write(outString.getBytes());
+					}
+				}
+			}
+		}
 	}
 }
