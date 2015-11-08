@@ -73,7 +73,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 		/**
 		 * OneBusAway: "OneBusAway.  What city are you located in?"
 		 * 
-		 * User: "Tampa"
+		 * User: "Seattle"
 		 */
 		String cityName = "Seattle";
 		Location location = GoogleApiUtil.geocode(cityName);
