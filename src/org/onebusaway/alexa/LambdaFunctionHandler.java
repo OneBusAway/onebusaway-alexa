@@ -18,7 +18,6 @@ package org.onebusaway.alexa;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,15 +28,14 @@ import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaRegionsRequest;
 import org.onebusaway.io.client.request.ObaRegionsResponse;
-import org.onebusaway.io.client.request.ObaStopsForLocationResponse;
 import org.onebusaway.io.client.util.ArrivalInfo;
 import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
-import com.amazon.speech.speechlet.IntentRequest;
 import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletRequest;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -78,24 +76,14 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 		 * User: "Tampa"
 		 */
 		String cityName = "Tampa";
-		Location location = null;
-		try {
-			location = GoogleApiUtil.geocode(cityName);
-
-			String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude()
-					+ "\n";
-			output.write(latLng.getBytes());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		Location location = GoogleApiUtil.geocode(cityName);
+		String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude()
+				+ "\n";
+		output.write(latLng.getBytes());
 
 		ObaApi.getDefaultContext().setApiKey("TEST");
 		ObaRegionsResponse response = null;
-		try {
-			response = ObaRegionsRequest.newRequest().call();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		response = ObaRegionsRequest.newRequest().call();
 		ArrayList<ObaRegion> regions = new ArrayList<ObaRegion>(Arrays.asList(response.getRegions()));
 
 		if (location != null) {
@@ -112,8 +100,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 
 				// Search for a stop with a specific ID
 				String stopCode = "6497";
-				ObaStopsForLocationResponse stopsResponse = ObaApiUtil.getStopFromCode(location, stopCode);
-				ObaStop[] searchResults = stopsResponse.getStops();
+				ObaStop[] searchResults = ObaApiUtil.getStopFromCode(location, stopCode);
 				output.write("Stop search result:\n".getBytes());
 				for (ObaStop s : searchResults) {
 					String outString = s.getName() + "\n";
@@ -121,10 +108,11 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 
 					// Get arrival info for stop - convert from raw data to more
 					// human readable form
-					ObaArrivalInfo[] info = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
+					ObaArrivalInfoResponse arrivalsResponse = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
+					ObaArrivalInfo[] info = arrivalsResponse.getArrivalInfo();
 					// TODO - handle timezone issues?? I think if we use the
 					// current region time we should be ok
-					long currentTime = stopsResponse.getCurrentTime();
+					long currentTime = arrivalsResponse.getCurrentTime();
 					ArrayList<ArrivalInfo> infoList = ArrivalInfo.convertObaArrivalInfo(info, new ArrayList<String>(),
 							currentTime);
 					// Print out route and ETA for all arrivals

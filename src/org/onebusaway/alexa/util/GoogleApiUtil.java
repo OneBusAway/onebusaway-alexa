@@ -33,14 +33,19 @@ public class GoogleApiUtil {
 	/**
 	 * Returns the location of a city using the Google Geocoding API
 	 * 
-	 * @param cityName
-	 *            city to geocode
-	 * @return the location of a city using the Google Geocoding API
-	 * @throws Exception
+	 * @param cityName city to geocode
+	 * @return the location of a city using the Google Geocoding API, or null if the location
+	 *         couldn't be geocoded.
 	 */
-	public static Location geocode(String cityName) throws Exception {
+	public static Location geocode(String cityName) {
 		GeoApiContext context = new GeoApiContext().setApiKey(GEOCODE_API_KEY);
-		GeocodingResult[] results = GeocodingApi.geocode(context, cityName).await();
+		GeocodingResult[] results = null;
+		try {
+			results = GeocodingApi.geocode(context, cityName).await();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 		Location l = new Location("Google Geocoding API");
 		l.setLatitude(results[0].geometry.location.lat);
 		l.setLongitude(results[0].geometry.location.lng);
