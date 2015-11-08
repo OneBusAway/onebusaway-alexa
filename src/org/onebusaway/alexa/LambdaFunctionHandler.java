@@ -75,7 +75,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 		 * 
 		 * User: "Tampa"
 		 */
-		String cityName = "Tampa";
+		String cityName = "Seattle";
 		Location location = GoogleApiUtil.geocode(cityName);
 		String latLng = "Lat/long for " + cityName + " = " + location.getLatitude() + ", " + location.getLongitude()
 				+ "\n";
@@ -99,7 +99,7 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 				 */
 
 				// Search for a stop with a specific ID
-				String stopCode = "6497";
+				String stopCode = "431";
 				ObaStop[] searchResults = ObaApiUtil.getStopFromCode(location, stopCode);
 				output.write("Stop search result:\n".getBytes());
 				for (ObaStop s : searchResults) {
@@ -110,27 +110,12 @@ public class LambdaFunctionHandler implements RequestStreamHandler {
 					// human readable form
 					ObaArrivalInfoResponse arrivalsResponse = ObaApiUtil.getArrivalsAndDeparturesForStop(s.getId());
 					ObaArrivalInfo[] info = arrivalsResponse.getArrivalInfo();
-					// TODO - handle timezone issues?? I think if we use the
-					// current region time we should be ok
 					long currentTime = arrivalsResponse.getCurrentTime();
 					ArrayList<ArrivalInfo> infoList = ArrivalInfo.convertObaArrivalInfo(info, new ArrayList<String>(),
 							currentTime);
 					// Print out route and ETA for all arrivals
 					for (ArrivalInfo i : infoList) {
-						ObaArrivalInfo oai = i.getInfo();
-						if (i.getEta() < 0) {
-							long invertEta = -i.getEta();
-							// Route just left
-							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " departed "
-									+ invertEta + " minutes ago\n";
-						} else if (i.getEta() == 0) {
-							// Route is now arriving
-							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is now arriving\n";
-						} else {
-							// Route is arriving in future
-							outString = "Route " + oai.getShortName() + " " + oai.getHeadsign() + " is arriving in "
-									+ i.getEta() + " minutes\n";
-						}
+						outString = i.getLongDescription() + "\n";
 						output.write(outString.getBytes());
 					}
 				}
