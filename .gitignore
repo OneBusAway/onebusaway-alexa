@@ -37,3 +37,10 @@ local.properties
 
 # TeXlipse plugin
 .texlipse
+
+# IntelliJ
+/.idea
+/*.iml
+
+# Maven build output
+/target
