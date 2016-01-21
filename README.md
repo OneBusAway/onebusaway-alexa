@@ -4,7 +4,7 @@ Are you ready to ask your [Amazon Echo](http://www.amazon.com/echo), *"Alexa, wh
 
 This project is an implementation of the [OneBusAway](http://onebusaway.org/) open-source platform for real-time transit info for Amazon's [Alexa Voice Service](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service).
 
-## Install and Use
+### Install and Use
 
 This project isn't released publicly yet.  We plan to make the first release around January 2016.
 
@@ -12,7 +12,7 @@ Initial spoken setup: TBD
 
 Supported voice commands: TBD
 
-## Build
+### Build
 
 1. Install the [Java Platform SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven](https://maven.apache.org/).
 1. Clone this repository.
@@ -30,12 +30,12 @@ Supported voice commands: TBD
   
 See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugin) for more information on deploying.
 
-## Authors
+### Authors
 * [Sean Barbeau](https://github.com/barbeau)
 
-## Contributors
+### Contributors
 * [Philip White](https://github.com/philipmw)
 
-## License
+### License
 
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
