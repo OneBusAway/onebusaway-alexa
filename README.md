@@ -6,7 +6,7 @@ This project is an implementation of the [OneBusAway](http://onebusaway.org/) op
 
 ### Install and Use
 
-This project isn't released publicly yet.  We plan to make the first release around January 2016.
+This project isn't released publicly yet.  We plan to make the first release in early 2016.
 
 Initial spoken setup: TBD
 
