@@ -144,7 +144,8 @@
                 <configuration>
                     <handler>org.onebusaway.alexa.LambdaFunctionHandler</handler>
                     <functionCode>${project.build.directory}${file.separator}${project.build.finalName}-${project.packaging}-with-dependencies.jar</functionCode>
-                    <timeout>10</timeout>
+                    <memorySize>256</memorySize>
+                    <timeout>25</timeout>
                     <functionName>onebusaway-alexa</functionName>
                 </configuration>
             </plugin>
