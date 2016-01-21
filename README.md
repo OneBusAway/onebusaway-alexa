@@ -1,8 +1,8 @@
 # OneBusAway skill for Alexa
 
-Are you ready to ask about your bus with just your voice?
+Are you ready to ask your [Amazon Echo](www.amazon.com/echo), *"Alexa, where's my bus"*?
 
-This project is an implementation of the [OneBusAway](http://onebusaway.org/) _open-source platform for real-time transit info_ for Amazon's [Alexa Voice Service](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service).
+This project is an implementation of the [OneBusAway](http://onebusaway.org/) open-source platform for real-time transit info for Amazon's [Alexa Voice Service](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service).
 
 ## Install and Use
 
@@ -12,7 +12,7 @@ Initial spoken setup: TBD
 
 Supported voice commands: TBD
 
-## Develop
+## Build
 
 1. Install the [Java Platform SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven](https://maven.apache.org/).
 1. Clone this repository.
