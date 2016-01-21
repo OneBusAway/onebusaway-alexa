@@ -15,10 +15,23 @@ Supported voice commands: TBD
 ## Develop
 
 1. Install the [Java Platform SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven](https://maven.apache.org/).
-2. Clone this repository.
-3. Write some code and tests, then test your creation with `mvn test`.
-4. Build this project on the command line with `mvn package`.  Look for "BUILD SUCCESS". Resulting JAR is `target/onebusaway-alexa-1.0-jar-with-dependencies.jar`, which you can now upload to AWS Lambda.
-5. To upload to AWS Lambda in a semi-automated way, use `mvn lambduh:deploy-lambda` ([plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugin)) with the necessary arguments. (The plugin will tell you what's missing.)
+1. Clone this repository.
+1. Build this project on the command line with `mvn package`.  Look for "BUILD SUCCESS". Resulting JAR is `target/onebusaway-alexa-1.0-jar-with-dependencies.jar`
+1. Upload to Amazon Lambda with:
+
+        mvn lambduh:deploy-lambda \
+            -DaccessKey={your_key} \
+            -DsecretKey={your_key} \
+            -Ds3Bucket={your_bucket} \
+            -Dregion=us-east-1 \
+            -DlambdaRoleArn=arn:aws:iam::{your_arn}:role/lambda_basic_execution
+
+  ...where `{your_key}` is your AWS keys, `{your_bucket}` is your S3 bucket, and `{your_arn}` is your AWS Lambda ARN.
+  
+See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugin) for more information on deploying.
 
 ## Authors
 * [Sean Barbeau](https://github.com/barbeau)
+
+## Contributors
+* [Philip White](https://github.com/philipmw)
