@@ -35,3 +35,7 @@ See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugi
 
 ## Contributors
 * [Philip White](https://github.com/philipmw)
+
+## License
+
+[Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
