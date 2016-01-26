@@ -1,0 +1,18 @@
+{
+  "session": {
+    "new": true,
+    "sessionId": "session1234",
+    "attributes": {},
+    "user": {
+      "userId": null
+    },
+    "application": {
+      "applicationId": "amzn1.echo-sdk-ams.app.cc021fac-c59e-4c10-add6-d6e89f5314f6"
+    }
+  },
+  "version": "1.0",
+  "request": {
+    "type": "LaunchRequest",
+    "requestId": "request5678"
+  }
+}
