@@ -30,6 +30,10 @@ Supported voice commands: TBD
   
 See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugin) for more information on deploying.
 
+### Contributing
+
+Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](CONTRIBUTING.md) for more details.
+
 ### Authors
 * [Sean Barbeau](https://github.com/barbeau)
 
