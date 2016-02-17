@@ -1,0 +1,28 @@
+{
+  "intents": [
+    {
+      "intent": "SetCityIntent",
+      "slots": [
+        {
+          "name": "cityName",
+          "type": "AMAZON.US_CITY"
+        }
+      ]
+    },
+    {
+      "intent": "GetCityIntent"
+    },
+    {
+      "intent": "SetStopNumberIntent",
+      "slots": [
+        {
+          "name": "stopNumber",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+      "intent": "GetArrivalsIntent"
+    }
+  ]
+}

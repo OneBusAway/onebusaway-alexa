@@ -10,18 +10,29 @@
     <name>OneBusAway client for Alexa</name>
     <url>https://github.com/OneBusAway/onebusaway-alexa</url>
 
+    <developers>
+        <developer>
+            <name>Sean Barbeau</name>
+            <url>http://github.com/barbeau</url>
+        </developer>
+        <developer>
+            <name>Philip White</name>
+            <url>http://github.com/philipmw</url>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>com.amazon.alexa</groupId>
             <artifactId>alexa-skills-kit</artifactId>
-            <version>1.1</version>
+            <version>1.1.2</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>alexa-skills-kit</groupId>
-                    <artifactId>alexa-skills-kit</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.6</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -59,6 +70,12 @@
             <version>3.3.2</version>
             <scope>compile</scope>
         </dependency>
+        <!-- shouldn't this be getting pulled in by AWS SDK? -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.directory.studio</groupId>
             <artifactId>org.apache.commons.io</artifactId>
@@ -85,6 +102,49 @@
             <groupId>org.onebusaway</groupId>
             <artifactId>onebusaway-client-library</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>4.2.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>4.2.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.2.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>4.2.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.16</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.0.41-beta</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -134,13 +194,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
+                <version>2.19.1</version>
             </plugin>
 
             <plugin>
                 <groupId>com.github.seanroy</groupId>
                 <artifactId>lambduh-maven-plugin</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <configuration>
                     <handler>org.onebusaway.alexa.LambdaFunctionHandler</handler>
                     <functionCode>${project.build.directory}${file.separator}${project.build.finalName}-${project.packaging}-with-dependencies.jar</functionCode>

@@ -1,0 +1,26 @@
+SetCityIntent city is {cityName}
+SetCityIntent my city is {cityName}
+SetCityIntent my home is {cityName}
+SetCityIntent i live in {cityName}
+
+GetCityIntent what city are you in
+GetCityIntent what city am I in
+GetCityIntent where are you
+GetCityIntent where am I
+GetCityIntent what is my city
+
+SetStopNumberIntent stop is {stopNumber}
+SetStopNumberIntent my stop is {stopNumber}
+SetStopNumberIntent stop id {stopNumber}
+SetStopNumberIntent my stop id {stopNumber}
+SetStopNumberIntent stop code is {stopNumber}
+SetStopNumberIntent my stop code is {stopNumber}
+SetStopNumberIntent stop number is {stopNumber}
+SetStopNumberIntent my stop number is {stopNumber}
+
+GetArrivalsIntent when is my bus
+GetArrivalsIntent when is the bus
+GetArrivalsIntent when is next bus
+GetArrivalsIntent when is my bus arriving
+GetArrivalsIntent when is the bus arriving
+GetArrivalsIntent when is the next bus arriving

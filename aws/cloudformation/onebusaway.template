@@ -1,0 +1,94 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "OneBusAway Alexa app",
+
+  "Parameters": {
+    "UserDbPrimaryReadThroughput": {
+      "Description": "Read throughput of Users DynamoDB table (default is max allotted for free)",
+      "Type": "Number",
+      "Default": 25
+    },
+    "UserDbPrimaryWriteThroughput": {
+      "Description": "Write throughput of Users DynamoDB table (default is max allotted for free)",
+      "Type": "Number",
+      "Default": 25
+    }
+  },
+
+  "Outputs": {
+    "appAccessKeyId": {
+      "Description": "AWS access key ID for Alexa app",
+      "Value": {"Ref": "appAccessKey"}
+    },
+    "appAccessSecretKey": {
+      "Description": "AWS access secret key for Alexa app",
+      "Value": {"Fn::GetAtt": ["appAccessKey", "SecretAccessKey"]}
+    }
+  },
+
+  "Resources": {
+    "userDb": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "ObaUserData",
+        "AttributeDefinitions": [
+          { "AttributeName": "UserId", "AttributeType": "S" }
+        ],
+        "KeySchema": [
+          { "AttributeName": "UserId", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {"Ref": "UserDbPrimaryReadThroughput"},
+          "WriteCapacityUnits": {"Ref": "UserDbPrimaryWriteThroughput"}
+        }
+      }
+    },
+    "appIamPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "ObaAppPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:DescribeTable",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:UpdateItem"
+              ],
+              "Effect": "Allow",
+              "Resource": {"Fn::Join": [
+                "", [
+                  "arn:aws:dynamodb:",
+                  {"Ref": "AWS::Region"},
+                  ":",
+                  {"Ref": "AWS::AccountId"},
+                  ":table/",
+                  {"Ref": "userDb"}
+                ]
+              ]}
+            }
+          ]
+        }
+        ,
+        "Users": [{"Ref": "appIamUser"}]
+      }
+    },
+    "appIamUser": {
+      "Type": "AWS::IAM::User"
+    },
+    "appAccessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {"Ref": "appIamUser"},
+        "Status": "Active"
+      }
+    }
+  }
+}
