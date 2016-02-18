@@ -1,4 +1,4 @@
-# OneBusAway skill for Alexa
+# OneBusAway skill for Alexa [![Build Status](https://travis-ci.org/OneBusAway/onebusaway-alexa.svg?branch=master)](https://travis-ci.org/OneBusAway/onebusaway-alexa) [![Join the OneBusAway chat](https://onebusaway.herokuapp.com/badge.svg)](https://onebusaway.herokuapp.com/)
 
 Are you ready to ask your [Amazon Echo](http://www.amazon.com/echo), *"Alexa, where's my bus?"*
 
