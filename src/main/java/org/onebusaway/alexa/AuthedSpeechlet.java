@@ -24,10 +24,10 @@ import org.onebusaway.alexa.lib.ObaAgencies;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
+import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.util.ArrivalInfo;
 
 import javax.annotation.Resource;
-import java.time.Instant;
 
 @NoArgsConstructor
 @Log4j
@@ -90,11 +90,12 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse tellArrivals() {
-        ObaArrivalInfo[] arrivals = obaUserClient.getArrivalsAndDeparturesForStop(userData.getStopId());
+        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(userData.getStopId());
+        ObaArrivalInfo[] arrivals = response.getArrivalInfo();
         StringBuilder sb = new StringBuilder();
         for (ObaArrivalInfo obaArrival: arrivals) {
             log.info("Arrival: " + obaArrival);
-            ArrivalInfo arrival = new ArrivalInfo(obaArrival, Instant.now().toEpochMilli());
+            ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
             sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
         }
         log.info("Full text output: " + sb.toString());
