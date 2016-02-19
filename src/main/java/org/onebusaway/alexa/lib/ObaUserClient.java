@@ -17,7 +17,6 @@ package org.onebusaway.alexa.lib;
 
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
-import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.ObaArrivalInfoRequest;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
@@ -90,12 +89,11 @@ public class ObaUserClient {
      * Returns the arrivals and departures for the given stopId
      *
      * @param stopId the stopId to return arrivals and departures for
-     * @return the arrivals and departures for the given stopId
+     * @return the arrival info response for the given stopId
      */
-    public ObaArrivalInfo[] getArrivalsAndDeparturesForStop(String stopId) {
+    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId) {
         return new ObaArrivalInfoRequest.Builder(stopId)
                 .build()
-                .call()
-                .getArrivalInfo();
+                .call();
     }
 }
