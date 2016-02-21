@@ -180,30 +180,28 @@ public class AnonSpeechlet implements Speechlet {
             return SpeechletResponse.newTellResponse(out);
         } else {
             // Perfect!
-            String stopId = searchResults[0].getId();
-            log.debug("ObaClient identified the stopCode as stop ID " + stopId);
-
-            return createOrUpdateUser(session, cityName, stopId);
+            return createOrUpdateUser(session, cityName, searchResults[0]);
         }
     }
 
     private SpeechletResponse createOrUpdateUser(Session session,
                                                  String cityName,
-                                                 String stopId) {
+                                                 ObaStop stop) {
         log.debug(String.format(
-                "Crupdating user with city %s and stop %s", cityName, stopId));
+                "Crupdating user with city %s and stop ID %s, code %s.",
+                cityName, stop.getId(), stop.getStopCode()));
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
             userData.setCity(cityName);
-            userData.setStopId(stopId);
+            userData.setStopId(stop.getId());
             obaDao.saveUserData(userData);
         }
         else {
             ObaUserDataItem userData = new ObaUserDataItem(
                     session.getUser().getUserId(),
                     cityName,
-                    stopId,
+                    stop.getId(),
                     null
             );
             obaDao.saveUserData(userData);
@@ -212,7 +210,7 @@ public class AnonSpeechlet implements Speechlet {
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(String.format("Ok, your stop number is %s in %s. " +
                         "Great.  I am ready to tell you about the next bus.",
-                stopId, cityName));
+                stop.getStopCode(), cityName));
         return SpeechletResponse.newTellResponse(out);
     }
 
