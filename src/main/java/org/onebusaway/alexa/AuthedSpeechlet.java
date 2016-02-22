@@ -44,7 +44,7 @@ public class AuthedSpeechlet implements Speechlet {
 
     public void setUserData(ObaUserDataItem userData) {
         this.userData = userData;
-        obaUserClient = new ObaUserClient(
+        this.obaUserClient = new ObaUserClient(
                 obaAgencies.agencyForCity(userData.getCity()).get());
     }
 

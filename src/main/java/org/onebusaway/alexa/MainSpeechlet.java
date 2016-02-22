@@ -37,8 +37,6 @@ public class MainSpeechlet implements Speechlet {
     @Resource
     private AnonSpeechlet anonSpeechlet;
 
-    private Optional<ObaUserDataItem> userData = Optional.empty();
-
     public SpeechletResponse onIntent(final IntentRequest request, final Session session) throws SpeechletException {
         try {
             Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
