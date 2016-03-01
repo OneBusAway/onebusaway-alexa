@@ -1,7 +1,7 @@
 package config;
 
+import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletException;
-import org.mockito.Mockito;
 import org.onebusaway.alexa.AnonSpeechlet;
 import org.onebusaway.alexa.AuthedSpeechlet;
 import org.onebusaway.alexa.MainSpeechlet;
@@ -9,6 +9,7 @@ import org.onebusaway.alexa.lib.GoogleMaps;
 import org.onebusaway.alexa.lib.ObaAgencies;
 import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.storage.ObaDao;
+import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,27 +17,36 @@ import org.springframework.context.annotation.Configuration;
 public class UnitTests {
     @Bean
     public ObaDao obaDao() {
-        return Mockito.mock(ObaDao.class);
+        // this should be mocked in test class
+        return new ObaDao(null);
     }
 
     @Bean
     public GoogleMaps googleMaps() {
-        return Mockito.mock(GoogleMaps.class);
+        // this should be mocked in test class
+        return new GoogleMaps("should have been mocked");
     }
 
     @Bean
     public ObaClient obaClient() {
-        return Mockito.mock(ObaClient.class);
+        return new ObaClient("should have been mocked");
     }
 
     @Bean
     public MainSpeechlet mainSpeechlet() {
+        // this should be mocked in test class
         return new MainSpeechlet();
     }
 
     @Bean
     public AnonSpeechlet anonSpeechlet() {
+        // this should be mocked in test class
         return new AnonSpeechlet();
+    }
+
+    @Bean
+    public ObaUserDataItem testUserData() {
+        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", null);
     }
 
     @Bean
@@ -45,5 +55,10 @@ public class UnitTests {
     @Bean
     public ObaAgencies obaAgencies() throws SpeechletException {
         return new ObaAgencies(getClass().getResourceAsStream("/oba-agencies.yml"));
+    }
+
+    @Bean
+    public Session session() {
+        return Session.builder().withSessionId("test-session-id").build();
     }
 }
