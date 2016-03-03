@@ -88,15 +88,24 @@ public class AuthedSpeechlet implements Speechlet {
     private SpeechletResponse tellArrivals() {
         ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(userData.getStopId());
         ObaArrivalInfo[] arrivals = response.getArrivalInfo();
-        StringBuilder sb = new StringBuilder();
-        for (ObaArrivalInfo obaArrival: arrivals) {
-            log.info("Arrival: " + obaArrival);
-            ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
-            sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
+        if (arrivals.length == 0) {
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText("There are no upcoming arrivals at your stop.");
+            // Is there a way to say "in the next N minutes"?  I didn't see
+            // this attribute in the response type.
+            return SpeechletResponse.newTellResponse(out);
         }
-        log.info("Full text output: " + sb.toString());
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(sb.toString());
-        return SpeechletResponse.newTellResponse(out);
+        else {
+            StringBuilder sb = new StringBuilder();
+            for (ObaArrivalInfo obaArrival: arrivals) {
+                log.info("Arrival: " + obaArrival);
+                ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
+                sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
+            }
+            log.info("Full text output: " + sb.toString());
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText(sb.toString());
+            return SpeechletResponse.newTellResponse(out);
+        }
     }
 }
