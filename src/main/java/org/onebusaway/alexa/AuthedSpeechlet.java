@@ -20,7 +20,6 @@ import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.onebusaway.alexa.lib.ObaAgencies;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
@@ -28,6 +27,7 @@ import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.util.ArrivalInfo;
 
 import javax.annotation.Resource;
+import java.net.URISyntaxException;
 
 @NoArgsConstructor
 @Log4j
@@ -35,31 +35,27 @@ public class AuthedSpeechlet implements Speechlet {
     @Resource
     private AnonSpeechlet anonSpeechlet;
 
-    @Resource
-    private ObaAgencies obaAgencies;
-
     private ObaUserClient obaUserClient;
 
     private ObaUserDataItem userData;
 
-    public void setUserData(ObaUserDataItem userData) {
+    public void setUserData(ObaUserDataItem userData) throws URISyntaxException {
         this.userData = userData;
-        this.obaUserClient = new ObaUserClient(
-                obaAgencies.agencyForCity(userData.getCity()).get());
+        this.obaUserClient = new ObaUserClient(userData.getObaBaseUrl());
     }
 
     @Override
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
-                                      throws SpeechletException {
+            throws SpeechletException {
         Intent intent = request.getIntent();
         if ("SetCityIntent".equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if ("GetCityIntent".equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText(
-                    String.format("You live in %s.",
-                            userData.getCity()));
+                    String.format("You live in %s, near the %s region.",
+                            userData.getCity(), userData.getRegionName()));
             return SpeechletResponse.newTellResponse(out);
         } else if ("SetStopNumberIntent".equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
@@ -73,7 +69,7 @@ public class AuthedSpeechlet implements Speechlet {
     @Override
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
-                                      throws SpeechletException {
+            throws SpeechletException {
         return tellArrivals();
     }
 

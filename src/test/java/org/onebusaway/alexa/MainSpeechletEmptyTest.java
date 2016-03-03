@@ -40,7 +40,10 @@ public class MainSpeechletEmptyTest {
         new MockUp<GoogleMaps>() {
             @Mock
             Optional<Location> geocode(String cityName) {
-                return Optional.of(new Location("test"));
+                Location l = new Location("test");
+                l.setLatitude(47.6097);
+                l.setLongitude(-122.3331);
+                return Optional.of(l);
             }
         };
         new MockUp<ObaDao>() {
@@ -97,11 +100,15 @@ public class MainSpeechletEmptyTest {
     @Test
     public void setRecognizableCity() throws SpeechletException {
         new Expectations() {{
-            googleMaps.geocode("Seattle"); result = Optional.of(new Location("test provider"));
+            googleMaps.geocode("Seattle");
+            Location l = new Location("test");
+            l.setLatitude(47.6097);
+            l.setLongitude(-122.3331);
+            result = Optional.of(l);
         }};
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put("cityName", Slot.builder()
-                                  .withName("cityName")
+        slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
+                                  .withName(SessionAttributes.CITY_NAME.toString())
                                   .withValue("Seattle").build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -116,7 +123,7 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Ok, you live in Seattle.  What's your stop number?"));
+        assertThat(spoken, startsWith("Ok, we found the Puget Sound region near you.  What's your stop number?"));
     }
 
     @Test

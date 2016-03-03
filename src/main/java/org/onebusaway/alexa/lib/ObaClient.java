@@ -17,6 +17,8 @@ package org.onebusaway.alexa.lib;
 
 import org.onebusaway.io.client.ObaApi;
 
+import java.net.URISyntaxException;
+
 /**
  * Utilities for retrieving items from the OneBusAway REST APIs
  */
@@ -25,7 +27,7 @@ public class ObaClient {
         ObaApi.getDefaultContext().setApiKey(apiKey);
     }
 
-    public ObaUserClient withEndpoint(String endpoint) {
-        return new ObaUserClient(endpoint);
+    public ObaUserClient withObaBaseUrl(String obaBaseUrl) throws URISyntaxException {
+        return new ObaUserClient(obaBaseUrl);
     }
 }

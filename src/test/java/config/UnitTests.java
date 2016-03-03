@@ -1,12 +1,12 @@
 package config;
 
+import org.onebusaway.alexa.AuthedSpeechlet;
 import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletException;
 import org.onebusaway.alexa.AnonSpeechlet;
 import org.onebusaway.alexa.AuthedSpeechlet;
 import org.onebusaway.alexa.MainSpeechlet;
 import org.onebusaway.alexa.lib.GoogleMaps;
-import org.onebusaway.alexa.lib.ObaAgencies;
 import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
@@ -46,16 +46,11 @@ public class UnitTests {
 
     @Bean
     public ObaUserDataItem testUserData() {
-        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", null);
+        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", null);
     }
 
     @Bean
     public AuthedSpeechlet authedSpeechlet() { return new AuthedSpeechlet(); }
-
-    @Bean
-    public ObaAgencies obaAgencies() throws SpeechletException {
-        return new ObaAgencies(getClass().getResourceAsStream("/oba-agencies.yml"));
-    }
 
     @Bean
     public Session session() {
