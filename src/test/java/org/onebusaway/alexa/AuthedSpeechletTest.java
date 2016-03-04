@@ -22,6 +22,8 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
 
+import java.net.URISyntaxException;
+
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -51,7 +53,7 @@ public class AuthedSpeechletTest {
     ObaUserDataItem testUserData;
 
     @Before
-    public void initializeAuthedSpeechlet() {
+    public void initializeAuthedSpeechlet() throws URISyntaxException {
         authedSpeechlet.setUserData(testUserData);
     }
 

@@ -15,11 +15,9 @@
  */
 package org.onebusaway.alexa.config;
 
-import com.amazon.speech.speechlet.SpeechletException;
 import org.onebusaway.alexa.AnonSpeechlet;
 import org.onebusaway.alexa.AuthedSpeechlet;
 import org.onebusaway.alexa.MainSpeechlet;
-import org.onebusaway.alexa.lib.ObaAgencies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
@@ -42,11 +40,6 @@ public class ApplicationConfig {
 
     @Bean
     public AuthedSpeechlet authedSpeechlet() { return new AuthedSpeechlet(); }
-
-    @Bean
-    public ObaAgencies obaAgencies() throws SpeechletException {
-        return new ObaAgencies(getClass().getResourceAsStream("/oba-agencies.yml"));
-    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {

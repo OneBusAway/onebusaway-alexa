@@ -23,6 +23,7 @@ import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Resource;
+import java.net.URISyntaxException;
 import java.util.Optional;
 
 @NoArgsConstructor
@@ -45,6 +46,10 @@ public class MainSpeechlet implements Speechlet {
             } else {
                 return anonSpeechlet.onIntent(request, session);
             }
+        } catch (URISyntaxException e) {
+            log.error("Intent exception: " + e.getMessage());
+            log.error("Backtrace:\n" + e.getStackTrace());
+            throw new SpeechletException("Error creating user data on Intent using ObaBaseUrl: " + e);
         } catch (Exception e) {
             log.error("Intent exception: " + e.getMessage());
             log.error("Backtrace:\n" + e.getStackTrace());
@@ -55,7 +60,13 @@ public class MainSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
-            return getAuthedSpeechlet(optUserData.get()).onLaunch(request, session);
+            try {
+                return getAuthedSpeechlet(optUserData.get()).onLaunch(request, session);
+            } catch (URISyntaxException e) {
+                log.error("Launch exception: " + e.getMessage());
+                log.error("Backtrace:\n" + e.getStackTrace());
+                throw new SpeechletException("Error creating user data on Launch using ObaBaseUrl: " + e);
+            }
         } else {
             return anonSpeechlet.onLaunch(request, session);
         }
@@ -67,7 +78,7 @@ public class MainSpeechlet implements Speechlet {
     public void onSessionEnded(SessionEndedRequest request, Session session) {
     }
 
-    private AuthedSpeechlet getAuthedSpeechlet(ObaUserDataItem obaUserDataItem) {
+    private AuthedSpeechlet getAuthedSpeechlet(ObaUserDataItem obaUserDataItem) throws URISyntaxException {
         // This is kinda a hack.  I'd like AuthedSpeechlet to require
         // `obaUserDataItem` as a constructor argument, but then I cannot
         // have Spring manage it.  Or can I?
