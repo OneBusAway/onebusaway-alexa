@@ -98,7 +98,7 @@ public class MainSpeechletEmptyTest {
     }
 
     @Test
-    public void setRecognizableCity() throws SpeechletException {
+    public void setRecognizableCitySeattle() throws SpeechletException {
         new Expectations() {{
             googleMaps.geocode("Seattle");
             Location l = new Location("test");
@@ -124,6 +124,35 @@ public class MainSpeechletEmptyTest {
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, startsWith("Ok, we found the Puget Sound region near you.  What's your stop number?"));
+    }
+
+    @Test
+    public void setRecognizableCityTampa() throws SpeechletException {
+        new Expectations() {{
+            googleMaps.geocode("Tampa");
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+        }};
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
+                .withName(SessionAttributes.CITY_NAME.toString())
+                .withValue("Tampa").build());
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName("SetCityIntent")
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, we found the Tampa region near you.  What's your stop number?"));
     }
 
     @Test
