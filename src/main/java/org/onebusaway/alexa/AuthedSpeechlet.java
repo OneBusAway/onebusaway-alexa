@@ -32,6 +32,8 @@ import java.net.URISyntaxException;
 @NoArgsConstructor
 @Log4j
 public class AuthedSpeechlet implements Speechlet {
+    public static final int ARRIVALS_SCAN_MINS = 35;
+
     @Resource
     private AnonSpeechlet anonSpeechlet;
 
@@ -86,13 +88,16 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse tellArrivals() {
-        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(userData.getStopId());
+        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(
+                userData.getStopId(),
+                ARRIVALS_SCAN_MINS
+        );
         ObaArrivalInfo[] arrivals = response.getArrivalInfo();
+
         if (arrivals.length == 0) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText("There are no upcoming arrivals at your stop.");
-            // Is there a way to say "in the next N minutes"?  I didn't see
-            // this attribute in the response type.
+            out.setText("There are no upcoming arrivals at your stop for the next "
+                    + ARRIVALS_SCAN_MINS + " minutes.");
             return SpeechletResponse.newTellResponse(out);
         }
         else {
