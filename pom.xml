@@ -197,21 +197,23 @@
                     <obfuscate>false</obfuscate>
 					<outjar>obfuscated.jar</outjar>
                     <options>
-                        <option>-dontobfuscate</option>
                         <!-- OneBusAway -->
                         <option>-keep class org.onebusaway.alexa.** { *; }</option>
                         <!-- Amazon -->
                         <option>-keep class com.amazon.speech.** { *; }</option>
+                        <option>-keep interface com.amazon.speech.** { *; }</option>
+                        <option>-keep class com.amazonaws.services.lambda.** { *; }</option>
+                        <option>-keep interface com.amazonaws.services.lambda.** { *; }</option>
+                        <option>-keep class org.apache.commons.io.** { *; }</option>
+                        <option>-keep interface org.apache.commons.io.** { *; }</option>
                         <!-- Spring -->
                         <option>-keepdirectories</option>
                         <option>-renamesourcefileattribute SourceFile</option>
                         <option>-keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod</option>
                         <option>-keep public class * { public protected *;}</option>
                         <option>-keepclassmembernames class * {java.lang.Class class$(java.lang.String); java.lang.Class class$(java.lang.String, boolean);}</option>
-                        <option>-keepclassmembernames class * {com.common.license.LicenseService licenseService; com.common.license.LicenseSessionStore licenseSessionStore;}</option>
                         <option>-keepclassmembers enum * {public static **[] values(); public static ** valueOf(java.lang.String);}</option>
                         <option>-keepclassmembers class * implements java.io.Serializable { static final long serialVersionUID; private static final java.io.ObjectStreamField[] serialPersistentFields; private void writeObject(java.io.ObjectOutputStream); private void readObject(java.io.ObjectInputStream); java.lang.Object writeReplace(); java.lang.Object readResolve();}</option>
-                        <option>-keep @org.springframework.beans.factory.annotation.Service class *</option>
                         <option>-keep @org.springframework.stereotype.Controller class *</option>
                         <option>-keepclassmembers class * { @org.springframework.beans.factory.annotation.Autowired *; }</option>
                     </options>
