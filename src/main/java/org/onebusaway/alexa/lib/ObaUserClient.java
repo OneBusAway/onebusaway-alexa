@@ -113,10 +113,11 @@ public class ObaUserClient {
      * Returns the arrivals and departures for the given stopId
      *
      * @param stopId the stopId to return arrivals and departures for
+     * @param scanMins number of minutes to look ahead for arrivals
      * @return the arrival info response for the given stopId
      */
-    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId) {
-        return new ObaArrivalInfoRequest.Builder(stopId)
+    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId, int scanMins) {
+        return new ObaArrivalInfoRequest.Builder(stopId, scanMins)
                 .build()
                 .call();
     }

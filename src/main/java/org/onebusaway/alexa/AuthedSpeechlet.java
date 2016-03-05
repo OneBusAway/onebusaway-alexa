@@ -32,6 +32,8 @@ import java.net.URISyntaxException;
 @NoArgsConstructor
 @Log4j
 public class AuthedSpeechlet implements Speechlet {
+    public static final int ARRIVALS_SCAN_MINS = 35;
+
     @Resource
     private AnonSpeechlet anonSpeechlet;
 
@@ -86,17 +88,29 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse tellArrivals() {
-        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(userData.getStopId());
+        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(
+                userData.getStopId(),
+                ARRIVALS_SCAN_MINS
+        );
         ObaArrivalInfo[] arrivals = response.getArrivalInfo();
-        StringBuilder sb = new StringBuilder();
-        for (ObaArrivalInfo obaArrival: arrivals) {
-            log.info("Arrival: " + obaArrival);
-            ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
-            sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
+
+        if (arrivals.length == 0) {
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText("There are no upcoming arrivals at your stop for the next "
+                    + ARRIVALS_SCAN_MINS + " minutes.");
+            return SpeechletResponse.newTellResponse(out);
         }
-        log.info("Full text output: " + sb.toString());
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(sb.toString());
-        return SpeechletResponse.newTellResponse(out);
+        else {
+            StringBuilder sb = new StringBuilder();
+            for (ObaArrivalInfo obaArrival: arrivals) {
+                log.info("Arrival: " + obaArrival);
+                ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
+                sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
+            }
+            log.info("Full text output: " + sb.toString());
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText(sb.toString());
+            return SpeechletResponse.newTellResponse(out);
+        }
     }
 }

@@ -65,7 +65,7 @@ public class AuthedSpeechletTest {
             obaArrivalInfo.getShortName(); result = "8";
             obaArrivalInfo.getHeadsign(); result = "Mlk Way Jr";
             obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
-            obaUserClient.getArrivalsAndDeparturesForStop(anyString); result = obaArrivalInfoResponse;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
         }};
 
         SpeechletResponse sr = authedSpeechlet.onLaunch(
@@ -74,5 +74,21 @@ public class AuthedSpeechletTest {
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now arriving based on the schedule -- "));
+    }
+
+    @Test
+    public void noUpcomingArrivals() throws SpeechletException {
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[0];
+        new Expectations() {{
+            obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
+        }};
+
+        SpeechletResponse sr = authedSpeechlet.onLaunch(
+                launchRequest,
+                session);
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
+                + AuthedSpeechlet.ARRIVALS_SCAN_MINS + " minutes."));
     }
 }
