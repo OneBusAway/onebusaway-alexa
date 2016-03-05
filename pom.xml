@@ -195,17 +195,27 @@
                 </executions>
                 <configuration>
                     <obfuscate>false</obfuscate>
+                    <includeDependencyInjar>true</includeDependencyInjar>
 					<outjar>obfuscated.jar</outjar>
                     <options>
                         <!-- OneBusAway -->
                         <option>-keep class org.onebusaway.alexa.** { *; }</option>
+                        <option>-keep class org.onebusaway.io.** { *; }</option>
+                        <option>-keep interface org.onebusaway.io.** { *; }</option>
+                        <option>-keep class org.onebusaway.location.** { *; }</option>
                         <!-- Amazon -->
                         <option>-keep class com.amazon.speech.** { *; }</option>
                         <option>-keep interface com.amazon.speech.** { *; }</option>
                         <option>-keep class com.amazonaws.services.lambda.** { *; }</option>
                         <option>-keep interface com.amazonaws.services.lambda.** { *; }</option>
+                        <option>-keep class com.amazonaws.services.s3.** { *; }</option>
+                        <option>-keep interface com.amazonaws.services.s3.** { *; }</option>
                         <option>-keep class org.apache.commons.io.** { *; }</option>
                         <option>-keep interface org.apache.commons.io.** { *; }</option>
+                        <!-- Google Maps -->
+                        <option>-keep class com.google.maps.GeoApiContext { *; }</option>
+                        <option>-keep class com.google.maps.GeocodingApi { *; }</option>
+                        <option>-keep class com.google.maps.model.GeocodingResult { *; }</option>
                         <!-- Spring -->
                         <option>-keepdirectories</option>
                         <option>-renamesourcefileattribute SourceFile</option>
