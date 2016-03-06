@@ -1,6 +1,9 @@
 {
   "intents": [
     {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
       "intent": "SetCityIntent",
       "slots": [
         {

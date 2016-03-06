@@ -84,7 +84,13 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        if ("SetCityIntent".equals(intent.getName())) {
+        if ("AMAZON.HelpIntent".equals(intent.getName())) {
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
+            "at a stop of your choice.  Start by telling me your city.");
+            return SpeechletResponse.newTellResponse(out);
+        }
+        else if ("SetCityIntent".equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME.toString()).getValue();
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {

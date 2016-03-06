@@ -51,7 +51,15 @@ public class AuthedSpeechlet implements Speechlet {
                                       final Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        if ("SetCityIntent".equals(intent.getName())) {
+        if ("AMAZON.HelpIntent".equals(intent.getName())) {
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
+            "at a stop of your choice.  You've already configured your region and stop, " +
+            "so just open the skill or ask me for arrivals. " +
+            "You can also ask me to change your city or stop.");
+            return SpeechletResponse.newTellResponse(out);
+        }
+        else if ("SetCityIntent".equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if ("GetCityIntent".equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
