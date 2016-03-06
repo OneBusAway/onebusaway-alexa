@@ -79,6 +79,24 @@ public class MainSpeechletEmptyTest {
     }
 
     @Test
+    public void help() throws SpeechletException {
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName("AMAZON.HelpIntent")
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Start by telling me your city."));
+    }
+
+    @Test
     public void getCity() throws SpeechletException {
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()

@@ -1,9 +1,8 @@
 package org.onebusaway.alexa;
 
-import com.amazon.speech.speechlet.LaunchRequest;
-import com.amazon.speech.speechlet.Session;
-import com.amazon.speech.speechlet.SpeechletException;
-import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.slu.Intent;
+import com.amazon.speech.slu.Slot;
+import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import config.UnitTests;
 import mockit.Expectations;
@@ -23,7 +22,9 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import javax.annotation.Resource;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -74,6 +75,24 @@ public class AuthedSpeechletTest {
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now arriving based on the schedule -- "));
+    }
+
+    @Test
+    public void help() throws SpeechletException {
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName("AMAZON.HelpIntent")
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("You've already configured your region and stop"));
     }
 
     @Test

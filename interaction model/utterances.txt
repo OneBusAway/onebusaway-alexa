@@ -1,14 +1,24 @@
+SetCityIntent change my region
+SetCityIntent change my city
+SetCityIntent set my region
+SetCityIntent set my city
 SetCityIntent city is {cityName}
 SetCityIntent my city is {cityName}
 SetCityIntent my home is {cityName}
 SetCityIntent i live in {cityName}
 
+GetCityIntent what region are you in
 GetCityIntent what city are you in
+GetCityIntent what region am I in
 GetCityIntent what city am I in
 GetCityIntent where are you
 GetCityIntent where am I
 GetCityIntent what is my city
+GetCityIntent what is my region
 
+SetStopNumberIntent change my stop
+SetStopNumberIntent set my stop
+SetStopNumberIntent set my current stop
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
 SetStopNumberIntent stop id {stopNumber}
@@ -18,9 +28,20 @@ SetStopNumberIntent my stop code is {stopNumber}
 SetStopNumberIntent stop number is {stopNumber}
 SetStopNumberIntent my stop number is {stopNumber}
 
+GetArrivalsIntent where is my bus
 GetArrivalsIntent when is my bus
+GetArrivalsIntent where is the bus
 GetArrivalsIntent when is the bus
 GetArrivalsIntent when is next bus
+GetArrivalsIntent when does my bus arrive
+GetArrivalsIntent when does the bus arrive
 GetArrivalsIntent when is my bus arriving
 GetArrivalsIntent when is the bus arriving
 GetArrivalsIntent when is the next bus arriving
+GetArrivalsIntent what time is my bus
+GetArrivalsIntent what time is the bus
+GetArrivalsIntent what time does my bus arrive
+GetArrivalsIntent what time does the bus arrive
+GetArrivalsIntent give me arrival times
+GetArrivalsIntent arrival times
+GetArrivalsIntent the arrivals
