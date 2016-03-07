@@ -24,6 +24,7 @@ import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
+import org.onebusaway.io.client.request.ObaStopResponse;
 import org.onebusaway.io.client.util.ArrivalInfo;
 
 import javax.annotation.Resource;
@@ -69,6 +70,8 @@ public class AuthedSpeechlet implements Speechlet {
             return SpeechletResponse.newTellResponse(out);
         } else if ("SetStopNumberIntent".equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
+        } else if ("GetStopNumberIntent".equals(intent.getName())) {
+            return getStopDetails();
         } else if ("GetArrivalsIntent".equals(intent.getName())) {
             return tellArrivals();
         } else {
@@ -93,6 +96,13 @@ public class AuthedSpeechlet implements Speechlet {
     public void onSessionEnded(final SessionEndedRequest request,
                                final Session session) {
 
+    }
+
+    private SpeechletResponse getStopDetails() throws SpeechletException {
+        ObaStopResponse stop = obaUserClient.getStopDetails(userData.getStopId());
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName()));
+        return SpeechletResponse.newTellResponse(out);
     }
 
     private SpeechletResponse tellArrivals() {

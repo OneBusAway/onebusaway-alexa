@@ -14,13 +14,13 @@ import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
+import org.onebusaway.io.client.request.ObaStopResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
-
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
@@ -56,6 +56,31 @@ public class AuthedSpeechletTest {
     @Before
     public void initializeAuthedSpeechlet() throws URISyntaxException {
         authedSpeechlet.setUserData(testUserData);
+    }
+
+    @Test
+    public void getStopDetails(@Mocked ObaStopResponse mockResponse) throws SpeechletException, URISyntaxException {
+        new Expectations() {{
+            mockResponse.getStopCode(); result = "6497";
+            mockResponse.getName(); result = "University Area Transit Center";
+            obaUserClient.getStopDetails(anyString); result = mockResponse;
+        }};
+
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName("GetStopNumberIntent")
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, equalTo("Your stop is 6497, University Area Transit Center."));
     }
 
     @Test

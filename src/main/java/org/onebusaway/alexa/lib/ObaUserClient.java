@@ -15,6 +15,7 @@
  */
 package org.onebusaway.alexa.lib;
 
+import com.amazon.speech.speechlet.SpeechletException;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaRegion;
@@ -87,6 +88,21 @@ public class ObaUserClient {
         log.debug("ObaStopsForLocationRequest returned " + response.toString());
         log.debug("  " + response.getStops().toString());
         return response.getStops();
+    }
+
+    /**
+     * Returns details about a particular stop, given it's stopId
+     * @param stopId
+     * @return details about a particular stop, given it's stopId
+     */
+    public ObaStopResponse getStopDetails(String stopId) throws SpeechletException {
+        ObaStopResponse response = new ObaStopRequest.Builder(stopId).build().call();
+        log.debug("ObaStopRequest returned " + response.toString());
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response;
+        } else {
+            throw new SpeechletException(String.format("Error getting stop details for %s", stopId));
+        }
     }
 
     /**
