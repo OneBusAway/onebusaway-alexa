@@ -1,0 +1,22 @@
+grant {
+    permission com.sun.tools.attach.AttachPermission "attachVirtualMachine";
+    permission com.sun.tools.attach.AttachPermission "createAttachProvider";
+    permission java.io.FilePermission "${targetDir}/-", "read";
+    permission java.io.FilePermission "${user.home}/junit.properties", "read";
+    permission java.io.FilePermission "${user.home}/.m2/-", "read";
+    permission java.io.FilePermission "${java.home}/-", "read";
+    permission java.io.FilePermission "/var/folders/-", "read,delete";
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.jvmstat.monitor";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.reflect";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.reflect.annotation";
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.tools.attach";
+    permission java.lang.RuntimePermission "accessDeclaredMembers";
+    permission java.lang.RuntimePermission "getClassLoader";
+    permission java.lang.RuntimePermission "getProtectionDomain";
+    permission java.lang.RuntimePermission "loadLibrary.attach";
+    permission java.lang.RuntimePermission "reflectionFactoryAccess";
+    permission java.lang.RuntimePermission "setIO";
+    permission java.lang.RuntimePermission "shutdownHooks";
+    permission java.util.PropertyPermission "*", "read,write";
+};
