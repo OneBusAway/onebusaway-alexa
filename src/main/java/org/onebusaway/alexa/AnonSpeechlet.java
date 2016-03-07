@@ -27,11 +27,14 @@ import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import javax.annotation.Resource;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.onebusaway.alexa.SessionAttributes.*;
 
@@ -99,7 +102,7 @@ public class AnonSpeechlet implements Speechlet {
             }
 
             // Get closest region from geographic location
-            Optional<ObaRegion> region = ObaUserClient.getClosestRegion(location.get());
+            Optional<ObaRegion> region = obaClient.getClosestRegion(location.get());
 
             if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
                 // Couldn't find a nearby region that supports the OBA REST API
@@ -175,12 +178,11 @@ public class AnonSpeechlet implements Speechlet {
         }
 
         // Get closest region from geographic location
-        Optional<ObaRegion> region = ObaUserClient.getClosestRegion(location.get());
+        Optional<ObaRegion> region = obaClient.getClosestRegion(location.get());
         if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
             // Couldn't find a nearby region that supports the OBA REST API
             return askForCity(Optional.of(cityName));
         }
-
 
         ObaUserClient obaUserClient;
         try {
@@ -249,8 +251,11 @@ public class AnonSpeechlet implements Speechlet {
         if (currentCityName.isPresent()) {
             out.setText(String.format("OneBusAway could not locate a OneBusAway " +
                             "region near %s, the city you gave. " +
-                            "Tell me again, in what city do you live?",
-                    currentCityName.get()));
+                            "Supported regions include %s. " +
+                            "Tell me again, what's the largest city near you?",
+                    currentCityName.get(),
+                    allRegionsSpoken()
+            ));
         } else {
             out.setText("Welcome to OneBusAway! Let's set you up. " +
                     "You'll need your city and your stop number. " +
@@ -260,5 +265,27 @@ public class AnonSpeechlet implements Speechlet {
                     "In what city do you live?");
         }
         return SpeechletResponse.newAskResponse(out, cityReprompt);
+    }
+
+    private String allRegionsSpoken() {
+        List<String> activeRegions = obaClient.getAllRegions()
+                .stream()
+                .filter(r -> RegionUtils.isRegionUsable(r)
+                        && !r.getExperimental()
+                        && r.getObaBaseUrl() != null)
+                .map(r -> String.format("%s, ", r.getName()))
+                .sorted()
+                .collect(Collectors.toList());
+        // Some low-level manipulation to beautify the sequence of regions.
+        int lastElem = activeRegions.size()-1;
+        // remove final comma
+        activeRegions.set(lastElem, activeRegions.get(lastElem).replaceFirst(", $", ""));
+        if (activeRegions.size() > 1) {
+            activeRegions.add(lastElem, "and ");
+        }
+
+        String finalStr = activeRegions.stream().collect(Collectors.joining(""));
+        log.debug("All regions spoken: " + finalStr);
+        return finalStr;
     }
 }

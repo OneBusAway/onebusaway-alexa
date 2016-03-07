@@ -13,8 +13,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.onebusaway.alexa.lib.GoogleMaps;
+import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.io.client.elements.ObaRegion;
+import org.onebusaway.io.client.elements.ObaRegionElement;
 import org.onebusaway.location.Location;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,7 +25,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -35,17 +40,37 @@ import static org.junit.Assert.assertThat;
 public class MainSpeechletEmptyTest {
     static final LaunchRequest launchRequest = LaunchRequest.builder().withRequestId("test-req-id").build();
 
+    private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
+            1,
+            "Test Region 1",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+    private static final ObaRegion TEST_REGION_2 = new ObaRegionElement(
+            1,
+            "Test Region 2",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
     @BeforeClass
     public static void setUpMocksForSpringConfiguration() {
-        new MockUp<GoogleMaps>() {
-            @Mock
-            Optional<Location> geocode(String cityName) {
-                Location l = new Location("test");
-                l.setLatitude(47.6097);
-                l.setLongitude(-122.3331);
-                return Optional.of(l);
-            }
-        };
         new MockUp<ObaDao>() {
             @Mock
             Optional<ObaUserDataItem> getUserData(Session s) {
@@ -57,8 +82,10 @@ public class MainSpeechletEmptyTest {
     @Mocked
     GoogleMaps googleMaps;
 
-    @Mocked
     ObaDao obaDao;
+
+    @Mocked
+    ObaClient obaClient;
 
     @Resource
     Session session;
@@ -123,6 +150,9 @@ public class MainSpeechletEmptyTest {
             l.setLatitude(47.6097);
             l.setLongitude(-122.3331);
             result = Optional.of(l);
+
+            obaClient.getClosestRegion(l);
+            result = Optional.of(TEST_REGION_1);
         }};
         HashMap<String, Slot> slots = new HashMap<>();
         slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
@@ -141,22 +171,24 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Ok, we found the Puget Sound region near you.  What's your stop number?"));
+        assertThat(spoken, startsWith("Ok, we found the " + TEST_REGION_1.getName() +
+                " region near you.  What's your stop number?"));
     }
 
     @Test
-    public void setRecognizableCityTampa() throws SpeechletException {
+    public void unrecognizedCity() throws SpeechletException {
         new Expectations() {{
-            googleMaps.geocode("Tampa");
-            Location l = new Location("test");
-            l.setLatitude(27.9681);
-            l.setLongitude(-82.4764);
-            result = Optional.of(l);
+            obaClient.getAllRegions();
+            ArrayList<ObaRegion> regions = new ArrayList<>(1);
+            regions.add(TEST_REGION_1);
+            regions.add(TEST_REGION_2);
+            regions.add(TEST_REGION_1);
+            result = regions;
         }};
         HashMap<String, Slot> slots = new HashMap<>();
         slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
                 .withName(SessionAttributes.CITY_NAME.toString())
-                .withValue("Tampa").build());
+                .withValue("Houston").build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
                         .withRequestId("test-request-id")
@@ -170,7 +202,11 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Ok, we found the Tampa region near you.  What's your stop number?"));
+        assertThat(spoken, containsString("OneBusAway could not locate a OneBusAway " +
+                "region near Houston, the city you gave. " +
+                "Supported regions include " + TEST_REGION_1.getName() + ", " +
+                TEST_REGION_1.getName() + ", and " + TEST_REGION_2.getName() + ". " +
+                "Tell me again, what's the largest city near you?"));
     }
 
     @Test

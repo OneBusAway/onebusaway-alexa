@@ -18,24 +18,19 @@ package org.onebusaway.alexa.lib;
 import com.amazon.speech.speechlet.SpeechletException;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
-import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.*;
-import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
 
 @Log4j
 /* FIXME: This class gives the illusion of object encapsulation,
  * but it actually manipulates the global context of ObaApi.
  * I don't yet know the ObaApi well enough to fix this.
  */
-public class ObaUserClient {
+public class ObaUserClient extends ObaClientSharedCode {
     private static final int DEFAULT_SEARCH_RADIUS_METERS = 40000;
 
     public ObaUserClient(String obaBaseUrl) throws URISyntaxException {
@@ -49,27 +44,6 @@ public class ObaUserClient {
             log.error("Exception setting ObaBaseUrl: " + e.getMessage());
             throw e;
         }
-    }
-
-    /**
-     * Get the closest region to a given location.  Regions come from the Regions API
-     * (http://regions.onebusaway.org/regions-v3.json), which is a centralized directory of all known
-     * OneBusAway servers.  Each region has it's own OBA REST API endpoint
-     * (http://developer.onebusaway.org/modules/onebusaway-application-modules/current/api/where/index.html),
-     * which we will then use to get stop and arrival data for that region.
-     *
-     * @param l geographic location used to search for nearby regions
-     * @return the closest region in the Regions API to the given location, or null if there are no nearby regions
-     * (within 100 miles of the provided location) or a region couldn't be found.
-     */
-    public static Optional<ObaRegion> getClosestRegion(Location l) {
-        log.debug("Invoked getClosestRegion() with location " + l.toString());
-        ObaRegionsResponse response = ObaRegionsRequest.newRequest().call();
-        ArrayList<ObaRegion> regions = new ArrayList<>(Arrays.asList(response.getRegions()));
-        return Optional.ofNullable(RegionUtils.getClosestRegion(
-                regions,
-                l,
-                true)); // enforce proximity threshold
     }
 
     /**
