@@ -25,6 +25,9 @@
       ]
     },
     {
+      "intent": "GetStopNumberIntent"
+    },
+    {
       "intent": "GetArrivalsIntent"
     }
   ]

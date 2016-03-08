@@ -28,6 +28,27 @@ SetStopNumberIntent my stop code is {stopNumber}
 SetStopNumberIntent stop number is {stopNumber}
 SetStopNumberIntent my stop number is {stopNumber}
 
+GetStopNumberIntent what is my stop
+GetStopNumberIntent what is my current stop
+GetStopNumberIntent what is my stop name
+GetStopNumberIntent what is my stop code
+GetStopNumberIntent what is my current stop name
+GetStopNumberIntent what is my current stop code
+GetStopNumberIntent get my stop
+GetStopNumberIntent get my current stop
+GetStopNumberIntent get stop id
+GetStopNumberIntent get my stop id
+GetStopNumberIntent get stop code
+GetStopNumberIntent get my stop code
+GetStopNumberIntent get stop name
+GetStopNumberIntent get current stop name
+GetStopNumberIntent get my stop name
+GetStopNumberIntent get my current stop name
+GetStopNumberIntent get stop info
+GetStopNumberIntent get my stop info
+GetStopNumberIntent get current stop info
+GetStopNumberIntent get my current stop info
+
 GetArrivalsIntent where is my bus
 GetArrivalsIntent when is my bus
 GetArrivalsIntent where is the bus
