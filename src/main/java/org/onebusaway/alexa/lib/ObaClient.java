@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 /**
  * Utilities for retrieving items from the OneBusAway REST APIs
  */
-public class ObaClient {
+public class ObaClient extends ObaClientSharedCode {
     public ObaClient(String apiKey) {
         ObaApi.getDefaultContext().setApiKey(apiKey);
     }
