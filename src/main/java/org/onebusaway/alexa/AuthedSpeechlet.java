@@ -28,6 +28,7 @@ import org.onebusaway.io.client.request.ObaStopResponse;
 import org.onebusaway.io.client.util.ArrivalInfo;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 @NoArgsConstructor
@@ -99,17 +100,27 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse getStopDetails() throws SpeechletException {
-        ObaStopResponse stop = obaUserClient.getStopDetails(userData.getStopId());
+        ObaStopResponse stop = null;
+        try {
+            stop = obaUserClient.getStopDetails(userData.getStopId());
+        } catch (IOException e) {
+            throw new SpeechletException(e);
+        }
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName()));
         return SpeechletResponse.newTellResponse(out);
     }
 
-    private SpeechletResponse tellArrivals() {
-        ObaArrivalInfoResponse response = obaUserClient.getArrivalsAndDeparturesForStop(
-                userData.getStopId(),
-                ARRIVALS_SCAN_MINS
-        );
+    private SpeechletResponse tellArrivals() throws SpeechletException {
+        ObaArrivalInfoResponse response = null;
+        try {
+            response = obaUserClient.getArrivalsAndDeparturesForStop(
+                    userData.getStopId(),
+                    ARRIVALS_SCAN_MINS
+            );
+        } catch (IOException e) {
+            throw new SpeechletException(e);
+        }
         ObaArrivalInfo[] arrivals = response.getArrivalInfo();
 
         if (arrivals.length == 0) {

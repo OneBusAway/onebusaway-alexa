@@ -31,6 +31,7 @@ import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
@@ -102,7 +103,13 @@ public class AnonSpeechlet implements Speechlet {
             }
 
             // Get closest region from geographic location
-            Optional<ObaRegion> region = obaClient.getClosestRegion(location.get());
+            Optional<ObaRegion> region;
+            try {
+                region = obaClient.getClosestRegion(location.get());
+            } catch (IOException e) {
+                log.error("Error getting closest region: " + e.getMessage());
+                return askForCity(Optional.of(cityName));
+            }
 
             if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
                 // Couldn't find a nearby region that supports the OBA REST API
@@ -178,8 +185,14 @@ public class AnonSpeechlet implements Speechlet {
         }
 
         // Get closest region from geographic location
-        Optional<ObaRegion> region = obaClient.getClosestRegion(location.get());
-        if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
+        Optional<ObaRegion> region = null;
+        try {
+            region = obaClient.getClosestRegion(location.get());
+        } catch (IOException e) {
+            log.error("Error getting closest region: " + e.getMessage());
+            return askForCity(Optional.of(cityName));
+        }
+        if (!region.isPresent() || !RegionUtils.isRegionUsable(region.get())) {
             // Couldn't find a nearby region that supports the OBA REST API
             return askForCity(Optional.of(cityName));
         }
@@ -194,7 +207,14 @@ public class AnonSpeechlet implements Speechlet {
             return askForCity(Optional.of(cityName));
         }
 
-        ObaStop[] searchResults = obaUserClient.getStopFromCode(location.get(), spokenStopNumber);
+        ObaStop[] searchResults;
+        try {
+            searchResults = obaUserClient.getStopFromCode(location.get(), spokenStopNumber);
+        } catch (IOException e) {
+            log.error("Couldn't get stop from code " + spokenStopNumber + ": " + e.getMessage());
+            return reaskForStopNumber();
+        }
+
         if (searchResults.length == 0) {
             return reaskForStopNumber();
         } else if (searchResults.length > 1) {
@@ -248,14 +268,23 @@ public class AnonSpeechlet implements Speechlet {
 
     private SpeechletResponse askForCity(Optional<String> currentCityName) {
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        String intro = "OneBusAway could not locate a OneBusAway " +
+                "region near %s, the city you gave. ";
+        String question = "Tell me again, what's the largest city near you?";
         if (currentCityName.isPresent()) {
-            out.setText(String.format("OneBusAway could not locate a OneBusAway " +
-                            "region near %s, the city you gave. " +
-                            "Supported regions include %s. " +
-                            "Tell me again, what's the largest city near you?",
-                    currentCityName.get(),
-                    allRegionsSpoken()
-            ));
+            try {
+                String allRegions = allRegionsSpoken();
+                out.setText(String.format(intro +
+                        "Supported regions include %s. " +
+                        question,
+                        currentCityName.get(),
+                        allRegions
+                ));
+            } catch (IOException e) {
+                log.error("Error getting all regions: " + e);
+                out.setText(String.format(intro + question, currentCityName.get()));
+            }
+
         } else {
             out.setText("Welcome to OneBusAway! Let's set you up. " +
                     "You'll need your city and your stop number. " +
@@ -267,7 +296,7 @@ public class AnonSpeechlet implements Speechlet {
         return SpeechletResponse.newAskResponse(out, cityReprompt);
     }
 
-    private String allRegionsSpoken() {
+    private String allRegionsSpoken() throws IOException {
         List<String> activeRegions = obaClient.getAllRegions()
                 .stream()
                 .filter(r -> RegionUtils.isRegionUsable(r)
