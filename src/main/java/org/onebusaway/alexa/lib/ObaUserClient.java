@@ -15,7 +15,6 @@
  */
 package org.onebusaway.alexa.lib;
 
-import com.amazon.speech.speechlet.SpeechletException;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaStop;
@@ -26,9 +25,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 @Log4j
-/* FIXME: This class gives the illusion of object encapsulation,
- * but it actually manipulates the global context of ObaApi.
- * I don't yet know the ObaApi well enough to fix this.
+/*
+ * Client code used to access the OBA REST API for a local OBA server.  All methods in this class result in a REST API
+ * call (i.e., network access).
+ *
+ * FIXME: This class gives the illusion of object encapsulation, but it actually manipulates the global context of
+ * ObaApi. I don't yet know the ObaApi well enough to fix this.
  */
 public class ObaUserClient extends ObaClientSharedCode {
     private static final int DEFAULT_SEARCH_RADIUS_METERS = 40000;
@@ -61,7 +63,11 @@ public class ObaUserClient extends ObaClientSharedCode {
                 .call();
         log.debug("ObaStopsForLocationRequest returned " + response.toString());
         log.debug("  " + response.getStops().toString());
-        return response.getStops();
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response.getStops();
+        } else {
+            throw new IOException(String.format("Error getting stops for %s", l.toString()));
+        }
     }
 
     /**
@@ -69,13 +75,13 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @param stopId
      * @return details about a particular stop, given it's stopId
      */
-    public ObaStopResponse getStopDetails(String stopId) throws SpeechletException {
+    public ObaStopResponse getStopDetails(String stopId) throws IOException {
         ObaStopResponse response = new ObaStopRequest.Builder(stopId).build().call();
         log.debug("ObaStopRequest returned " + response.toString());
         if (response.getCode() == ObaApi.OBA_OK) {
             return response;
         } else {
-            throw new SpeechletException(String.format("Error getting stop details for %s", stopId));
+            throw new IOException(String.format("Error getting stop details for %s", stopId));
         }
     }
 
@@ -88,15 +94,19 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @return response that contains a stop for the given stopCode (user-facing
      * stop ID), near the given location
      */
-    public ObaStop[] getStopFromCode(Location l, int stopCode) {
+    public ObaStop[] getStopFromCode(Location l, int stopCode) throws IOException {
         log.debug("Invoked getStopFromCode() with location " + l.toString() + " and stopCode " + stopCode);
         ObaStopsForLocationResponse response = new ObaStopsForLocationRequest.Builder(l)
                 .setQuery(String.format("%d", stopCode))
                 .setRadius(DEFAULT_SEARCH_RADIUS_METERS)
                 .build()
                 .call();
-        log.debug("response = " + response);
-        return response.getStops();
+        log.debug("ObaStopsForLocationRequest returned = " + response);
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response.getStops();
+        } else {
+            throw new IOException(String.format("Error getting stop details for %s at %s", stopCode, l.toString()));
+        }
     }
 
     /**
@@ -106,9 +116,14 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @param scanMins number of minutes to look ahead for arrivals
      * @return the arrival info response for the given stopId
      */
-    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId, int scanMins) {
-        return new ObaArrivalInfoRequest.Builder(stopId, scanMins)
+    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId, int scanMins) throws IOException {
+        ObaArrivalInfoResponse response = new ObaArrivalInfoRequest.Builder(stopId, scanMins)
                 .build()
                 .call();
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response;
+        } else {
+            throw new IOException(String.format("Error getting arrivals and departures for %s", stopId));
+        }
     }
 }

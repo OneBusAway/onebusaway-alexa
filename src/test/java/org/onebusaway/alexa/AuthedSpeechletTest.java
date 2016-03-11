@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
@@ -59,7 +60,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void getStopDetails(@Mocked ObaStopResponse mockResponse) throws SpeechletException, URISyntaxException {
+    public void getStopDetails(@Mocked ObaStopResponse mockResponse) throws SpeechletException, IOException, URISyntaxException {
         new Expectations() {{
             mockResponse.getStopCode(); result = "6497";
             mockResponse.getName(); result = "University Area Transit Center";
@@ -84,7 +85,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void launchTellsArrivals() throws SpeechletException {
+    public void launchTellsArrivals() throws SpeechletException, IOException {
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
         obaArrivalInfoArray[0] = obaArrivalInfo;
         new Expectations() {{
@@ -121,7 +122,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void noUpcomingArrivals() throws SpeechletException {
+    public void noUpcomingArrivals() throws SpeechletException, IOException {
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[0];
         new Expectations() {{
             obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;

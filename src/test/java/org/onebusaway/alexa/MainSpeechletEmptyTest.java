@@ -25,9 +25,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -143,7 +143,7 @@ public class MainSpeechletEmptyTest {
     }
 
     @Test
-    public void setRecognizableCitySeattle() throws SpeechletException {
+    public void setRecognizableCitySeattle() throws SpeechletException, IOException {
         new Expectations() {{
             googleMaps.geocode("Seattle");
             Location l = new Location("test");
@@ -176,7 +176,7 @@ public class MainSpeechletEmptyTest {
     }
 
     @Test
-    public void unrecognizedCity() throws SpeechletException {
+    public void unrecognizedCity() throws SpeechletException, IOException {
         new Expectations() {{
             obaClient.getAllRegions();
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
