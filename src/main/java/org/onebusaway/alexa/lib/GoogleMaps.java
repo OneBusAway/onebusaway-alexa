@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2015 Sean J. Barbeau (sjbarbeau@gmail.com).
+ * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +16,13 @@
  */
 package org.onebusaway.alexa.lib;
 
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.GeocodingResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.location.Location;
-
-import com.google.maps.GeoApiContext;
-import com.google.maps.GeocodingApi;
-import com.google.maps.model.GeocodingResult;
 
 import java.util.Optional;
 

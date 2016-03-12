@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Philip M. White (philip@mailworks.org)
+ * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +32,8 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import static org.onebusaway.alexa.ObaIntent.*;
+
 @NoArgsConstructor
 @Log4j
 public class AuthedSpeechlet implements Speechlet {
@@ -53,27 +56,26 @@ public class AuthedSpeechlet implements Speechlet {
                                       final Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        if ("AMAZON.HelpIntent".equals(intent.getName())) {
+        if (HELP.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
             "at a stop of your choice.  You've already configured your region and stop, " +
             "so just open the skill or ask me for arrivals. " +
             "You can also ask me to change your city or stop.");
             return SpeechletResponse.newTellResponse(out);
-        }
-        else if ("SetCityIntent".equals(intent.getName())) {
+        } else if (SET_CITY.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
-        } else if ("GetCityIntent".equals(intent.getName())) {
+        } else if (GET_CITY.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText(
                     String.format("You live in %s, near the %s region.",
                             userData.getCity(), userData.getRegionName()));
             return SpeechletResponse.newTellResponse(out);
-        } else if ("SetStopNumberIntent".equals(intent.getName())) {
+        } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
-        } else if ("GetStopNumberIntent".equals(intent.getName())) {
+        } else if (GET_STOP_NUMBER.equals(intent.getName())) {
             return getStopDetails();
-        } else if ("GetArrivalsIntent".equals(intent.getName())) {
+        } else if (GET_ARRIVALS.equals(intent.getName())) {
             return tellArrivals();
         } else {
             throw new SpeechletException("Did not recognize intent name");

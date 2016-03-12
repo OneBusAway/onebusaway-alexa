@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.onebusaway.alexa;
 
 import com.amazon.speech.slu.Intent;
@@ -32,6 +48,8 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.onebusaway.alexa.ObaIntent.*;
+import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
@@ -112,7 +130,7 @@ public class MainSpeechletEmptyTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("AMAZON.HelpIntent")
+                                        .withName(HELP)
                                         .withSlots(new HashMap<String, Slot>())
                                         .build()
                         )
@@ -130,7 +148,7 @@ public class MainSpeechletEmptyTest {
                 .withRequestId("test-request-id")
                 .withIntent(
                         Intent.builder()
-                        .withName("GetCityIntent")
+                        .withName(GET_CITY)
                         .withSlots(new HashMap<String, Slot>())
                         .build()
                 )
@@ -155,15 +173,15 @@ public class MainSpeechletEmptyTest {
             result = Optional.of(TEST_REGION_1);
         }};
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
-                                  .withName(SessionAttributes.CITY_NAME.toString())
+        slots.put(CITY_NAME, Slot.builder()
+                                  .withName(CITY_NAME)
                                   .withValue("Seattle").build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
                 .withRequestId("test-request-id")
                 .withIntent(
                         Intent.builder()
-                        .withName("SetCityIntent")
+                        .withName(SET_CITY)
                         .withSlots(slots)
                         .build()
                 )
@@ -186,15 +204,15 @@ public class MainSpeechletEmptyTest {
             result = regions;
         }};
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(SessionAttributes.CITY_NAME.toString(), Slot.builder()
-                .withName(SessionAttributes.CITY_NAME.toString())
+        slots.put(CITY_NAME, Slot.builder()
+                .withName(CITY_NAME)
                 .withValue("Houston").build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("SetCityIntent")
+                                        .withName(SET_CITY)
                                         .withSlots(slots)
                                         .build()
                         )
@@ -220,7 +238,7 @@ public class MainSpeechletEmptyTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("SetStopNumberIntent")
+                                        .withName(SET_STOP_NUMBER)
                                         .withSlots(slots)
                                         .build()
                         )
