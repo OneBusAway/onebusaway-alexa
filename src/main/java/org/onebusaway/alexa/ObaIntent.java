@@ -14,21 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onebusaway.alexa.lib;
-
-import org.onebusaway.io.client.ObaApi;
-
-import java.net.URISyntaxException;
+package org.onebusaway.alexa;
 
 /**
- * Utilities for retrieving items from the OneBusAway REST APIs
+ * Intents for OneBusAway Alexa.  Must match values in /interaction model/schema.json and utterances.txt.
  */
-public class ObaClient extends ObaClientSharedCode {
-    public ObaClient(String apiKey) {
-        ObaApi.getDefaultContext().setApiKey(apiKey);
-    }
-
-    public ObaUserClient withObaBaseUrl(String obaBaseUrl) throws URISyntaxException {
-        return new ObaUserClient(obaBaseUrl);
-    }
+public class ObaIntent {
+    public static final String SET_CITY = "SetCityIntent";
+    public static final String GET_CITY = "GetCityIntent";
+    public static final String SET_STOP_NUMBER = "SetStopNumberIntent";
+    public static final String GET_STOP_NUMBER = "GetStopNumberIntent";
+    public static final String GET_ARRIVALS = "GetArrivalsIntent";
+    public static final String HELP = "AMAZON.HelpIntent";
 }

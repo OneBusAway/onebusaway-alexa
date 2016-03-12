@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Philip M. White (philip@mailworks.org)
+ * Copyright 2016 Philip M. White (philip@mailworks.org),
+ * Sean J. Barbeau (sjbarbeau@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +38,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.onebusaway.alexa.SessionAttributes.*;
+import static org.onebusaway.alexa.ObaIntent.*;
+import static org.onebusaway.alexa.SessionAttribute.*;
 
 @Log4j
 public class AnonSpeechlet implements Speechlet {
@@ -88,13 +90,13 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        if ("AMAZON.HelpIntent".equals(intent.getName())) {
+        if (HELP.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
             "at a stop of your choice.  Start by telling me your city.");
             return SpeechletResponse.newTellResponse(out);
         }
-        else if ("SetCityIntent".equals(intent.getName())) {
+        else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME.toString()).getValue();
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {
@@ -116,17 +118,17 @@ public class AnonSpeechlet implements Speechlet {
                 return askForCity(Optional.of(cityName));
             } else {
                 // Got a region!
-                session.setAttribute(CITY_NAME.toString(), cityName);
-                session.setAttribute(REGION_ID.toString(), region.get().getId());
-                session.setAttribute(REGION_NAME.toString(), region.get().getName());
-                session.setAttribute(OBA_BASE_URL.toString(), region.get().getObaBaseUrl());
+                session.setAttribute(CITY_NAME, cityName);
+                session.setAttribute(REGION_ID, region.get().getId());
+                session.setAttribute(REGION_NAME, region.get().getName());
+                session.setAttribute(OBA_BASE_URL, region.get().getObaBaseUrl());
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText(String.format("Ok, we found the %s region near you.  What's your stop number?",
                         region.get().getName()));
                 return SpeechletResponse.newAskResponse(out, stopNumReprompt);
             }
-        } else if ("GetCityIntent".equals(intent.getName())) {
-            String city = (String)session.getAttribute(CITY_NAME.toString());
+        } else if (GET_CITY.equals(intent.getName())) {
+            String city = (String)session.getAttribute(CITY_NAME);
             if (city == null) {
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText("You have not yet told me where you live.  What is your city?");
@@ -140,7 +142,7 @@ public class AnonSpeechlet implements Speechlet {
                                 city));
                 return SpeechletResponse.newAskResponse(out, stopNumReprompt);
             }
-        } else if ("SetStopNumberIntent".equals(intent.getName())) {
+        } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             String stopNumberStr = intent.getSlot("stopNumber").getValue();
             log.debug("Stop number string received: " + stopNumberStr);
             return setStopNumber(
@@ -157,7 +159,7 @@ public class AnonSpeechlet implements Speechlet {
     }
 
     private OnboardState getOnboardState(Session session) {
-        if (session.getAttribute(CITY_NAME.toString()) != null) {
+        if (session.getAttribute(CITY_NAME) != null) {
             return OnboardState.OnlyCity;
         } else
             return OnboardState.Fresh;
@@ -170,8 +172,8 @@ public class AnonSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse setStopNumber(int spokenStopNumber, Session session) {
-        String cityName = (String) session.getAttribute(CITY_NAME.toString());
-        String regionName = (String) session.getAttribute(REGION_NAME.toString());
+        String cityName = (String) session.getAttribute(CITY_NAME);
+        String regionName = (String) session.getAttribute(REGION_NAME);
         log.debug(String.format(
                 "Asked to set stop number %d in city %s for region %s...", spokenStopNumber, cityName, regionName));
         if (cityName == null) {
@@ -245,8 +247,7 @@ public class AnonSpeechlet implements Speechlet {
             userData.setRegionName(region.getName());
             userData.setObaBaseUrl(region.getObaBaseUrl());
             obaDao.saveUserData(userData);
-        }
-        else {
+        } else {
             ObaUserDataItem userData = new ObaUserDataItem(
                     session.getUser().getUserId(),
                     cityName,

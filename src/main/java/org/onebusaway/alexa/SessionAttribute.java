@@ -14,21 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onebusaway.alexa.lib;
-
-import org.onebusaway.io.client.ObaApi;
-
-import java.net.URISyntaxException;
+package org.onebusaway.alexa;
 
 /**
- * Utilities for retrieving items from the OneBusAway REST APIs
+ * OneBusAway Alexa session attributes
  */
-public class ObaClient extends ObaClientSharedCode {
-    public ObaClient(String apiKey) {
-        ObaApi.getDefaultContext().setApiKey(apiKey);
-    }
-
-    public ObaUserClient withObaBaseUrl(String obaBaseUrl) throws URISyntaxException {
-        return new ObaUserClient(obaBaseUrl);
-    }
+public class SessionAttribute {
+    public static final String CITY_NAME = "cityName";
+    public static final String REGION_ID = "regionId";
+    public static final String REGION_NAME = "regionName";
+    public static final String OBA_BASE_URL = "obaBaseUrl";
 }
