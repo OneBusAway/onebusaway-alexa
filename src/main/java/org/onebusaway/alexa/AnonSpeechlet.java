@@ -143,7 +143,7 @@ public class AnonSpeechlet implements Speechlet {
                 return SpeechletResponse.newAskResponse(out, stopNumReprompt);
             }
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
-            String stopNumberStr = intent.getSlot("stopNumber").getValue();
+            String stopNumberStr = intent.getSlot(STOP_NUMBER).getValue();
             log.debug("Stop number string received: " + stopNumberStr);
             return setStopNumber(
                     Integer.valueOf(stopNumberStr),

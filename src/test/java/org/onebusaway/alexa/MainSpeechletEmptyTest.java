@@ -50,6 +50,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
+import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
@@ -230,8 +231,8 @@ public class MainSpeechletEmptyTest {
     @Test
     public void setStopBeforeCity() throws SpeechletException {
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put("stopNumber", Slot.builder()
-                .withName("stopNumber")
+        slots.put(STOP_NUMBER, Slot.builder()
+                .withName(STOP_NUMBER)
                 .withValue("2245").build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
