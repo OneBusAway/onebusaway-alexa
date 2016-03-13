@@ -124,11 +124,6 @@
             <version>4.2.4.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.16</version>
-        </dependency>
-        <dependency>
             <groupId>org.jmockit</groupId>
             <artifactId>jmockit</artifactId>
             <version>1.21</version>
@@ -144,9 +139,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <property name="disableRequestSignatureCheck" value="false"/>
-        <property name="supportedApplicationIds" value=""/>
-        <property name="timestampTolerance" value="150"/>
     </properties>
 
     <repositories>
