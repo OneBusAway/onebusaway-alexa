@@ -21,6 +21,7 @@ package org.onebusaway.alexa;
  */
 public class SessionAttribute {
     public static final String CITY_NAME = "cityName";
+    public static final String STOP_NUMBER = "stopNumber";
     public static final String REGION_ID = "regionId";
     public static final String REGION_NAME = "regionName";
     public static final String OBA_BASE_URL = "obaBaseUrl";
