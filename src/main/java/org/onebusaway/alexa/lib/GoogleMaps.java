@@ -21,6 +21,7 @@ import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.location.Location;
 
@@ -42,7 +43,7 @@ public class GoogleMaps {
 	 * @return the location of a city using the Google Geocoding API, or null if the location
 	 *         couldn't be geocoded.
 	 */
-	public Optional<Location> geocode(String cityName) {
+	public Optional<Location> geocode(@NonNull String cityName) {
 		log.debug("Entered Google API");
 		GeoApiContext context = new GeoApiContext().setApiKey(getApiKey());
 		GeocodingResult[] results = null;

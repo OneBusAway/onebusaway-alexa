@@ -16,6 +16,7 @@
  */
 package org.onebusaway.alexa.lib;
 
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaStop;
@@ -36,7 +37,7 @@ import java.net.URISyntaxException;
 public class ObaUserClient extends ObaClientSharedCode {
     private static final int DEFAULT_SEARCH_RADIUS_METERS = 40000;
 
-    public ObaUserClient(String obaBaseUrl) throws URISyntaxException {
+    public ObaUserClient(@NonNull String obaBaseUrl) throws URISyntaxException {
         log.debug("Instantiating ObaUserClient with obaBaseUrl " + obaBaseUrl);
         try {
             ObaApi.getDefaultContext().setBaseUrl(obaBaseUrl);
@@ -56,7 +57,7 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @return a list of nearby stops for the given location
      * @throws IOException
      */
-    public ObaStop[] getNearbyStops(Location l) throws IOException {
+    public ObaStop[] getNearbyStops(@NonNull Location l) throws IOException {
         log.debug("Invoked getNearbyStops() with location " + l.toString());
         ObaStopsForLocationResponse response = new ObaStopsForLocationRequest.Builder(l)
                 .setRadius(DEFAULT_SEARCH_RADIUS_METERS)
@@ -76,7 +77,7 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @param stopId
      * @return details about a particular stop, given it's stopId
      */
-    public ObaStopResponse getStopDetails(String stopId) throws IOException {
+    public ObaStopResponse getStopDetails(@NonNull String stopId) throws IOException {
         ObaStopResponse response = new ObaStopRequest.Builder(stopId).build().call();
         log.debug("ObaStopRequest returned " + response.toString());
         if (response.getCode() == ObaApi.OBA_OK) {
@@ -95,7 +96,8 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @return response that contains a stop for the given stopCode (user-facing
      * stop ID), near the given location
      */
-    public ObaStop[] getStopFromCode(Location l, int stopCode) throws IOException {
+    public ObaStop[] getStopFromCode(@NonNull Location l,
+                                     int stopCode) throws IOException {
         log.debug("Invoked getStopFromCode() with location " + l.toString() + " and stopCode " + stopCode);
         ObaStopsForLocationResponse response = new ObaStopsForLocationRequest.Builder(l)
                 .setQuery(String.format("%d", stopCode))
@@ -117,7 +119,8 @@ public class ObaUserClient extends ObaClientSharedCode {
      * @param scanMins number of minutes to look ahead for arrivals
      * @return the arrival info response for the given stopId
      */
-    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(String stopId, int scanMins) throws IOException {
+    public ObaArrivalInfoResponse getArrivalsAndDeparturesForStop(@NonNull String stopId,
+                                                                  int scanMins) throws IOException {
         ObaArrivalInfoResponse response = new ObaArrivalInfoRequest.Builder(stopId, scanMins)
                 .build()
                 .call();
