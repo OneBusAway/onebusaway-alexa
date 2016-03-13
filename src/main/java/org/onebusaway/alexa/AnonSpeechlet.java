@@ -98,6 +98,10 @@ public class AnonSpeechlet implements Speechlet {
         }
         else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
+            if (cityName == null) {
+                return askForCity(Optional.empty());
+            }
+
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {
                 // Couldn't find the city at all.
@@ -144,6 +148,11 @@ public class AnonSpeechlet implements Speechlet {
             }
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             String stopNumberStr = intent.getSlot(STOP_NUMBER).getValue();
+            if (stopNumberStr == null) {
+                PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+                out.setText("What is your stop number?");
+                return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+            }
             log.debug("Stop number string received: " + stopNumberStr);
             return setStopNumber(
                     Integer.valueOf(stopNumberStr),
