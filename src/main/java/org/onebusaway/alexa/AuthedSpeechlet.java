@@ -20,6 +20,7 @@ import com.amazon.speech.slu.Intent;
 import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
@@ -46,7 +47,7 @@ public class AuthedSpeechlet implements Speechlet {
 
     private ObaUserDataItem userData;
 
-    public void setUserData(ObaUserDataItem userData) throws URISyntaxException {
+    public void setUserData(@NonNull ObaUserDataItem userData) throws URISyntaxException {
         this.userData = userData;
         this.obaUserClient = new ObaUserClient(userData.getObaBaseUrl());
     }

@@ -17,6 +17,7 @@
 package org.onebusaway.alexa.lib;
 
 import com.amazon.speech.speechlet.SpeechletException;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
 import org.onebusaway.io.client.elements.ObaRegion;
@@ -44,7 +45,7 @@ public abstract class ObaClientSharedCode {
      * @return the closest region in the Regions API to the given location, or null if there are no nearby regions
      * (within 100 miles of the provided location) or a region couldn't be found.
      */
-    public Optional<ObaRegion> getClosestRegion(Location l) throws IOException {
+    public Optional<ObaRegion> getClosestRegion(@NonNull Location l) throws IOException {
         log.debug("Invoked getClosestRegion() with location " + l.toString());
         return Optional.ofNullable(RegionUtils.getClosestRegion(
                 getAllRegions(),

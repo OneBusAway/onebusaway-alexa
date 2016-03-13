@@ -16,6 +16,7 @@
  */
 package org.onebusaway.alexa.lib;
 
+import lombok.NonNull;
 import org.onebusaway.io.client.ObaApi;
 
 import java.net.URISyntaxException;
@@ -24,11 +25,11 @@ import java.net.URISyntaxException;
  * Utilities for retrieving items from the OneBusAway REST APIs
  */
 public class ObaClient extends ObaClientSharedCode {
-    public ObaClient(String apiKey) {
+    public ObaClient(@NonNull String apiKey) {
         ObaApi.getDefaultContext().setApiKey(apiKey);
     }
 
-    public ObaUserClient withObaBaseUrl(String obaBaseUrl) throws URISyntaxException {
+    public ObaUserClient withObaBaseUrl(@NonNull String obaBaseUrl) throws URISyntaxException {
         return new ObaUserClient(obaBaseUrl);
     }
 }
