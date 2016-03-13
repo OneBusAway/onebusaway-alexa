@@ -97,7 +97,7 @@ public class AnonSpeechlet implements Speechlet {
             return SpeechletResponse.newTellResponse(out);
         }
         else if (SET_CITY.equals(intent.getName())) {
-            String cityName = intent.getSlot(CITY_NAME.toString()).getValue();
+            String cityName = intent.getSlot(CITY_NAME).getValue();
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {
                 // Couldn't find the city at all.
