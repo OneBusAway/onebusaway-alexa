@@ -229,6 +229,50 @@ public class MainSpeechletEmptyTest {
     }
 
     @Test
+    public void setCityWithoutCityName() throws SpeechletException {
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(CITY_NAME, Slot.builder()
+                .withName(CITY_NAME)
+                .withValue(null).build());
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_CITY)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("In what city do you live?"));
+    }
+
+    @Test
+    public void setStopWithoutStopNumber() throws SpeechletException {
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(STOP_NUMBER, Slot.builder()
+                .withName(STOP_NUMBER)
+                .withValue(null).build());
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_STOP_NUMBER)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("What is your stop number?"));
+    }
+
+    @Test
     public void setStopBeforeCity() throws SpeechletException {
         HashMap<String, Slot> slots = new HashMap<>();
         slots.put(STOP_NUMBER, Slot.builder()
