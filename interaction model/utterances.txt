@@ -1,10 +1,15 @@
 SetCityIntent change my region
 SetCityIntent change my city
 SetCityIntent set my region
+SetCityIntent set my region to {cityName}
 SetCityIntent set my city
+SetCityIntent set my city to {cityName}
+SetCityIntent change my region to {cityName}
+SetCityIntent change my city to {cityName}
 SetCityIntent city is {cityName}
 SetCityIntent my city is {cityName}
 SetCityIntent my home is {cityName}
+SetCityIntent my home is in {cityName}
 SetCityIntent i live in {cityName}
 
 GetCityIntent what region are you in
@@ -17,8 +22,11 @@ GetCityIntent what is my city
 GetCityIntent what is my region
 
 SetStopNumberIntent change my stop
+SetStopNumberIntent change my stop to {stopNumber}
 SetStopNumberIntent set my stop
+SetStopNumberIntent set my stop to {stopNumber}
 SetStopNumberIntent set my current stop
+SetStopNumberIntent set my current stop to {stopNumber}
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
 SetStopNumberIntent stop id {stopNumber}
