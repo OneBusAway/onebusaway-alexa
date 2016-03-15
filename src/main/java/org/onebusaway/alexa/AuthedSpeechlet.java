@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import static org.onebusaway.alexa.ObaIntent.*;
+import static org.onebusaway.alexa.SessionAttribute.*;
 
 @NoArgsConstructor
 @Log4j
@@ -56,6 +57,8 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
             throws SpeechletException {
+        populateAttributes(session);
+
         Intent intent = request.getIntent();
         if (HELP.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
@@ -100,6 +103,18 @@ public class AuthedSpeechlet implements Speechlet {
     public void onSessionEnded(final SessionEndedRequest request,
                                final Session session) {
 
+    }
+
+    /**
+     * Populates the provided session with persisted user data
+     * @param session
+     */
+    private void populateAttributes(Session session) {
+        session.setAttribute(CITY_NAME, userData.getCity());
+        session.setAttribute(STOP_NUMBER, userData.getStopId());
+        session.setAttribute(REGION_ID, userData.getRegionId());
+        session.setAttribute(REGION_NAME, userData.getRegionName());
+        session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
     }
 
     private SpeechletResponse getStopDetails() throws SpeechletException {
