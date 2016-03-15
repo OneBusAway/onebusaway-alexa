@@ -26,11 +26,17 @@ import mockit.Mocked;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.onebusaway.alexa.lib.GoogleMaps;
 import org.onebusaway.alexa.lib.ObaUserClient;
+import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
+import org.onebusaway.io.client.elements.ObaRegion;
+import org.onebusaway.io.client.elements.ObaRegionElement;
+import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
+import org.onebusaway.location.Location;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,29 +46,57 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.onebusaway.alexa.ObaIntent.SET_STOP_NUMBER;
+import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
         classes = UnitTests.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AuthedSpeechletTest {
+    static final String TEST_USER_ID = "test-user-id";
+    static final User testUser = User.builder().withUserId(TEST_USER_ID).build();
+    static final Session session = Session.builder().withUser(testUser).withSessionId("test-session-id").build();
     static final LaunchRequest launchRequest = LaunchRequest.builder().withRequestId("test-req-id").build();
+
+    private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
+            1,
+            "Tampa",
+            true,
+            "http://api.tampa.onebusaway.org/api/",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
 
     @Mocked
     ObaArrivalInfo obaArrivalInfo;
 
     @Mocked
+    ObaStop obaStop;
+
+    @Mocked
+    ObaDao obaDao;
+
+    @Mocked
     ObaArrivalInfoResponse obaArrivalInfoResponse;
 
     @Mocked
-    ObaUserClient obaUserClient;
+    GoogleMaps googleMaps;
 
-    @Resource
-    Session session;
+    @Mocked
+    ObaUserClient obaUserClient;
 
     @Resource
     AuthedSpeechlet authedSpeechlet;
@@ -117,6 +151,55 @@ public class AuthedSpeechletTest {
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now arriving based on the schedule -- "));
+    }
+
+    @Test
+    public void setStopNumber() throws SpeechletException, IOException {
+        String newStopCode = "3105";
+
+        // Mock persisted user data
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId("6497");
+        testUserData.setCity(TEST_REGION_1.getName());
+        testUserData.setRegionName(TEST_REGION_1.getName());
+        testUserData.setRegionId(TEST_REGION_1.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+
+        // Mock stop info
+        ObaStop[] obaStopsArray = new ObaStop[1];
+        obaStopsArray[0] = obaStop;
+
+        new Expectations() {{
+            googleMaps.geocode(TEST_REGION_1.getName());
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+
+            obaStop.getStopCode(); result = newStopCode;
+            obaStop.getId(); result = newStopCode;
+            obaUserClient.getStopFromCode(l, Integer.valueOf(newStopCode)); result = obaStopsArray;
+        }};
+
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(STOP_NUMBER, Slot.builder()
+                .withName(STOP_NUMBER)
+                .withValue(newStopCode).build());
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_STOP_NUMBER)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. " +
+                "Great.  I am ready to tell you about the next bus."));
     }
 
     @Test

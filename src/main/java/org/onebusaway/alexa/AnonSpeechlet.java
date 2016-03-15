@@ -189,7 +189,7 @@ public class AnonSpeechlet implements Speechlet {
             return askForCity(Optional.empty());
         }
 
-        // Map city name to a geographic location
+        // Map city name to a geographic location - even if we've done this before, we want to refresh the info
         Optional<Location> location = googleMaps.geocode(cityName);
         if (!location.isPresent()) {
             return askForCity(Optional.of(cityName));
