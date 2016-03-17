@@ -52,7 +52,9 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.onebusaway.alexa.ObaIntent.SET_CITY;
 import static org.onebusaway.alexa.ObaIntent.SET_STOP_NUMBER;
+import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -67,9 +69,24 @@ public class AuthedSpeechletTest {
 
     private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
             1,
-            "Tampa",
+            "Tampa Bay",
             true,
             "http://api.tampa.onebusaway.org/api/",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_2 = new ObaRegionElement(
+            2,
+            "Puget Sound",
+            true,
+            "http://test-oba-url.example.com",
             "test-siri-url",
             new ObaRegionElement.Bounds[0],
             "test-lang",
@@ -200,6 +217,46 @@ public class AuthedSpeechletTest {
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. " +
                 "Great.  I am ready to tell you about the next bus."));
+    }
+
+    @Test
+    public void setRecognizableCityTampa() throws SpeechletException, IOException {
+        // Mock persisted user data for Test Region 2
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId("6497");
+        testUserData.setCity(TEST_REGION_2.getName());
+        testUserData.setRegionName(TEST_REGION_2.getName());
+        testUserData.setRegionId(TEST_REGION_2.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_2.getObaBaseUrl());
+
+        // Set up change to Test Region 1
+        new Expectations() {{
+            googleMaps.geocode("Tampa");
+            Location l2 = new Location("test");
+            l2.setLatitude(27.9681);
+            l2.setLongitude(-82.4764);
+            result = Optional.of(l2);
+        }};
+
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(CITY_NAME, Slot.builder()
+                .withName(CITY_NAME)
+                .withValue("Tampa").build());
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_CITY)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, we found the " + TEST_REGION_1.getName() +
+                " region near you.  What's your stop number?"));
     }
 
     @Test

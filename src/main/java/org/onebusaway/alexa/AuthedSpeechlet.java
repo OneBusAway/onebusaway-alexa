@@ -106,15 +106,25 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     /**
-     * Populates the provided session with persisted user data
+     * Populates the provided session with persisted user data, if the session attribute is empty
      * @param session
      */
     private void populateAttributes(Session session) {
-        session.setAttribute(CITY_NAME, userData.getCity());
-        session.setAttribute(STOP_NUMBER, userData.getStopId());
-        session.setAttribute(REGION_ID, userData.getRegionId());
-        session.setAttribute(REGION_NAME, userData.getRegionName());
-        session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
+        if (session.getAttribute(CITY_NAME) == null) {
+            session.setAttribute(CITY_NAME, userData.getCity());
+        }
+        if (session.getAttribute(STOP_NUMBER) == null) {
+            session.setAttribute(STOP_NUMBER, userData.getStopId());
+        }
+        if (session.getAttribute(REGION_ID) == null) {
+            session.setAttribute(REGION_ID, userData.getRegionId());
+        }
+        if (session.getAttribute(REGION_NAME) == null) {
+            session.setAttribute(REGION_NAME, userData.getRegionName());
+        }
+        if (session.getAttribute(OBA_BASE_URL) == null) {
+            session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
+        }
     }
 
     private SpeechletResponse getStopDetails() throws SpeechletException {
