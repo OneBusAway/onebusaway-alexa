@@ -198,6 +198,7 @@
                     <includeDependencyInjar>true</includeDependencyInjar>
 					<outjar>obfuscated.jar</outjar>
                     <options>
+                        <option>-dontnote **</option>
                         <!-- OneBusAway -->
                         <option>-keep class org.onebusaway.alexa.** { *; }</option>
                         <option>-keep class org.onebusaway.io.** { *; }</option>
@@ -226,6 +227,28 @@
                         <option>-keepclassmembers class * implements java.io.Serializable { static final long serialVersionUID; private static final java.io.ObjectStreamField[] serialPersistentFields; private void writeObject(java.io.ObjectOutputStream); private void readObject(java.io.ObjectInputStream); java.lang.Object writeReplace(); java.lang.Object readResolve();}</option>
                         <option>-keep @org.springframework.stereotype.Controller class *</option>
                         <option>-keepclassmembers class * { @org.springframework.beans.factory.annotation.Autowired *; }</option>
+                        <option>-keep class groovy.lang.GroovyObjectSupport { *; }</option>
+                        <option>-keep class org.springframework.beans.factory.support.AbstractBeanDefinitionReader { *; }</option>
+                        <option>-dontwarn javax.validation.**</option>
+                        <option>-dontwarn org.hibernate.**</option>
+                        <option>-dontwarn org.springframework.**</option>
+                        <option>-dontwarn org.joda.**</option>
+                        <option>-dontwarn org.osgi.**</option>
+                        <!-- Jetty -->
+                        <option>-dontwarn org.eclipse.jetty.jmx.**</option>
+                        <option>-dontwarn org.eclipse.jetty.**</option>
+                        <option>-dontwarn javax.jms.**</option>
+                        <option>-dontwarn jersey.repackaged.**</option>
+                        <!-- Other -->
+                        <option>-dontwarn javax.mail.**</option>
+                        <option>-dontwarn javax.crypto.**</option>
+                        <option>-dontwarn javax.annotation.**</option>
+                        <option>-dontwarn org.apache.log.**</option>
+                        <option>-dontwarn org.apache.avalon.**</option>
+                        <option>-dontwarn org.eclipse.jdt.**</option>
+                        <option>-dontwarn org.codehaus.**</option>
+                        <option>-dontwarn lombok.**</option>
+                        <option>-dontwarn com.sun.jdi.**</option>
                     </options>
                     <libs>
                         <lib>${java.home}/lib/rt.jar</lib>
