@@ -199,6 +199,8 @@
 					<outjar>obfuscated.jar</outjar>
                     <options>
                         <option>-dontnote **</option>
+                        <option>-dontskipnonpubliclibraryclasses</option>
+                        <option>-dontskipnonpubliclibraryclassmembers</option>
                         <!-- OneBusAway -->
                         <option>-keep class org.onebusaway.alexa.** { *; }</option>
                         <option>-keep class org.onebusaway.io.** { *; }</option>
@@ -227,8 +229,11 @@
                         <option>-keepclassmembers class * implements java.io.Serializable { static final long serialVersionUID; private static final java.io.ObjectStreamField[] serialPersistentFields; private void writeObject(java.io.ObjectOutputStream); private void readObject(java.io.ObjectInputStream); java.lang.Object writeReplace(); java.lang.Object readResolve();}</option>
                         <option>-keep @org.springframework.stereotype.Controller class *</option>
                         <option>-keepclassmembers class * { @org.springframework.beans.factory.annotation.Autowired *; }</option>
+                        <option>-keep class org.springframework.beans.factory.groovy.GroovyBeanDefinitionWrapper { *; }</option>
+                        <option>-keep class org.springframework.beans.factory.groovy.GroovyBeanDefinitionReader { *; }</option>
                         <option>-keep class groovy.lang.GroovyObjectSupport { *; }</option>
                         <option>-keep class org.springframework.beans.factory.support.AbstractBeanDefinitionReader { *; }</option>
+                        <option>-keep interface org.springframework.beans.factory.support.BeanDefinitionReader { *; }</option>
                         <option>-dontwarn javax.validation.**</option>
                         <option>-dontwarn org.hibernate.**</option>
                         <option>-dontwarn org.springframework.**</option>
