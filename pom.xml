@@ -216,6 +216,7 @@
                         <option>-dontnote **</option>
                         <option>-dontskipnonpubliclibraryclasses</option>
                         <option>-dontskipnonpubliclibraryclassmembers</option>
+                        <option>-optimizations !code/allocation/variable</option>
                         <!-- OneBusAway -->
                         <option>-keep class org.onebusaway.alexa.** { *; }</option>
                         <option>-keep class org.onebusaway.io.** { *; }</option>
@@ -228,8 +229,11 @@
                         <option>-keep interface com.amazonaws.services.lambda.** { *; }</option>
                         <option>-keep class com.amazonaws.services.s3.** { *; }</option>
                         <option>-keep interface com.amazonaws.services.s3.** { *; }</option>
+                        <option>-keep class com.amazonaws.internal.** { *; }</option>
                         <option>-keep class org.apache.commons.io.** { *; }</option>
                         <option>-keep interface org.apache.commons.io.** { *; }</option>
+                        <option>-keep class com.amazonaws.auth.SignerFactory { *; }</option>
+                        <option>-keepclassmembers class com.amazonaws.auth.SignerFactory { *; }</option>
                         <!-- Google Maps -->
                         <option>-keep class com.google.maps.GeoApiContext { *; }</option>
                         <option>-keep class com.google.maps.GeocodingApi { *; }</option>
@@ -254,7 +258,14 @@
                         <option>-dontwarn org.springframework.**</option>
                         <option>-dontwarn org.joda.**</option>
                         <option>-dontwarn org.osgi.**</option>
+                        <option>-keep class org.springframework.beans.factory.support.FactoryBeanRegistrySupport { *; }</option>
+                        <option>-keepclassmembers class org.springframework.beans.factory.support.FactoryBeanRegistrySupport { *; }</option>
+                        <option>-keep class org.jvnet.hk2.external.generator.ServiceLocatorGeneratorImpl { *; }</option>
                         <!-- Jetty -->
+                        <option>-keep class org.glassfish.jersey.internal.** { *; }</option>
+                        <option>-keep interface org.glassfish.jersey.internal.** { *; }</option>
+                        <option>-keep class org.glassfish.hk2.internal.** { *; }</option>
+                        <option>-keep interface org.glassfish.hk2.internal.** { *; }</option>
                         <option>-dontwarn org.eclipse.jetty.jmx.**</option>
                         <option>-dontwarn org.eclipse.jetty.**</option>
                         <option>-dontwarn javax.jms.**</option>
