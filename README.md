@@ -69,7 +69,7 @@ See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugi
 
 ### Contributing
 
-Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](CONTRIBUTING.md) for more details.
+Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](.github/CONTRIBUTING.md) for more details.
 
 ### Deploy to your Alexa device for the first time
 
