@@ -16,6 +16,8 @@ To both configure and use, just start with `open onebusaway`.
 
 Refer to `interaction model/utterances.txt` for the full list of spoken phrases we support.
 
+Our [user interface flow diagram](USER_INTERFACE_FLOW.md) also defined how you can interact with the skill.
+
 ## Develop ##
 
 The application backing the skill was designed to run in AWS.
