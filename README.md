@@ -102,3 +102,7 @@ do this if you deploy your code through the Lambda UI in AWS Console.
 ### License
 
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+## Privacy Policy
+
+See our [Privacy Policy](http://onebusaway.org/privacy/) to better understand what information the OneBusAway Alexa skill uses when you request transit arrival information.
