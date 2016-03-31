@@ -12,9 +12,9 @@ This project is an implementation of the [OneBusAway](http://onebusaway.org/) op
 
 This project isn't released publicly yet.  We plan to make the first release in early 2016.
 
-To both configure and use, just start with `open onebusaway`.
+To both configure and use, just start with "open onebusaway".
 
-Refer to `interaction model/utterances.txt` for the full list of spoken phrases we support.
+Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt) for the full list of spoken phrases we support.
 
 Our [user interface flow diagram](USER_INTERFACE_FLOW.md) also defined how you can interact with the skill.
 
