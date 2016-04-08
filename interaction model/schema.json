@@ -28,7 +28,13 @@
       "intent": "GetStopNumberIntent"
     },
     {
-      "intent": "GetArrivalsIntent"
+      "intent": "GetArrivalsIntent",
+      "slots": [
+        {
+          "name": "TransitMode",
+          "type": "TRANSIT_MODES"
+        }
+      ]
     }
   ]
 }

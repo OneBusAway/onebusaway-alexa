@@ -7,8 +7,10 @@ SetCityIntent set my city to {cityName}
 SetCityIntent change my region to {cityName}
 SetCityIntent change my city to {cityName}
 SetCityIntent city is {cityName}
+SetCityIntent region is {cityName}
 SetCityIntent my city is {cityName}
 SetCityIntent my home is {cityName}
+SetCityIntent my region is {cityName}
 SetCityIntent my home is in {cityName}
 SetCityIntent i live in {cityName}
 
@@ -20,6 +22,8 @@ GetCityIntent where are you
 GetCityIntent where am I
 GetCityIntent what is my city
 GetCityIntent what is my region
+GetCityIntent get my city
+GetCityIntent get my region
 
 SetStopNumberIntent change my stop
 SetStopNumberIntent change my stop to {stopNumber}
@@ -57,20 +61,58 @@ GetStopNumberIntent get my stop info
 GetStopNumberIntent get current stop info
 GetStopNumberIntent get my current stop info
 
-GetArrivalsIntent where is my bus
-GetArrivalsIntent when is my bus
-GetArrivalsIntent where is the bus
-GetArrivalsIntent when is the bus
-GetArrivalsIntent when is next bus
-GetArrivalsIntent when does my bus arrive
-GetArrivalsIntent when does the bus arrive
-GetArrivalsIntent when is my bus arriving
-GetArrivalsIntent when is the bus arriving
-GetArrivalsIntent when is the next bus arriving
-GetArrivalsIntent what time is my bus
-GetArrivalsIntent what time is the bus
-GetArrivalsIntent what time does my bus arrive
-GetArrivalsIntent what time does the bus arrive
+GetArrivalsIntent where is my {TransitMode}
+GetArrivalsIntent when is my {TransitMode}
+GetArrivalsIntent where is the {TransitMode}
+GetArrivalsIntent when is the {TransitMode}
+GetArrivalsIntent when is the next {TransitMode}
+GetArrivalsIntent when does the {TransitMode} get here
+GetArrivalsIntent when does my {TransitMode} get here
+GetArrivalsIntent when does my {TransitMode} arrive
+GetArrivalsIntent when will my {TransitMode} arrive
+GetArrivalsIntent what time will my {TransitMode} arrive
+GetArrivalsIntent when does the {TransitMode} arrive
+GetArrivalsIntent when is my {TransitMode} arriving
+GetArrivalsIntent when is the {TransitMode} arriving
+GetArrivalsIntent when is the {TransitMode} coming
+GetArrivalsIntent when is my {TransitMode} coming
+GetArrivalsIntent what time does the {TransitMode} get to my current location
+GetArrivalsIntent what time does my {TransitMode} get to my current location
+GetArrivalsIntent when is the next {TransitMode} arriving
+GetArrivalsIntent when is the next {TransitMode}
+GetArrivalsIntent what time is my {TransitMode}
+GetArrivalsIntent what time is the {TransitMode}
+GetArrivalsIntent what time does my {TransitMode} arrive
+GetArrivalsIntent what time does the {TransitMode} arrive
+GetArrivalsIntent how far away is the {TransitMode}
+GetArrivalsIntent how long until the {TransitMode} arrives
+GetArrivalsIntent when does my {TransitMode} depart
+GetArrivalsIntent when does the {TransitMode} depart
+GetArrivalsIntent when is my {TransitMode} departing
+GetArrivalsIntent when is the {TransitMode} departing
+GetArrivalsIntent when is the next {TransitMode} departing
+GetArrivalsIntent what time does my {TransitMode} depart
+GetArrivalsIntent when will my {TransitMode} depart
+GetArrivalsIntent what time will my {TransitMode} depart
+GetArrivalsIntent what time does the {TransitMode} depart
+GetArrivalsIntent how long until the {TransitMode} departs
+GetArrivalsIntent when does my {TransitMode} leave
+GetArrivalsIntent when does the {TransitMode} leave
+GetArrivalsIntent when will my {TransitMode} leave
+GetArrivalsIntent what time will my {TransitMode} leave
+GetArrivalsIntent when is my {TransitMode} leaving
+GetArrivalsIntent when is the {TransitMode} leaving
+GetArrivalsIntent when is the next {TransitMode} leaving
+GetArrivalsIntent what time does my {TransitMode} leave
+GetArrivalsIntent what time does the {TransitMode} leave
+GetArrivalsIntent how long until the {TransitMode} leaves
 GetArrivalsIntent give me arrival times
 GetArrivalsIntent arrival times
+GetArrivalsIntent for arrival times
 GetArrivalsIntent the arrivals
+GetArrivalsIntent for arrivals
+GetArrivalsIntent give me departure times
+GetArrivalsIntent departure times
+GetArrivalsIntent for departure times
+GetArrivalsIntent the departures
+GetArrivalsIntent for departures
