@@ -64,7 +64,7 @@ import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 public class AuthedSpeechletTest {
     static final String TEST_USER_ID = "test-user-id";
     static final User testUser = User.builder().withUserId(TEST_USER_ID).build();
-    static final Session session = Session.builder().withUser(testUser).withSessionId("test-session-id").build();
+    Session session;
     static final LaunchRequest launchRequest = LaunchRequest.builder().withRequestId("test-req-id").build();
 
     private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
@@ -124,6 +124,11 @@ public class AuthedSpeechletTest {
     @Before
     public void initializeAuthedSpeechlet() throws URISyntaxException {
         authedSpeechlet.setUserData(testUserData);
+    }
+
+    @Before
+    public void resetFactoryObjects() {
+        session = Session.builder().withUser(testUser).withSessionId("test-session-id").build();
     }
 
     @Test
