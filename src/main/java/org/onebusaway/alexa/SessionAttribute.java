@@ -25,4 +25,5 @@ public class SessionAttribute {
     public static final String REGION_ID = "regionId";
     public static final String REGION_NAME = "regionName";
     public static final String OBA_BASE_URL = "obaBaseUrl";
+    public static final String PREVIOUS_RESPONSE = "previousResponse";
 }

@@ -264,6 +264,7 @@ public class AnonSpeechlet implements Speechlet {
                     region.getId(),
                     region.getName(),
                     region.getObaBaseUrl(),
+                    "",
                     null
             );
             obaDao.saveUserData(userData);

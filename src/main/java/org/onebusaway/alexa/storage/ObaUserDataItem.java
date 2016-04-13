@@ -67,6 +67,14 @@ public class ObaUserDataItem {
     @DynamoDBAttribute(attributeName = "ObaBaseUrl")
     private String obaBaseUrl;
 
+    /**
+     * Cached previous response spoken by Alexa to the user, triggered via the AAMAZON.RepeatIntent
+     */
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "PreviousResponse")
+    private String previousResponse;
+
     @DynamoDBVersionAttribute
     private Long version;
 }

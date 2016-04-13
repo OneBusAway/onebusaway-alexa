@@ -22,7 +22,9 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
+import org.apache.http.util.TextUtils;
 import org.onebusaway.alexa.lib.ObaUserClient;
+import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
@@ -32,6 +34,7 @@ import org.onebusaway.io.client.util.ArrivalInfo;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
@@ -40,6 +43,9 @@ import static org.onebusaway.alexa.SessionAttribute.*;
 @Log4j
 public class AuthedSpeechlet implements Speechlet {
     public static final int ARRIVALS_SCAN_MINS = 35;
+
+    @Resource
+    private ObaDao obaDao;
 
     @Resource
     private AnonSpeechlet anonSpeechlet;
@@ -67,20 +73,20 @@ public class AuthedSpeechlet implements Speechlet {
             "so just open the skill or ask me for arrivals. " +
             "You can also ask me to change your city or stop.");
             return SpeechletResponse.newTellResponse(out);
+        } else if (REPEAT.equals(intent.getName())) {
+            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+            out.setText(getCachedResponse(session));
+            return SpeechletResponse.newTellResponse(out);
         } else if (SET_CITY.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if (GET_CITY.equals(intent.getName())) {
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText(
-                    String.format("You live in %s, near the %s region.",
-                            userData.getCity(), userData.getRegionName()));
-            return SpeechletResponse.newTellResponse(out);
+            return getCity(session);
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if (GET_STOP_NUMBER.equals(intent.getName())) {
-            return getStopDetails();
+            return getStopDetails(session);
         } else if (GET_ARRIVALS.equals(intent.getName())) {
-            return tellArrivals();
+            return tellArrivals(session);
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -90,7 +96,8 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
             throws SpeechletException {
-        return tellArrivals();
+        populateAttributes(session);
+        return tellArrivals(session);
     }
 
     @Override
@@ -125,21 +132,34 @@ public class AuthedSpeechlet implements Speechlet {
         if (session.getAttribute(OBA_BASE_URL) == null) {
             session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
         }
+        if (session.getAttribute(PREVIOUS_RESPONSE) == null) {
+            session.setAttribute(PREVIOUS_RESPONSE, userData.getPreviousResponse());
+        }
     }
 
-    private SpeechletResponse getStopDetails() throws SpeechletException {
+    private SpeechletResponse getCity(Session session) {
+        String output = String.format("You live in %s, near the %s region.", userData.getCity(), userData.getRegionName());
+        saveOutputForRepeat(session, output);
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
+
+    private SpeechletResponse getStopDetails(Session session) throws SpeechletException {
         ObaStopResponse stop = null;
         try {
             stop = obaUserClient.getStopDetails(userData.getStopId());
         } catch (IOException e) {
             throw new SpeechletException(e);
         }
+        String output = String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName());
+        saveOutputForRepeat(session, output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName()));
+        out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
-    private SpeechletResponse tellArrivals() throws SpeechletException {
+    private SpeechletResponse tellArrivals(Session session) throws SpeechletException {
         ObaArrivalInfoResponse response = null;
         try {
             response = obaUserClient.getArrivalsAndDeparturesForStop(
@@ -151,23 +171,60 @@ public class AuthedSpeechlet implements Speechlet {
         }
         ObaArrivalInfo[] arrivals = response.getArrivalInfo();
 
+        String output;
+
         if (arrivals.length == 0) {
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText("There are no upcoming arrivals at your stop for the next "
-                    + ARRIVALS_SCAN_MINS + " minutes.");
-            return SpeechletResponse.newTellResponse(out);
-        }
-        else {
+            output = "There are no upcoming arrivals at your stop for the next "
+                    + ARRIVALS_SCAN_MINS + " minutes.";
+        } else {
             StringBuilder sb = new StringBuilder();
             for (ObaArrivalInfo obaArrival: arrivals) {
                 log.info("Arrival: " + obaArrival);
                 ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
                 sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
             }
-            log.info("Full text output: " + sb.toString());
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText(sb.toString());
-            return SpeechletResponse.newTellResponse(out);
+            output = sb.toString();
         }
+        log.info("Full text output: " + output);
+        saveOutputForRepeat(session, output);
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
+
+    private void saveOutputForRepeat(Session session, String output) {
+        log.debug("Caching output for repeat = " + output);
+        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
+        if (optUserData.isPresent()) {
+            ObaUserDataItem userData = optUserData.get();
+            userData.setPreviousResponse(output);
+            obaDao.saveUserData(userData);
+        }
+    }
+
+    /**
+     * Gets a previously cached response to repeat to the user
+     * @param session
+     * @return a previously cached response to repeat to the user, or a friendly error message
+     * if there isn't anything to repeat.
+     */
+    private String getCachedResponse(Session session) {
+        // Try session first
+        String lastOutput = (String) session.getAttribute(PREVIOUS_RESPONSE);
+        if (!TextUtils.isEmpty(lastOutput)) {
+            log.debug("Repeating last output from session = " + lastOutput);
+            return lastOutput;
+        }
+        // Try persisted data
+        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
+        if (optUserData.isPresent()) {
+            ObaUserDataItem userData = optUserData.get();
+            lastOutput = userData.getPreviousResponse();
+            if (!TextUtils.isEmpty(lastOutput)) {
+                log.debug("Repeating last output from obaDao = " + lastOutput);
+                return lastOutput;
+            }
+        }
+        return "I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop.";
     }
 }
