@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.onebusaway.alexa.lib.GoogleMaps;
+import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
@@ -104,13 +105,13 @@ public class AuthedSpeechletTest {
     ObaStop obaStop;
 
     @Mocked
-    ObaDao obaDao;
-
-    @Mocked
     ObaArrivalInfoResponse obaArrivalInfoResponse;
 
     @Mocked
     GoogleMaps googleMaps;
+
+    @Mocked
+    ObaClient obaClient;
 
     @Mocked
     ObaUserClient obaUserClient;
@@ -171,7 +172,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void setStopNumber() throws SpeechletException, IOException {
+    public void setStopNumber(@Mocked ObaDao obaDao) throws SpeechletException, IOException {
         String newStopCode = "3105";
 
         // Mock persisted user data
@@ -196,6 +197,10 @@ public class AuthedSpeechletTest {
             obaStop.getStopCode(); result = newStopCode;
             obaStop.getId(); result = newStopCode;
             obaUserClient.getStopFromCode(l, Integer.valueOf(newStopCode)); result = obaStopsArray;
+
+            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
+
+            obaDao.getUserData(session); result = Optional.of(testUserData);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
@@ -232,10 +237,12 @@ public class AuthedSpeechletTest {
         // Set up change to Test Region 1
         new Expectations() {{
             googleMaps.geocode("Tampa");
-            Location l2 = new Location("test");
-            l2.setLatitude(27.9681);
-            l2.setLongitude(-82.4764);
-            result = Optional.of(l2);
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+
+            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
