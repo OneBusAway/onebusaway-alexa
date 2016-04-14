@@ -26,4 +26,5 @@ public class ObaIntent {
     public static final String GET_STOP_NUMBER = "GetStopNumberIntent";
     public static final String GET_ARRIVALS = "GetArrivalsIntent";
     public static final String HELP = "AMAZON.HelpIntent";
+    public static final String REPEAT = "AMAZON.RepeatIntent";
 }

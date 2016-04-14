@@ -60,7 +60,7 @@ public class UnitTests {
 
     @Bean
     public ObaUserDataItem testUserData() {
-        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", null);
+        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", "", null);
     }
 
     @Bean

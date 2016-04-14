@@ -4,6 +4,9 @@
       "intent": "AMAZON.HelpIntent"
     },
     {
+      "intent": "AMAZON.RepeatIntent"
+    },
+    {
       "intent": "SetCityIntent",
       "slots": [
         {
