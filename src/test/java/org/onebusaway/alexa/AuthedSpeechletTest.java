@@ -293,6 +293,48 @@ public class AuthedSpeechletTest {
     }
 
     @Test
+    public void repeat(@Mocked ObaDao obaDao) throws SpeechletException, URISyntaxException, IOException {
+        IntentRequest repeatIntent = IntentRequest.builder()
+                .withRequestId("test-request-id")
+                .withIntent(
+                        Intent.builder()
+                                .withName("AMAZON.RepeatIntent")
+                                .withSlots(new HashMap<String, Slot>())
+                                .build()
+                )
+                .build();
+        // Try the repeat intent - this simulates after initial setup, when we don't yet have anything to repeat
+        SpeechletResponse sr = authedSpeechlet.onIntent(repeatIntent, session);
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop."));
+
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
+        obaArrivalInfoArray[0] = obaArrivalInfo;
+        new Expectations() {{
+            obaArrivalInfo.getShortName(); result = "8";
+            obaArrivalInfo.getHeadsign(); result = "Mlk Way Jr";
+            obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
+        }};
+        String response = "Route 8 Mlk Way Jr is now arriving based on the schedule -- ";
+
+        // Test initial request/response - this should also save the response for later retrieval via repeat intent
+        sr = authedSpeechlet.onLaunch(launchRequest, session);
+        spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, equalTo(response));
+
+        // Now try repeat intent again, with a fresh session - we should get the last response again
+        Session newSession = Session.builder()
+                .withUser(testUser)
+                .withSessionId("test-session-id2")
+                .build();
+
+        sr = authedSpeechlet.onIntent(repeatIntent, newSession);
+        spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString(response));
+    }
+
+    @Test
     public void noUpcomingArrivals() throws SpeechletException, IOException {
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[0];
         new Expectations() {{
