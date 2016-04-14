@@ -194,12 +194,8 @@ public class AuthedSpeechlet implements Speechlet {
 
     private void saveOutputForRepeat(Session session, String output) {
         log.debug("Caching output for repeat = " + output);
-        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
-        if (optUserData.isPresent()) {
-            ObaUserDataItem userData = optUserData.get();
-            userData.setPreviousResponse(output);
-            obaDao.saveUserData(userData);
-        }
+        userData.setPreviousResponse(output);
+        obaDao.saveUserData(userData);
     }
 
     /**
@@ -216,14 +212,10 @@ public class AuthedSpeechlet implements Speechlet {
             return lastOutput;
         }
         // Try persisted data
-        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
-        if (optUserData.isPresent()) {
-            ObaUserDataItem userData = optUserData.get();
-            lastOutput = userData.getPreviousResponse();
-            if (!TextUtils.isEmpty(lastOutput)) {
-                log.debug("Repeating last output from obaDao = " + lastOutput);
-                return lastOutput;
-            }
+        lastOutput = userData.getPreviousResponse();
+        if (!TextUtils.isEmpty(lastOutput)) {
+            log.debug("Repeating last output from obaDao = " + lastOutput);
+            return lastOutput;
         }
         return "I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop.";
     }

@@ -116,6 +116,9 @@ public class AuthedSpeechletTest {
     @Mocked
     ObaUserClient obaUserClient;
 
+    @Mocked
+    ObaDao obaDao;
+
     @Resource
     AuthedSpeechlet authedSpeechlet;
 
@@ -177,7 +180,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void setStopNumber(@Mocked ObaDao obaDao) throws SpeechletException, IOException {
+    public void setStopNumber() throws SpeechletException, IOException {
         String newStopCode = "3105";
 
         // Mock persisted user data
