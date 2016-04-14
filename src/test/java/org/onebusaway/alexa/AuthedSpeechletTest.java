@@ -293,7 +293,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void repeat(@Mocked ObaDao obaDao) throws SpeechletException, URISyntaxException, IOException {
+    public void repeat() throws SpeechletException, URISyntaxException, IOException {
         IntentRequest repeatIntent = IntentRequest.builder()
                 .withRequestId("test-request-id")
                 .withIntent(
