@@ -34,7 +34,6 @@ import org.onebusaway.io.client.util.ArrivalInfo;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
@@ -80,13 +79,13 @@ public class AuthedSpeechlet implements Speechlet {
         } else if (SET_CITY.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if (GET_CITY.equals(intent.getName())) {
-            return getCity(session);
+            return getCity();
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
         } else if (GET_STOP_NUMBER.equals(intent.getName())) {
-            return getStopDetails(session);
+            return getStopDetails();
         } else if (GET_ARRIVALS.equals(intent.getName())) {
-            return tellArrivals(session);
+            return tellArrivals();
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -97,7 +96,7 @@ public class AuthedSpeechlet implements Speechlet {
                                       final Session session)
             throws SpeechletException {
         populateAttributes(session);
-        return tellArrivals(session);
+        return tellArrivals();
     }
 
     @Override
@@ -137,15 +136,15 @@ public class AuthedSpeechlet implements Speechlet {
         }
     }
 
-    private SpeechletResponse getCity(Session session) {
+    private SpeechletResponse getCity() {
         String output = String.format("You live in %s, near the %s region.", userData.getCity(), userData.getRegionName());
-        saveOutputForRepeat(session, output);
+        saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
-    private SpeechletResponse getStopDetails(Session session) throws SpeechletException {
+    private SpeechletResponse getStopDetails() throws SpeechletException {
         ObaStopResponse stop = null;
         try {
             stop = obaUserClient.getStopDetails(userData.getStopId());
@@ -153,13 +152,13 @@ public class AuthedSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
         String output = String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName());
-        saveOutputForRepeat(session, output);
+        saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
-    private SpeechletResponse tellArrivals(Session session) throws SpeechletException {
+    private SpeechletResponse tellArrivals() throws SpeechletException {
         ObaArrivalInfoResponse response = null;
         try {
             response = obaUserClient.getArrivalsAndDeparturesForStop(
@@ -186,13 +185,13 @@ public class AuthedSpeechlet implements Speechlet {
             output = sb.toString();
         }
         log.info("Full text output: " + output);
-        saveOutputForRepeat(session, output);
+        saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
-    private void saveOutputForRepeat(Session session, String output) {
+    private void saveOutputForRepeat(String output) {
         log.debug("Caching output for repeat = " + output);
         userData.setPreviousResponse(output);
         obaDao.saveUserData(userData);
