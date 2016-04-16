@@ -247,6 +247,9 @@ public class AnonSpeechlet implements Speechlet {
         log.debug(String.format(
                 "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
                 cityName, stop.getId(), stop.getStopCode(), region.getId(), region.getName(), region.getObaBaseUrl()));
+        String outText = String.format("Ok, your stop number is %s in the %s region. " +
+                        "Great.  I am ready to tell you about the next bus.",
+                stop.getStopCode(), region.getName());
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -255,6 +258,7 @@ public class AnonSpeechlet implements Speechlet {
             userData.setRegionId(region.getId());
             userData.setRegionName(region.getName());
             userData.setObaBaseUrl(region.getObaBaseUrl());
+            userData.setPreviousResponse(outText);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -264,16 +268,14 @@ public class AnonSpeechlet implements Speechlet {
                     region.getId(),
                     region.getName(),
                     region.getObaBaseUrl(),
-                    "",
+                    outText,
                     null
             );
             obaDao.saveUserData(userData);
         }
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.",
-                stop.getStopCode(), region.getName()));
+        out.setText(outText);
         return SpeechletResponse.newTellResponse(out);
     }
 
