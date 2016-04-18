@@ -12,7 +12,11 @@ This project is an implementation of the [OneBusAway](http://onebusaway.org/) op
 
 This project isn't released publicly yet.  We plan to make the first release in early 2016.
 
-To both configure and use, just start with "open onebusaway".
+Never miss the bus again!
+
+Just say "Alexa, open OneBusAway" to get started.  You'll set your city and favorite stop, using the stop number.  Then, just say "Alexa, open OneBusAway" to get arrival times for your favorite stop.  You can also change your city or stop at any point, or ask OneBusAway to repeat the last information.
+
+You can find your stop number on the placard in the bus zone, in your OneBusAway mobile app, or on your agency website.  If you have trouble finding your stop number, see our guide for ["Finding your stop number"](https://github.com/OneBusAway/onebusaway-alexa/wiki/Finding-your-stop-number).
 
 Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt) for the full list of spoken phrases we support.
 
