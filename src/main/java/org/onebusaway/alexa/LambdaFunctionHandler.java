@@ -16,12 +16,16 @@
  */
 package org.onebusaway.alexa;
 
+import com.amazon.speech.speechlet.lambda.SpeechletRequestStreamHandler;
+import org.apache.http.util.TextUtils;
+import org.onebusaway.alexa.config.ApplicationConfig;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import com.amazon.speech.speechlet.lambda.SpeechletRequestStreamHandler;
-import org.onebusaway.alexa.config.ApplicationConfig;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import static org.onebusaway.alexa.config.ObaProperty.APP_SKILL_ID_DEVELOPMENT;
+import static org.onebusaway.alexa.config.ObaProperty.APP_SKILL_ID_PRODUCTION;
 
 /**
  * OneBusAway Alexa - main handler to receive and process messages from Alexa
@@ -37,9 +41,14 @@ public class LambdaFunctionHandler extends SpeechletRequestStreamHandler {
          * This Id can be found on https://developer.amazon.com/edw/home.html#/ "Edit" the relevant
          * Alexa Skill and put the relevant Application Ids in this Set.
          */
-        supportedApplicationIds.add(
-                context.getEnvironment().getProperty("skill-app-id")
-        );
+        String devId = context.getEnvironment().getProperty(APP_SKILL_ID_DEVELOPMENT);
+        if (!TextUtils.isEmpty(devId)) {
+            supportedApplicationIds.add(devId);
+        }
+        String prodId = context.getEnvironment().getProperty(APP_SKILL_ID_PRODUCTION);
+        if (!TextUtils.isEmpty(prodId)) {
+            supportedApplicationIds.add(prodId);
+        }
     }
 
     public LambdaFunctionHandler() {
