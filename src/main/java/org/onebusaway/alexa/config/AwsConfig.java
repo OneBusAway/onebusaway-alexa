@@ -21,12 +21,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static org.onebusaway.alexa.config.ObaProperty.AWS_KEY_ID;
+import static org.onebusaway.alexa.config.ObaProperty.AWS_SECRET_KEY;
+
 @Configuration
 public class AwsConfig {
-    @Value("${aws.key-id}")
+    @Value("${" + AWS_KEY_ID + "}")
     private String awsKeyId;
 
-    @Value("${aws.secret-key}")
+    @Value("${" + AWS_SECRET_KEY + "}")
     private String awsSecretKey;
 
     @Bean

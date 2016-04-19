@@ -20,9 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static org.onebusaway.alexa.config.ObaProperty.ONEBUSAWAY_MAPS_API_KEY;
+
 @Configuration
 public class ObaClientConfig {
-    @Value("${onebusaway.api-key}")
+    @Value("${" + ONEBUSAWAY_MAPS_API_KEY + "}")
     private String apiKey;
 
     @Bean
