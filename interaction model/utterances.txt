@@ -13,6 +13,7 @@ SetCityIntent my home is {cityName}
 SetCityIntent my region is {cityName}
 SetCityIntent my home is in {cityName}
 SetCityIntent i live in {cityName}
+SetCityIntent {cityName}
 
 GetCityIntent what region are you in
 GetCityIntent what city are you in
