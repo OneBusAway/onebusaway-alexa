@@ -93,7 +93,7 @@ That's why we deployed the skill even though it won't work yet.
    Go Next.  That creates the skill.
 1. Switch back to "Skill Information" section, the first section of wizard.
 1. Note the _Application Id_.  Copy that into `src/main/resources/onebusaway.properties`
-   under the `skill-app-id=amzn1...` entry.
+   under the `skill-app-id-development=amzn1...` entry.
 1. Now recompile and re-deploy to Lambda!
 
 CAUTION: Every time you re-deploy to Lambda using the `lambduh-maven-plugin`, you must
