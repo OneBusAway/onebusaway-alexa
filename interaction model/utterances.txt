@@ -110,8 +110,6 @@ GetArrivalsIntent how long until the {TransitMode} leaves
 GetArrivalsIntent give me arrival times
 GetArrivalsIntent arrival times
 GetArrivalsIntent for arrival times
-GetArrivalsIntent the arrivals
-GetArrivalsIntent for arrivals
 GetArrivalsIntent give me departure times
 GetArrivalsIntent departure times
 GetArrivalsIntent for departure times
