@@ -92,15 +92,15 @@ public class ObaUserClient extends ObaClientSharedCode {
      * given location
      *
      * @param l        Location to search near
-     * @param stopCode User-facing stop ID to search for
+     * @param stopCode User-facing stop ID (i.e., GTFS stop_code) to search for
      * @return response that contains a stop for the given stopCode (user-facing
      * stop ID), near the given location
      */
     public ObaStop[] getStopFromCode(@NonNull Location l,
-                                     int stopCode) throws IOException {
+                                     String stopCode) throws IOException {
         log.debug("Invoked getStopFromCode() with location " + l.toString() + " and stopCode " + stopCode);
         ObaStopsForLocationResponse response = new ObaStopsForLocationRequest.Builder(l)
-                .setQuery(String.format("%d", stopCode))
+                .setQuery(stopCode)
                 .setRadius(DEFAULT_SEARCH_RADIUS_METERS)
                 .build()
                 .call();

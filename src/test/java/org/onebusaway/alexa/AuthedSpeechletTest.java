@@ -204,7 +204,7 @@ public class AuthedSpeechletTest {
 
             obaStop.getStopCode(); result = newStopCode;
             obaStop.getId(); result = newStopCode;
-            obaUserClient.getStopFromCode(l, Integer.valueOf(newStopCode)); result = obaStopsArray;
+            obaUserClient.getStopFromCode(l, newStopCode); result = obaStopsArray;
 
             obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
 

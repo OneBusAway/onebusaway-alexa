@@ -155,7 +155,7 @@ public class AnonSpeechlet implements Speechlet {
             }
             log.debug("Stop number string received: " + stopNumberStr);
             return setStopNumber(
-                    Integer.valueOf(stopNumberStr),
+                    stopNumberStr,
                     session);
         } else {
             throw new SpeechletException("Did not recognize intent name");
@@ -180,11 +180,11 @@ public class AnonSpeechlet implements Speechlet {
         return SpeechletResponse.newAskResponse(out, stopNumReprompt);
     }
 
-    private SpeechletResponse setStopNumber(int spokenStopNumber, Session session) {
+    private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) {
         String cityName = (String) session.getAttribute(CITY_NAME);
         String regionName = (String) session.getAttribute(REGION_NAME);
         log.debug(String.format(
-                "Asked to set stop number %d in city %s for region %s...", spokenStopNumber, cityName, regionName));
+                "Asked to set stop number %s in city %s for region %s...", spokenStopNumber, cityName, regionName));
         if (cityName == null) {
             return askForCity(Optional.empty());
         }
