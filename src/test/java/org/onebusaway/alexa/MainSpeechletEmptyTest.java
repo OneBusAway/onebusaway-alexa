@@ -42,6 +42,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import util.TestUtil;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -381,4 +382,19 @@ public class MainSpeechletEmptyTest {
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Good-bye"));
     }
+
+    @Test
+    public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
+        new Expectations() {{
+            obaClient.getAllRegions();
+            ArrayList<ObaRegion> regions = new ArrayList<>(1);
+            regions.add(TEST_REGION_1);
+            regions.add(TEST_REGION_2);
+            regions.add(TEST_REGION_1);
+            result = regions;
+        }};
+
+        TestUtil.assertAllIntents(mainSpeechlet, session);
+    }
+
 }
