@@ -34,8 +34,8 @@ SetStopNumberIntent set my current stop
 SetStopNumberIntent set my current stop to {stopNumber}
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
-SetStopNumberIntent stop id {stopNumber}
-SetStopNumberIntent my stop id {stopNumber}
+SetStopNumberIntent stop i. d. {stopNumber}
+SetStopNumberIntent my stop i. d. {stopNumber}
 SetStopNumberIntent stop code is {stopNumber}
 SetStopNumberIntent my stop code is {stopNumber}
 SetStopNumberIntent stop number is {stopNumber}
@@ -50,8 +50,8 @@ GetStopNumberIntent what is my current stop name
 GetStopNumberIntent what is my current stop code
 GetStopNumberIntent get my stop
 GetStopNumberIntent get my current stop
-GetStopNumberIntent get stop id
-GetStopNumberIntent get my stop id
+GetStopNumberIntent get stop i. d.
+GetStopNumberIntent get my stop i. d.
 GetStopNumberIntent get stop code
 GetStopNumberIntent get my stop code
 GetStopNumberIntent get stop name
