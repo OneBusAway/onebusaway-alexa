@@ -133,6 +133,10 @@ public class MainSpeechletEmptyTest {
 
         assertThat(sr.getOutputSpeech(), is(instanceOf(PlainTextOutputSpeech.class)));
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertWelcomeResponse(spoken);
+    }
+
+    private void assertWelcomeResponse(String spoken) {
         assertThat(spoken, containsString("Welcome to "));
         assertThat(spoken, containsString("In what city do you live?"));
     }
@@ -152,11 +156,7 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertHelpResponse(spoken);
-    }
-
-    private void assertHelpResponse(String spoken) {
-        assertThat(spoken, containsString("Start by telling me your city."));
+        assertWelcomeResponse(spoken);
     }
 
     @Test
@@ -326,7 +326,7 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertHelpResponse(spoken);
+        assertWelcomeResponse(spoken);
     }
 
     @Test
@@ -344,7 +344,7 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertHelpResponse(spoken);
+        assertWelcomeResponse(spoken);
     }
 
     @Test
@@ -362,7 +362,7 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertHelpResponse(spoken);
+        assertWelcomeResponse(spoken);
     }
 
     @Test

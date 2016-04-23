@@ -94,11 +94,8 @@ public class AnonSpeechlet implements Speechlet {
                 GET_ARRIVALS.equals(intent.getName()) ||
                 GET_STOP_NUMBER.equals(intent.getName()) ||
                 REPEAT.equals(intent.getName())) {
-            // User asked for help, or we don't yet have enough information to respond
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
-            "at a stop of your choice.  Start by telling me your city.");
-            return SpeechletResponse.newTellResponse(out);
+            // User asked for help, or we don't yet have enough information to respond.  Return welcome message.
+            return askForCity(Optional.empty());
         } else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
             if (cityName == null) {
@@ -286,10 +283,17 @@ public class AnonSpeechlet implements Speechlet {
 
     private SpeechletResponse askForCity(Optional<String> currentCityName) {
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        String intro = "OneBusAway could not locate a OneBusAway " +
-                "region near %s, the city you gave. ";
-        String question = "Tell me again, what's the largest city near you?";
-        if (currentCityName.isPresent()) {
+        if (!currentCityName.isPresent()) {
+            out.setText("Welcome to OneBusAway! Let's set you up. " +
+                    "You'll need your city and your stop number. " +
+                    "The stop number is shown on the placard in the bus zone, " +
+                    "on your transit agency's web site, " +
+                    "or in your OneBusAway mobile app. " +
+                    "In what city do you live?");
+        } else {
+            String intro = "OneBusAway could not locate a OneBusAway " +
+                    "region near %s, the city you gave. ";
+            String question = "Tell me again, what's the largest city near you?";
             try {
                 String allRegions = allRegionsSpoken();
                 out.setText(String.format(intro +
@@ -302,14 +306,6 @@ public class AnonSpeechlet implements Speechlet {
                 log.error("Error getting all regions: " + e);
                 out.setText(String.format(intro + question, currentCityName.get()));
             }
-
-        } else {
-            out.setText("Welcome to OneBusAway! Let's set you up. " +
-                    "You'll need your city and your stop number. " +
-                    "The stop number is shown on the placard in the bus zone, " +
-                    "on your transit agency's web site, " +
-                    "or in your OneBusAway mobile app. " +
-                    "In what city do you live?");
         }
         return SpeechletResponse.newAskResponse(out, cityReprompt);
     }
