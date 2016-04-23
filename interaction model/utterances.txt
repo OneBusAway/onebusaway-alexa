@@ -40,6 +40,7 @@ SetStopNumberIntent stop code is {stopNumber}
 SetStopNumberIntent my stop code is {stopNumber}
 SetStopNumberIntent stop number is {stopNumber}
 SetStopNumberIntent my stop number is {stopNumber}
+SetStopNumberIntent {stopNumber}
 
 GetStopNumberIntent what is my stop
 GetStopNumberIntent what is my current stop
