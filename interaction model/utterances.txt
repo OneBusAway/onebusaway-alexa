@@ -25,6 +25,17 @@ GetCityIntent what is my city
 GetCityIntent what is my region
 GetCityIntent get my city
 GetCityIntent get my region
+GetCityIntent get my current city
+GetCityIntent tell me my current city
+GetCityIntent tell me my region
+GetCityIntent tell me my current region
+GetCityIntent my current region
+GetCityIntent my city
+GetCityIntent my region
+GetCityIntent what's my city
+GetCityIntent what's my region
+GetCityIntent what my city is
+GetCityIntent what my region is
 
 SetStopNumberIntent change my stop
 SetStopNumberIntent change my stop to {stopNumber}
@@ -62,8 +73,26 @@ GetStopNumberIntent get stop info
 GetStopNumberIntent get my stop info
 GetStopNumberIntent get current stop info
 GetStopNumberIntent get my current stop info
+GetStopNumberIntent tell me what my stop is
+GetStopNumberIntent tell me what my stop i. d. is
+GetStopNumberIntent tell me what my current stop is
+GetStopNumberIntent tell me what my stop name is
+GetStopNumberIntent tell me what my stop code is
+GetStopNumberIntent my current stop
+GetStopNumberIntent my stop
+GetStopNumberIntent my stop i. d.
+GetStopNumberIntent my stop code
+GetStopNumberIntent my stop name
+GetStopNumberIntent what's my current stop
+GetStopNumberIntent what's my stop
+GetStopNumberIntent what's my stop i.d.
+GetStopNumberIntent what's my stop name
+GetStopNumberIntent what my stop is
+GetStopNumberIntent what my stop i.d. is
+GetStopNumberIntent what my stop name is
 
 GetArrivalsIntent where is my {TransitMode}
+GetArrivalsIntent where's my {TransitMode}
 GetArrivalsIntent when is my {TransitMode}
 GetArrivalsIntent where is the {TransitMode}
 GetArrivalsIntent when is the {TransitMode}
@@ -116,3 +145,9 @@ GetArrivalsIntent departure times
 GetArrivalsIntent for departure times
 GetArrivalsIntent the departures
 GetArrivalsIntent for departures
+GetArrivalsIntent get me arrival times
+GetArrivalsIntent get me departure times
+GetArrivalsIntent the arrival times of my {TransitMode}
+GetArrivalsIntent the departure times of my {TransitMode}
+GetArrivalsIntent {TransitMode} times
+GetArrivalsIntent where my {TransitMode} is
