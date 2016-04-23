@@ -86,7 +86,7 @@ deploying the skill, which requires your skill to be already running in Lambda.
 That's why we deployed the skill even though it won't work yet.
 
 1. Go to the [Amazon Developer Console](https://developer.amazon.com/edw/home.html)
-1. Add a new skill.  Set _Invocation Name_ to "onebusaway".  Plug in your Lambda function's ARN.
+1. Add a new skill.  Set _Invocation Name_ to "one bus away".  Plug in your Lambda function's ARN.
 1. Into "Intent Schema" text box, paste the contents of file `interaction model/schema.json`.
 1. Under "Custom Slot Types," click on "Add Slot Type".  Under "Enter type", add `TRANSIT_MODES`.  Under "Enter values", paste the contents of the file `interaction model/customSlotTypes/TRANSIT_MODES`. 
 1. Into "Sample Utterances" text box, paste the contents of file `interaction model/utterances.txt`.
