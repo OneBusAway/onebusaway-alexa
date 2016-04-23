@@ -90,13 +90,16 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        if (HELP.equals(intent.getName())) {
+        if (HELP.equals(intent.getName()) ||
+                GET_ARRIVALS.equals(intent.getName()) ||
+                GET_STOP_NUMBER.equals(intent.getName()) ||
+                REPEAT.equals(intent.getName())) {
+            // User asked for help, or we don't yet have enough information to respond
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
             "at a stop of your choice.  Start by telling me your city.");
             return SpeechletResponse.newTellResponse(out);
-        }
-        else if (SET_CITY.equals(intent.getName())) {
+        } else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
             if (cityName == null) {
                 return askForCity(Optional.empty());

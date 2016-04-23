@@ -30,10 +30,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.onebusaway.alexa.lib.GoogleMaps;
 import org.onebusaway.alexa.lib.ObaClient;
+import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaRegionElement;
+import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.location.Location;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -106,6 +109,15 @@ public class MainSpeechletEmptyTest {
     @Mocked
     ObaClient obaClient;
 
+    @Mocked
+    ObaUserClient obaUserClient;
+
+    @Mocked
+    ObaArrivalInfo obaArrivalInfo;
+
+    @Mocked
+    ObaArrivalInfoResponse obaArrivalInfoResponse;
+
     @Resource
     Session session;
 
@@ -139,6 +151,10 @@ public class MainSpeechletEmptyTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertHelpResponse(spoken);
+    }
+
+    private void assertHelpResponse(String spoken) {
         assertThat(spoken, containsString("Start by telling me your city."));
     }
 
@@ -292,5 +308,59 @@ public class MainSpeechletEmptyTest {
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, startsWith("Welcome to OneBusAway! Let's set you up."));
+    }
+
+    @Test
+    public void getArrivalsBeforeOnboard() throws SpeechletException, IOException {
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(GET_ARRIVALS)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertHelpResponse(spoken);
+    }
+
+    @Test
+    public void getStopBeforeOnboard() throws SpeechletException, IOException {
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(GET_STOP_NUMBER)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertHelpResponse(spoken);
+    }
+
+    @Test
+    public void repeatBeforeOnboard() throws SpeechletException, IOException {
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(REPEAT)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertHelpResponse(spoken);
     }
 }
