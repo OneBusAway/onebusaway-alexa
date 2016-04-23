@@ -363,4 +363,22 @@ public class MainSpeechletEmptyTest {
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertHelpResponse(spoken);
     }
+
+    @Test
+    public void goodbye() throws SpeechletException, IOException {
+        SpeechletResponse sr = mainSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(STOP)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Good-bye"));
+    }
 }

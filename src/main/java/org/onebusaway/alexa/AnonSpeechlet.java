@@ -160,6 +160,8 @@ public class AnonSpeechlet implements Speechlet {
             return setStopNumber(
                     stopNumberStr,
                     session);
+        } else if (STOP.equals(intent.getName())) {
+            return goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -332,5 +334,12 @@ public class AnonSpeechlet implements Speechlet {
         String finalStr = activeRegions.stream().collect(Collectors.joining(""));
         log.debug("All regions spoken: " + finalStr);
         return finalStr;
+    }
+
+    private SpeechletResponse goodbye() {
+        String output = String.format("Good-bye");
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
     }
 }
