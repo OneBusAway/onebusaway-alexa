@@ -55,8 +55,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.onebusaway.alexa.ObaIntent.SET_CITY;
-import static org.onebusaway.alexa.ObaIntent.SET_STOP_NUMBER;
+import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
@@ -150,7 +149,7 @@ public class AuthedSpeechletTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("GetStopNumberIntent")
+                                        .withName(GET_STOP_NUMBER)
                                         .withSlots(new HashMap<String, Slot>())
                                         .build()
                         )
@@ -283,7 +282,7 @@ public class AuthedSpeechletTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("AMAZON.HelpIntent")
+                                        .withName(HELP)
                                         .withSlots(new HashMap<String, Slot>())
                                         .build()
                         )
@@ -300,7 +299,7 @@ public class AuthedSpeechletTest {
                 .withRequestId("test-request-id")
                 .withIntent(
                         Intent.builder()
-                                .withName("AMAZON.RepeatIntent")
+                                .withName(REPEAT)
                                 .withSlots(new HashMap<String, Slot>())
                                 .build()
                 )
