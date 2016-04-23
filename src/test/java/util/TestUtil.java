@@ -20,12 +20,16 @@ package util;
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.slu.Slot;
 import com.amazon.speech.speechlet.*;
+import com.amazon.speech.ui.PlainTextOutputSpeech;
 import org.onebusaway.alexa.ObaIntent;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.onebusaway.alexa.ObaIntent.STOP;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
@@ -70,5 +74,28 @@ public class TestUtil {
             );
             assertNotNull(sr);
         }
+    }
+
+    /**
+     * Asserts that the goodbye message is handled correctly for the given speechlet
+     * @param speechlet
+     * @param session
+     * @throws SpeechletException
+     */
+    public static void assertGoodbye(Speechlet speechlet, Session session) throws SpeechletException {
+        SpeechletResponse sr = speechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(STOP)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Good-bye"));
     }
 }

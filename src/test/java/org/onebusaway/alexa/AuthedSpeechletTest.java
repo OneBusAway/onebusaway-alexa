@@ -55,7 +55,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.onebusaway.alexa.ObaIntent.*;
+import static org.onebusaway.alexa.ObaIntent.SET_CITY;
+import static org.onebusaway.alexa.ObaIntent.SET_STOP_NUMBER;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
@@ -353,20 +354,7 @@ public class AuthedSpeechletTest {
 
     @Test
     public void goodbye() throws SpeechletException, IOException {
-        SpeechletResponse sr = authedSpeechlet.onIntent(
-                IntentRequest.builder()
-                        .withRequestId("test-request-id")
-                        .withIntent(
-                                Intent.builder()
-                                        .withName(STOP)
-                                        .withSlots(new HashMap<String, Slot>())
-                                        .build()
-                        )
-                        .build(),
-                session
-        );
-        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, containsString("Good-bye"));
+        TestUtil.assertGoodbye(authedSpeechlet, session);
     }
 
     public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
