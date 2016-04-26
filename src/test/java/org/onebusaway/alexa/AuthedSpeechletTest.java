@@ -42,10 +42,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import util.TestUtil;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -53,8 +55,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.onebusaway.alexa.ObaIntent.SET_CITY;
-import static org.onebusaway.alexa.ObaIntent.SET_STOP_NUMBER;
+import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
 
@@ -148,7 +149,7 @@ public class AuthedSpeechletTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("GetStopNumberIntent")
+                                        .withName(GET_STOP_NUMBER)
                                         .withSlots(new HashMap<String, Slot>())
                                         .build()
                         )
@@ -281,7 +282,7 @@ public class AuthedSpeechletTest {
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
-                                        .withName("AMAZON.HelpIntent")
+                                        .withName(HELP)
                                         .withSlots(new HashMap<String, Slot>())
                                         .build()
                         )
@@ -298,7 +299,7 @@ public class AuthedSpeechletTest {
                 .withRequestId("test-request-id")
                 .withIntent(
                         Intent.builder()
-                                .withName("AMAZON.RepeatIntent")
+                                .withName(REPEAT)
                                 .withSlots(new HashMap<String, Slot>())
                                 .build()
                 )
@@ -348,5 +349,23 @@ public class AuthedSpeechletTest {
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
                 + AuthedSpeechlet.ARRIVALS_SCAN_MINS + " minutes."));
+    }
+
+    @Test
+    public void goodbye() throws SpeechletException, IOException {
+        TestUtil.assertGoodbye(authedSpeechlet, session);
+    }
+
+    public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
+        new Expectations() {{
+            obaClient.getAllRegions();
+            ArrayList<ObaRegion> regions = new ArrayList<>(1);
+            regions.add(TEST_REGION_1);
+            regions.add(TEST_REGION_2);
+            regions.add(TEST_REGION_1);
+            result = regions;
+        }};
+
+        TestUtil.assertAllIntents(authedSpeechlet, session);
     }
 }

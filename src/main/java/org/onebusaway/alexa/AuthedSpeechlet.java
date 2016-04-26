@@ -86,6 +86,8 @@ public class AuthedSpeechlet implements Speechlet {
             return getStopDetails();
         } else if (GET_ARRIVALS.equals(intent.getName())) {
             return tellArrivals();
+        } else if (STOP.equals(intent.getName())) {
+            return goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -217,5 +219,12 @@ public class AuthedSpeechlet implements Speechlet {
             return lastOutput;
         }
         return "I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop.";
+    }
+
+    private SpeechletResponse goodbye() {
+        String output = String.format("Good-bye");
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
     }
 }

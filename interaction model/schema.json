@@ -7,6 +7,9 @@
       "intent": "AMAZON.RepeatIntent"
     },
     {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
       "intent": "SetCityIntent",
       "slots": [
         {

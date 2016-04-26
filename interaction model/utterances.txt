@@ -25,6 +25,17 @@ GetCityIntent what is my city
 GetCityIntent what is my region
 GetCityIntent get my city
 GetCityIntent get my region
+GetCityIntent get my current city
+GetCityIntent tell me my current city
+GetCityIntent tell me my region
+GetCityIntent tell me my current region
+GetCityIntent my current region
+GetCityIntent my city
+GetCityIntent my region
+GetCityIntent what's my city
+GetCityIntent what's my region
+GetCityIntent what my city is
+GetCityIntent what my region is
 
 SetStopNumberIntent change my stop
 SetStopNumberIntent change my stop to {stopNumber}
@@ -34,12 +45,13 @@ SetStopNumberIntent set my current stop
 SetStopNumberIntent set my current stop to {stopNumber}
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
-SetStopNumberIntent stop id {stopNumber}
-SetStopNumberIntent my stop id {stopNumber}
+SetStopNumberIntent stop i. d. {stopNumber}
+SetStopNumberIntent my stop i. d. {stopNumber}
 SetStopNumberIntent stop code is {stopNumber}
 SetStopNumberIntent my stop code is {stopNumber}
 SetStopNumberIntent stop number is {stopNumber}
 SetStopNumberIntent my stop number is {stopNumber}
+SetStopNumberIntent {stopNumber}
 
 GetStopNumberIntent what is my stop
 GetStopNumberIntent what is my current stop
@@ -49,8 +61,8 @@ GetStopNumberIntent what is my current stop name
 GetStopNumberIntent what is my current stop code
 GetStopNumberIntent get my stop
 GetStopNumberIntent get my current stop
-GetStopNumberIntent get stop id
-GetStopNumberIntent get my stop id
+GetStopNumberIntent get stop i. d.
+GetStopNumberIntent get my stop i. d.
 GetStopNumberIntent get stop code
 GetStopNumberIntent get my stop code
 GetStopNumberIntent get stop name
@@ -61,8 +73,26 @@ GetStopNumberIntent get stop info
 GetStopNumberIntent get my stop info
 GetStopNumberIntent get current stop info
 GetStopNumberIntent get my current stop info
+GetStopNumberIntent tell me what my stop is
+GetStopNumberIntent tell me what my stop i. d. is
+GetStopNumberIntent tell me what my current stop is
+GetStopNumberIntent tell me what my stop name is
+GetStopNumberIntent tell me what my stop code is
+GetStopNumberIntent my current stop
+GetStopNumberIntent my stop
+GetStopNumberIntent my stop i. d.
+GetStopNumberIntent my stop code
+GetStopNumberIntent my stop name
+GetStopNumberIntent what's my current stop
+GetStopNumberIntent what's my stop
+GetStopNumberIntent what's my stop i.d.
+GetStopNumberIntent what's my stop name
+GetStopNumberIntent what my stop is
+GetStopNumberIntent what my stop i.d. is
+GetStopNumberIntent what my stop name is
 
 GetArrivalsIntent where is my {TransitMode}
+GetArrivalsIntent where's my {TransitMode}
 GetArrivalsIntent when is my {TransitMode}
 GetArrivalsIntent where is the {TransitMode}
 GetArrivalsIntent when is the {TransitMode}
@@ -110,8 +140,16 @@ GetArrivalsIntent how long until the {TransitMode} leaves
 GetArrivalsIntent give me arrival times
 GetArrivalsIntent arrival times
 GetArrivalsIntent for arrival times
+GetArrivalsIntent the arrivals
+GetArrivalsIntent for arrivals
 GetArrivalsIntent give me departure times
 GetArrivalsIntent departure times
 GetArrivalsIntent for departure times
 GetArrivalsIntent the departures
 GetArrivalsIntent for departures
+GetArrivalsIntent get me arrival times
+GetArrivalsIntent get me departure times
+GetArrivalsIntent the arrival times of my {TransitMode}
+GetArrivalsIntent the departure times of my {TransitMode}
+GetArrivalsIntent {TransitMode} times
+GetArrivalsIntent where my {TransitMode} is
