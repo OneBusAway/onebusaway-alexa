@@ -43,6 +43,7 @@ SetStopNumberIntent set my stop
 SetStopNumberIntent set my stop to {stopNumber}
 SetStopNumberIntent set my current stop
 SetStopNumberIntent set my current stop to {stopNumber}
+SetStopNumberIntent stop {stopNumber}
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
 SetStopNumberIntent stop i. d. {stopNumber}
