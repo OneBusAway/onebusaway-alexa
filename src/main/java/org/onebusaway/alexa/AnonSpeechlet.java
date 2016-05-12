@@ -26,8 +26,10 @@ import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
+import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @Log4j
 public class AnonSpeechlet implements Speechlet {
@@ -182,7 +185,7 @@ public class AnonSpeechlet implements Speechlet {
         return SpeechletResponse.newAskResponse(out, stopNumReprompt);
     }
 
-    private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) {
+    private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) throws SpeechletException {
         String cityName = (String) session.getAttribute(CITY_NAME);
         String regionName = (String) session.getAttribute(REGION_NAME);
         log.debug(String.format(
@@ -238,20 +241,37 @@ public class AnonSpeechlet implements Speechlet {
             return SpeechletResponse.newTellResponse(out);
         } else {
             // Perfect!
-            return createOrUpdateUser(session, cityName, searchResults[0], region.get());
+            return createOrUpdateUser(session, cityName, searchResults[0], region.get(), obaUserClient);
         }
     }
 
     private SpeechletResponse createOrUpdateUser(Session session,
                                                  String cityName,
                                                  ObaStop stop,
-                                                 ObaRegion region) {
+                                                 ObaRegion region,
+                                                 ObaUserClient obaUserClient) throws SpeechletException {
         log.debug(String.format(
                 "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
                 cityName, stop.getId(), stop.getStopCode(), region.getId(), region.getName(), region.getObaBaseUrl()));
+
+        ObaArrivalInfoResponse response;
+        try {
+            response = obaUserClient.getArrivalsAndDeparturesForStop(
+                    stop.getId(),
+                    ARRIVALS_SCAN_MINS
+            );
+        } catch (IOException e) {
+            throw new SpeechletException(e);
+        }
+
+        String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
+
+        log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.",
-                stop.getStopCode(), region.getName());
+                        "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
+                        "by saying 'Alexa, open One Bus Away'.  Right now, %s",
+                stop.getStopCode(), region.getName(), arrivalInfoText);
+
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();

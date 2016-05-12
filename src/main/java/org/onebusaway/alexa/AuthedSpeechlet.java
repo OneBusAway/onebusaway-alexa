@@ -26,10 +26,9 @@ import org.apache.http.util.TextUtils;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.io.client.elements.ObaArrivalInfo;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
-import org.onebusaway.io.client.util.ArrivalInfo;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -37,11 +36,11 @@ import java.net.URISyntaxException;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
+import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @NoArgsConstructor
 @Log4j
 public class AuthedSpeechlet implements Speechlet {
-    public static final int ARRIVALS_SCAN_MINS = 35;
 
     @Resource
     private ObaDao obaDao;
@@ -170,22 +169,9 @@ public class AuthedSpeechlet implements Speechlet {
         } catch (IOException e) {
             throw new SpeechletException(e);
         }
-        ObaArrivalInfo[] arrivals = response.getArrivalInfo();
 
-        String output;
+        String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
 
-        if (arrivals.length == 0) {
-            output = "There are no upcoming arrivals at your stop for the next "
-                    + ARRIVALS_SCAN_MINS + " minutes.";
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (ObaArrivalInfo obaArrival: arrivals) {
-                log.info("Arrival: " + obaArrival);
-                ArrivalInfo arrival = new ArrivalInfo(obaArrival, response.getCurrentTime());
-                sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
-            }
-            output = sb.toString();
-        }
         log.info("Full text output: " + output);
         saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
