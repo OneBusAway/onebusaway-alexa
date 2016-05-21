@@ -58,6 +58,7 @@ import static org.junit.Assert.assertThat;
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
+import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
@@ -348,7 +349,7 @@ public class AuthedSpeechletTest {
                 session);
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
-                + AuthedSpeechlet.ARRIVALS_SCAN_MINS + " minutes."));
+                + ARRIVALS_SCAN_MINS + " minutes."));
     }
 
     @Test
