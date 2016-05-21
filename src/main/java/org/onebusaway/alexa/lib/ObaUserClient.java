@@ -68,7 +68,7 @@ public class ObaUserClient extends ObaClientSharedCode {
         if (response.getCode() == ObaApi.OBA_OK) {
             return response.getStops();
         } else {
-            throw new IOException(String.format("Error getting stops for %s", l.toString()));
+            throw new IOException(String.format("OBA Error %s getting stops for %s", response.getCode(), l.toString()));
         }
     }
 
@@ -83,7 +83,7 @@ public class ObaUserClient extends ObaClientSharedCode {
         if (response.getCode() == ObaApi.OBA_OK) {
             return response;
         } else {
-            throw new IOException(String.format("Error getting stop details for %s", stopId));
+            throw new IOException(String.format("OBA Error %s getting stop details for %s", response.getCode(), stopId));
         }
     }
 
@@ -108,7 +108,7 @@ public class ObaUserClient extends ObaClientSharedCode {
         if (response.getCode() == ObaApi.OBA_OK) {
             return response.getStops();
         } else {
-            throw new IOException(String.format("Error getting stop details for %s at %s", stopCode, l.toString()));
+            throw new IOException(String.format("OBA Error %s getting stop details for %s at %s", response.getCode(), stopCode, l.toString()));
         }
     }
 
@@ -127,7 +127,7 @@ public class ObaUserClient extends ObaClientSharedCode {
         if (response.getCode() == ObaApi.OBA_OK) {
             return response;
         } else {
-            throw new IOException(String.format("Error getting arrivals and departures for %s", stopId));
+            throw new IOException(String.format("OBA Error %s getting arrivals and departures for %s", response.getCode(), stopId));
         }
     }
 }
