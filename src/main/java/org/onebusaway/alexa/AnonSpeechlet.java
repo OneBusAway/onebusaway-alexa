@@ -281,6 +281,7 @@ public class AnonSpeechlet implements Speechlet {
             userData.setRegionName(region.getName());
             userData.setObaBaseUrl(region.getObaBaseUrl());
             userData.setPreviousResponse(outText);
+            userData.setLastAccessTime(System.currentTimeMillis());
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -291,6 +292,7 @@ public class AnonSpeechlet implements Speechlet {
                     region.getName(),
                     region.getObaBaseUrl(),
                     outText,
+                    System.currentTimeMillis(),
                     null
             );
             obaDao.saveUserData(userData);

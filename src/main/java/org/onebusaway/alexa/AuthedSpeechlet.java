@@ -135,6 +135,9 @@ public class AuthedSpeechlet implements Speechlet {
         if (session.getAttribute(PREVIOUS_RESPONSE) == null) {
             session.setAttribute(PREVIOUS_RESPONSE, userData.getPreviousResponse());
         }
+        if (session.getAttribute(LAST_ACCESS_TIME) == null) {
+            session.setAttribute(LAST_ACCESS_TIME, userData.getLastAccessTime());
+        }
     }
 
     private SpeechletResponse getCity() {
@@ -182,6 +185,7 @@ public class AuthedSpeechlet implements Speechlet {
     private void saveOutputForRepeat(String output) {
         log.debug("Caching output for repeat = " + output);
         userData.setPreviousResponse(output);
+        userData.setLastAccessTime(System.currentTimeMillis());
         obaDao.saveUserData(userData);
     }
 
