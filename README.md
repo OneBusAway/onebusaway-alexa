@@ -1,5 +1,4 @@
 # OneBusAway skill for Alexa
-
 [![Build Status](https://travis-ci.org/OneBusAway/onebusaway-alexa.svg?branch=master)](https://travis-ci.org/OneBusAway/onebusaway-alexa)
 [![Coverage Status](https://coveralls.io/repos/github/OneBusAway/onebusaway-alexa/badge.svg?branch=master)](https://coveralls.io/github/OneBusAway/onebusaway-alexa?branch=master)
 [![Join the OneBusAway chat](https://onebusaway.herokuapp.com/badge.svg)](https://onebusaway.herokuapp.com/)
@@ -8,8 +7,7 @@ Are you ready to ask your [Amazon Echo](http://www.amazon.com/echo), *"Alexa, wh
 
 This project is an implementation of the [OneBusAway](http://onebusaway.org/) open-source platform for real-time transit info for Amazon's [Alexa Voice Service](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service).
 
-## Install and Use ##
-
+## Install and Use
 This project isn't released publicly yet.  We plan to make the first release in early 2016.
 
 Never miss the bus again!
@@ -22,12 +20,13 @@ Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt
 
 Our [user interface flow diagram](USER_INTERFACE_FLOW.md) also defined how you can interact with the skill.
 
-## Develop ##
+## Contributing
+Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](.github/CONTRIBUTING.md) for more details.
 
+## Develop
 The application backing the skill was designed to run in AWS.
 
 ### Prepare your AWS environment
-
 1. Log in to your [AWS Console](http://console.aws.amazon.com) and switch to the "N. Virginia" region.
 1. Apply the CloudFormation template in `aws/cloudformation/onebusaway.template` in your AWS account.
    Name your stack "onebusaway-alexa" for consistency with existing documentation.
@@ -36,7 +35,6 @@ The application backing the skill was designed to run in AWS.
    You will use these in the next section.
 
 ### Personalize the app
-
 1. Create `src/main/resources/onebusaway.properties` with the following content:
 
 ```
@@ -50,7 +48,6 @@ onebusaway.api-key=...
 And fill it in with your own values.
 
 ### Build the skill
-
 1. Install the [Java Platform SE Development Kit (JDK)](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven](https://maven.apache.org/).
 1. Clone this repository.
 1. Build this project on the command line with `mvn package`.  Look for "BUILD SUCCESS". Resulting JAR is `target/onebusaway-alexa-1.0-jar-with-dependencies.jar`
@@ -73,12 +70,7 @@ And fill it in with your own values.
 
 See the [lambduh plugin homepage](https://github.com/SeanRoy/lambduh-maven-plugin) for more information on deploying.
 
-### Contributing
-
-Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](.github/CONTRIBUTING.md) for more details.
-
 ### Deploy to your Alexa device for the first time
-
 This will be a bit circuitous, because you want your skill to run only if triggered by
 Alexa, rather than some random Internet visitor or script kiddie.  But to do this, we
 must create the skill first, to get the unique skill ID.  But we cannot get this until
@@ -101,14 +93,13 @@ CAUTION: Every time you re-deploy to Lambda using the `lambduh-maven-plugin`, yo
 manually re-add "Alexa Skills Kit" as the function's _Event Source_.  You do not need to
 do this if you deploy your code through the Lambda UI in AWS Console.
 
-### Authors
+## Authors
 * [Sean Barbeau](https://github.com/barbeau)
 * [Philip White](https://github.com/philipmw)
+* [Contributors](../../graphs/contributors)
 
-### License
-
+## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 ## Privacy Policy
-
 See our [Privacy Policy](http://onebusaway.org/privacy/) to better understand what information the OneBusAway Alexa skill uses when you request transit arrival information.
