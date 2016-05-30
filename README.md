@@ -93,11 +93,6 @@ CAUTION: Every time you re-deploy to Lambda using the `lambduh-maven-plugin`, yo
 manually re-add "Alexa Skills Kit" as the function's _Event Source_.  You do not need to
 do this if you deploy your code through the Lambda UI in AWS Console.
 
-## Authors
-* [Sean Barbeau](https://github.com/barbeau)
-* [Philip White](https://github.com/philipmw)
-* [Contributors](../../graphs/contributors)
-
 ## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
