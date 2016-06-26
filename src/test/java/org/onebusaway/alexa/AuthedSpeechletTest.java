@@ -178,7 +178,7 @@ public class AuthedSpeechletTest {
                 session);
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now arriving based on the schedule -- "));
+        assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now departing based on the schedule -- "));
     }
 
     @Test
@@ -318,7 +318,7 @@ public class AuthedSpeechletTest {
             obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
             obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
         }};
-        String response = "Route 8 Mlk Way Jr is now arriving based on the schedule -- ";
+        String response = "Route 8 Mlk Way Jr is now departing based on the schedule -- ";
 
         // Test initial request/response - this should also save the response for later retrieval via repeat intent
         sr = authedSpeechlet.onLaunch(launchRequest, session);

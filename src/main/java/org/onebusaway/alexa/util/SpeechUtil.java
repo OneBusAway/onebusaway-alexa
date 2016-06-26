@@ -43,7 +43,7 @@ public class SpeechUtil {
             StringBuilder sb = new StringBuilder();
             for (ObaArrivalInfo obaArrival: arrivals) {
                 log.info("Arrival: " + obaArrival);
-                ArrivalInfo arrival = new ArrivalInfo(obaArrival, currentTime);
+                ArrivalInfo arrival = new ArrivalInfo(obaArrival, currentTime, false);
                 sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
             }
             output = sb.toString();
