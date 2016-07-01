@@ -58,6 +58,7 @@ import static org.junit.Assert.assertThat;
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
+import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
@@ -177,7 +178,7 @@ public class AuthedSpeechletTest {
                 session);
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now arriving based on the schedule -- "));
+        assertThat(spoken, equalTo("Route 8 Mlk Way Jr is now departing based on the schedule -- "));
     }
 
     @Test
@@ -317,7 +318,7 @@ public class AuthedSpeechletTest {
             obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
             obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
         }};
-        String response = "Route 8 Mlk Way Jr is now arriving based on the schedule -- ";
+        String response = "Route 8 Mlk Way Jr is now departing based on the schedule -- ";
 
         // Test initial request/response - this should also save the response for later retrieval via repeat intent
         sr = authedSpeechlet.onLaunch(launchRequest, session);
@@ -348,7 +349,7 @@ public class AuthedSpeechletTest {
                 session);
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
-                + AuthedSpeechlet.ARRIVALS_SCAN_MINS + " minutes."));
+                + ARRIVALS_SCAN_MINS + " minutes."));
     }
 
     @Test

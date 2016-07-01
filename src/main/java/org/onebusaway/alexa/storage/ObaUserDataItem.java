@@ -75,6 +75,11 @@ public class ObaUserDataItem {
     @DynamoDBAttribute(attributeName = "PreviousResponse")
     private String previousResponse;
 
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "LastAccessTime")
+    private long lastAccessTime;
+
     @DynamoDBVersionAttribute
     private Long version;
 }

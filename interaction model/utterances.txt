@@ -43,6 +43,7 @@ SetStopNumberIntent set my stop
 SetStopNumberIntent set my stop to {stopNumber}
 SetStopNumberIntent set my current stop
 SetStopNumberIntent set my current stop to {stopNumber}
+SetStopNumberIntent stop {stopNumber}
 SetStopNumberIntent stop is {stopNumber}
 SetStopNumberIntent my stop is {stopNumber}
 SetStopNumberIntent stop i. d. {stopNumber}
@@ -106,9 +107,13 @@ GetArrivalsIntent when does the {TransitMode} arrive
 GetArrivalsIntent when is my {TransitMode} arriving
 GetArrivalsIntent when is the {TransitMode} arriving
 GetArrivalsIntent when is the {TransitMode} coming
+GetArrivalsIntent when is the {TransitMode} approaching
 GetArrivalsIntent when is my {TransitMode} coming
+GetArrivalsIntent when is my {TransitMode} approaching
 GetArrivalsIntent what time does the {TransitMode} get to my current location
 GetArrivalsIntent what time does my {TransitMode} get to my current location
+GetArrivalsIntent when is the next {TransitMode} coming
+GetArrivalsIntent when is the next {TransitMode} approaching
 GetArrivalsIntent when is the next {TransitMode} arriving
 GetArrivalsIntent when is the next {TransitMode}
 GetArrivalsIntent what time is my {TransitMode}
