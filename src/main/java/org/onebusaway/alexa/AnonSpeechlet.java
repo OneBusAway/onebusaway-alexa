@@ -180,8 +180,18 @@ public class AnonSpeechlet implements Speechlet {
                     return askForCity(Optional.of(cityName));
                 }
 
+                ObaUserClient obaUserClient;
+                try {
+                    obaUserClient = obaClient.withObaBaseUrl(region.get().getObaBaseUrl());
+                } catch (URISyntaxException e) {
+                    log.error("ObaBaseUrl " + region.get().getObaBaseUrl() + " for " + region.get().getName()
+                            + " is invalid: " + e.getMessage());
+                    // Region didn't have a valid URL - ask again and hopefully we find a different one
+                    return askForCity(Optional.of(cityName));
+                }
+
                 LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) stops.get(0);
-                return createOrUpdateUser(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get());
+                return createOrUpdateUser(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get(), obaUserClient);
             }
 
             return reaskForStopNumber();
@@ -301,17 +311,34 @@ public class AnonSpeechlet implements Speechlet {
     private SpeechletResponse createOrUpdateUser(Session session,
                                                  String cityName,
                                                  ObaStop stop,
-                                                 ObaRegion region) {
-        return createOrUpdateUser(session, cityName, stop.getId(), stop.getStopCode(), region);
+                                                 ObaRegion region, 
+                                                 ObaUserClient obaUserClient) throws SpeechletException {
+        return createOrUpdateUser(session, cityName, stop.getId(), stop.getStopCode(), region, obaUserClient);
     }
 
-    private SpeechletResponse createOrUpdateUser(Session session, String cityName, String stopId, String stopCode, ObaRegion region) {
+    private SpeechletResponse createOrUpdateUser(Session session, String cityName, String stopId, String stopCode, ObaRegion region, ObaUserClient obaUserClient) throws SpeechletException {
         log.debug(String.format(
             "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
             cityName, stopId, stopCode, region.getId(), region.getName(), region.getObaBaseUrl()));
+
+        ObaArrivalInfoResponse response;
+        try {
+            response = obaUserClient.getArrivalsAndDeparturesForStop(
+                    stopId,
+                    ARRIVALS_SCAN_MINS
+            );
+        } catch (IOException e) {
+            throw new SpeechletException(e);
+        }
+
+        String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
+
+        log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.",
-                stopCode, region.getName());
+                        "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
+                        "by saying 'Alexa, open One Bus Away'.  Right now, %s",
+                stopCode, region.getName(), arrivalInfoText);
+
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -331,8 +358,10 @@ public class AnonSpeechlet implements Speechlet {
                     region.getName(),
                     region.getObaBaseUrl(),
                     outText,
+                    System.currentTimeMillis(),
                     null
             );
+
             obaDao.saveUserData(userData);
         }
 
