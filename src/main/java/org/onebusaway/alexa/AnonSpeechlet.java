@@ -36,6 +36,8 @@ import org.onebusaway.location.Location;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -160,6 +162,38 @@ public class AnonSpeechlet implements Speechlet {
             return setStopNumber(
                     stopNumberStr,
                     session);
+        } else if (YES.equals(intent.getName())) {
+            ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+            if (stops != null && stops.size() > 0) {
+                String cityName = (String)session.getAttribute(CITY_NAME);
+
+                Optional<Location> location = googleMaps.geocode(cityName);
+                if (!location.isPresent()) {
+                    return askForCity(Optional.of(cityName));
+                }
+
+                Optional<ObaRegion> region = null;
+                try {
+                    region = obaClient.getClosestRegion(location.get());
+                } catch (IOException e) {
+                    log.error("Error getting closest region: " + e.getMessage());
+                    return askForCity(Optional.of(cityName));
+                }
+
+                LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) stops.get(0);
+                return createOrUpdateUser(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get());
+            }
+
+            return reaskForStopNumber();
+        } else if (NO.equals(intent.getName())) {
+            ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+            if (stops != null && stops.size() > 1) {
+                stops.remove(0);
+                session.setAttribute(FOUND_STOPS, stops);
+                return askToVerifyStop(session, null);
+            }
+
+            return reaskForStopNumber();
         } else if (STOP.equals(intent.getName())) {
             return goodbye();
         } else {
@@ -234,65 +268,69 @@ public class AnonSpeechlet implements Speechlet {
         if (searchResults.length == 0) {
             return reaskForStopNumber();
         } else if (searchResults.length > 1) {
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText(String.format("I expected to find exactly one stop for the number " +
-                            "you gave, but instead found %d.  This is not yet supported.",
-                    searchResults.length));
-            return SpeechletResponse.newTellResponse(out);
+            return askToVerifyStop(session, searchResults);
         } else {
             // Perfect!
             return createOrUpdateUser(session, cityName, searchResults[0], region.get(), obaUserClient);
         }
     }
 
+    private SpeechletResponse askToVerifyStop(Session session, ObaStop[] stops) {
+        PlainTextOutputSpeech askForVerifyStop = new PlainTextOutputSpeech();
+        String stopName = "";
+
+        if (stops != null) {
+            session.setAttribute(FOUND_STOPS, stops);
+            stopName = stops[0].getName();
+            askForVerifyStop.setText(String.format("We found %d stops associated with the stop number. Did you mean the %s stop?", stops.length, stopName));
+        } else {
+            ArrayList<ObaStop> foundStops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+            LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) foundStops.get(0);
+            stopName = stopData.get("name");
+            askForVerifyStop.setText(String.format("Ok, what about the %s stop?", stopName));
+        }
+
+        PlainTextOutputSpeech verifyStopSpeech = new PlainTextOutputSpeech();
+        verifyStopSpeech.setText(String.format("Did you mean the %s stop?", stopName));
+        Reprompt verifyStopReprompt = new Reprompt();
+        verifyStopReprompt.setOutputSpeech(verifyStopSpeech);
+
+        return SpeechletResponse.newAskResponse(askForVerifyStop, verifyStopReprompt);
+    }
+
     private SpeechletResponse createOrUpdateUser(Session session,
                                                  String cityName,
                                                  ObaStop stop,
-                                                 ObaRegion region,
-                                                 ObaUserClient obaUserClient) throws SpeechletException {
+                                                 ObaRegion region) {
+        return createOrUpdateUser(session, cityName, stop.getId(), stop.getStopCode(), region);
+    }
+
+    private SpeechletResponse createOrUpdateUser(Session session, String cityName, String stopId, String stopCode, ObaRegion region) {
         log.debug(String.format(
-                "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
-                cityName, stop.getId(), stop.getStopCode(), region.getId(), region.getName(), region.getObaBaseUrl()));
-
-        ObaArrivalInfoResponse response;
-        try {
-            response = obaUserClient.getArrivalsAndDeparturesForStop(
-                    stop.getId(),
-                    ARRIVALS_SCAN_MINS
-            );
-        } catch (IOException e) {
-            throw new SpeechletException(e);
-        }
-
-        String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
-
-        log.info("Full arrival text output: " + arrivalInfoText);
+            "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
+            cityName, stopId, stopCode, region.getId(), region.getName(), region.getObaBaseUrl()));
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'Alexa, open One Bus Away'.  Right now, %s",
-                stop.getStopCode(), region.getName(), arrivalInfoText);
-
+                        "Great.  I am ready to tell you about the next bus.",
+                stopCode, region.getName());
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
             userData.setCity(cityName);
-            userData.setStopId(stop.getId());
+            userData.setStopId(stopId);
             userData.setRegionId(region.getId());
             userData.setRegionName(region.getName());
             userData.setObaBaseUrl(region.getObaBaseUrl());
             userData.setPreviousResponse(outText);
-            userData.setLastAccessTime(System.currentTimeMillis());
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
                     session.getUser().getUserId(),
                     cityName,
-                    stop.getId(),
+                    stopId,
                     region.getId(),
                     region.getName(),
                     region.getObaBaseUrl(),
                     outText,
-                    System.currentTimeMillis(),
                     null
             );
             obaDao.saveUserData(userData);
