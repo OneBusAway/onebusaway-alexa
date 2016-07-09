@@ -8,9 +8,19 @@ Are you ready to ask your [Amazon Echo](http://www.amazon.com/echo), *"Alexa, wh
 This project is an implementation of the [OneBusAway](http://onebusaway.org/) open-source platform for real-time transit info for Amazon's [Alexa Voice Service](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service).
 
 ## Install and Use
-This project isn't released publicly yet.  We plan to make the first release in early 2016.
 
-Never miss the bus again!
+### Enabling the OneBusAway skill
+
+To enable this skill on your Alexa device, you can say, "Enable OneBusAway skill." 
+
+You can also search for and enable skills in the Alexa app: 
+
+1. Open the Alexa app.
+1. Open the left navigation panel, and then select Skills.
+1. Use the search bar to enter "OneBusAway".
+1. Tap on the "OneBusAway" skill, and select Enable Skill.
+
+### Using the OneBusAway skill
 
 Just say "Alexa, open OneBusAway" to get started.  You'll set your city and favorite stop, using the stop number.  Then, just say "Alexa, open OneBusAway" to get arrival times for your favorite stop.  You can also change your city or stop at any point, or ask OneBusAway to repeat the last information.
 
