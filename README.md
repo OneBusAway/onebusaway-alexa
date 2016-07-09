@@ -30,6 +30,20 @@ Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt
 
 Our [user interface flow diagram](USER_INTERFACE_FLOW.md) also defined how you can interact with the skill.
 
+### Available cities
+
+The OneBusAway skill is currently available in the following cities:
+
+* Atlanta, GA
+* Puget Sound, WA
+* Rogue Valley Transportation District, Oregon
+* San Diego Metropolitan Transit System, California
+* Tampa, FL
+* Washington, D.C.
+* York, Canada
+
+See [OneBusAway Deployments](http://onebusaway.org/onebusaway-deployments/) for more information about available OneBusAway regions.
+
 ## Contributing
 Want to make OneBusAway Alexa better?  We welcome collaboration!  See our [Contributing Guide](.github/CONTRIBUTING.md) for more details.
 
