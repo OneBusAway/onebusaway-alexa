@@ -95,6 +95,8 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
+        AskState askState = getAskState(session);
+        session.setAttribute(ASK_STATE, AskState.NONE.toString());
         if (HELP.equals(intent.getName()) ||
                 GET_ARRIVALS.equals(intent.getName()) ||
                 GET_STOP_NUMBER.equals(intent.getName()) ||
@@ -163,8 +165,52 @@ public class AnonSpeechlet implements Speechlet {
                     stopNumberStr,
                     session);
         } else if (YES.equals(intent.getName())) {
-            ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
-            if (stops != null && stops.size() > 0) {
+            return handleYesIntent(session, askState);
+        } else if (NO.equals(intent.getName())) {
+            return handleNoInent(session, askState);
+        } else if (STOP.equals(intent.getName())) {
+            return goodbye();
+        } else {
+            throw new SpeechletException("Did not recognize intent name");
+        }
+    }
+
+    @Override
+    public void onSessionEnded(SessionEndedRequest sessionEndedRequest, Session session) throws SpeechletException {
+
+    }
+
+    private SpeechletResponse handleYesIntent(Session session, AskState askState) throws SpeechletException {
+        if (askState == AskState.VERIFYSTOP) {
+            return handleVerifyStopResponse(session, true /*stopFound*/);
+        }
+
+        log.error("Recieved yes intent without a question.");
+        return askForCity(Optional.empty());
+    }
+
+    private SpeechletResponse handleNoInent(Session session, AskState askState) throws SpeechletException {
+        if (askState == AskState.VERIFYSTOP) {
+            return handleVerifyStopResponse(session, false /*stopFound*/);
+        }
+
+        log.error("Recieved no intent without a question.");
+        return askForCity(Optional.empty());
+    }
+
+    private AskState getAskState(Session session) {
+        AskState askState = AskState.NONE;
+        String savedAskState = (String)session.getAttribute(ASK_STATE);
+        if (savedAskState != null) {
+            askState = AskState.valueOf(savedAskState);
+        }
+        return askState;
+    }
+
+    private SpeechletResponse handleVerifyStopResponse(Session session, boolean stopFound) throws SpeechletException {
+        ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+        if (stops != null) {
+            if (stopFound && stops.size() > 0) {
                 String cityName = (String)session.getAttribute(CITY_NAME);
 
                 Optional<Location> location = googleMaps.geocode(cityName);
@@ -192,28 +238,14 @@ public class AnonSpeechlet implements Speechlet {
 
                 LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) stops.get(0);
                 return createOrUpdateUser(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get(), obaUserClient);
-            }
-
-            return reaskForStopNumber();
-        } else if (NO.equals(intent.getName())) {
-            ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
-            if (stops != null && stops.size() > 1) {
+            } else if (!stopFound && stops.size() > 1) {
                 stops.remove(0);
                 session.setAttribute(FOUND_STOPS, stops);
                 return askToVerifyStop(session, null);
             }
-
-            return reaskForStopNumber();
-        } else if (STOP.equals(intent.getName())) {
-            return goodbye();
-        } else {
-            throw new SpeechletException("Did not recognize intent name");
         }
-    }
 
-    @Override
-    public void onSessionEnded(SessionEndedRequest sessionEndedRequest, Session session) throws SpeechletException {
-
+        return reaskForStopNumber();
     }
 
     private OnboardState getOnboardState(Session session) {
@@ -305,6 +337,7 @@ public class AnonSpeechlet implements Speechlet {
         Reprompt verifyStopReprompt = new Reprompt();
         verifyStopReprompt.setOutputSpeech(verifyStopSpeech);
 
+        session.setAttribute(ASK_STATE, AskState.VERIFYSTOP.toString());
         return SpeechletResponse.newAskResponse(askForVerifyStop, verifyStopReprompt);
     }
 
