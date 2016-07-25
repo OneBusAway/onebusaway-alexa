@@ -36,7 +36,7 @@ import java.net.URISyntaxException;
  */
 public class ObaUserClient extends ObaClientSharedCode {
     private static final int DEFAULT_SEARCH_RADIUS_METERS = 40000;
-    public static final int ARRIVALS_SCAN_MINS = 35;
+    public static final int ARRIVALS_SCAN_MINS = 65;
 
     public ObaUserClient(@NonNull String obaBaseUrl) throws URISyntaxException {
         log.debug("Instantiating ObaUserClient with obaBaseUrl " + obaBaseUrl);
