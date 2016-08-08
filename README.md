@@ -120,5 +120,11 @@ CAUTION: Every time you re-deploy to Lambda using the `lambduh-maven-plugin`, yo
 manually re-add "Alexa Skills Kit" as the function's _Event Source_.  You do not need to
 do this if you deploy your code through the Lambda UI in AWS Console.
 
+### Testing without an Alexa device
+
+Don't have an Amazon Echo?  No worries, try out the [Alexa Skill Testing Tool](https://echosim.io/).  
+
+It simulates the Echo experience within your web browser.  Just remember to log in using the same Amazon account that you've used above to set up the skill.
+
 ## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
