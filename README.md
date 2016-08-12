@@ -124,7 +124,7 @@ do this if you deploy your code through the Lambda UI in AWS Console.
 
 Don't have an Amazon Echo?  No worries, try out the [Alexa Skill Testing Tool](https://echosim.io/).  
 
-It simulates the Echo experience within your web browser.  Just remember to log in using the same Amazon account that you've used above to set up the skill.
+It simulates the Echo experience within your web browser (successfully tested with Firefox - Chrome and Microsoft Edge don't seem to work).  Just remember to log in using the same Amazon account that you've used above to set up the skill.
 
 ## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
