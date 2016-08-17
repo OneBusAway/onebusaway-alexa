@@ -81,6 +81,10 @@ public class AuthedSpeechlet implements Speechlet {
             return getCity();
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
+        } else if (YES.equals(intent.getName())) {
+            return anonSpeechlet.onIntent(request, session);
+        } else if (NO.equals(intent.getName())) {
+            return anonSpeechlet.onIntent(request, session);
         } else if (GET_STOP_NUMBER.equals(intent.getName())) {
             return getStopDetails();
         } else if (GET_ARRIVALS.equals(intent.getName())) {
