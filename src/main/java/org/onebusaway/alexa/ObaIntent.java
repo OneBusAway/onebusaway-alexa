@@ -28,4 +28,6 @@ public class ObaIntent {
     public static final String HELP = "AMAZON.HelpIntent";
     public static final String REPEAT = "AMAZON.RepeatIntent";
     public static final String STOP = "AMAZON.StopIntent";
+    public static final String YES = "AMAZON.YesIntent";
+    public static final String NO = "AMAZON.NoIntent";
 }

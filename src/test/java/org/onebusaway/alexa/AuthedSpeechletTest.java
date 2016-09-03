@@ -353,6 +353,55 @@ public class AuthedSpeechletTest {
     }
 
     @Test
+    public void setStopWithDuplicateIds() throws SpeechletException, IOException {
+        String newStopCode = "2340";
+
+        // Mock persisted user data for Test Region 2
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId("6497");
+        testUserData.setCity(TEST_REGION_2.getName());
+        testUserData.setRegionName(TEST_REGION_2.getName());
+        testUserData.setRegionId(TEST_REGION_2.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_2.getObaBaseUrl());
+
+        // Mock stop info
+        ObaStop[] obaStopsArray = new ObaStop[2];
+        obaStopsArray[0] = obaStop;
+        obaStopsArray[1] = obaStop;
+
+        new Expectations() {{
+            googleMaps.geocode(TEST_REGION_2.getName());
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+
+            obaUserClient.getStopFromCode(l, newStopCode); result = obaStopsArray;
+            obaStop.getName(); result = "stop name";
+            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_2);
+        }};
+
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(STOP_NUMBER, Slot.builder()
+                .withName(STOP_NUMBER)
+                .withValue(newStopCode).build());
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                 IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_STOP_NUMBER)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("We found 2 stops associated with the stop number."));
+    }
+
+    @Test
     public void goodbye() throws SpeechletException, IOException {
         TestUtil.assertGoodbye(authedSpeechlet, session);
     }
