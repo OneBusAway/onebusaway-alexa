@@ -122,9 +122,12 @@ do this if you deploy your code through the Lambda UI in AWS Console.
 
 ### Testing without an Alexa device
 
-Don't have an Amazon Echo?  No worries, try out the [Alexa Skill Testing Tool](https://echosim.io/).  
+Don't have an Amazon Echo?  No worries, there are a few options.
 
-It simulates the Echo experience within your web browser (successfully tested with Firefox - Chrome and Microsoft Edge don't seem to work).  Just remember to log in using the same Amazon account that you've used above to set up the skill.
+1. [**Alexa Skill Testing Tool**](https://echosim.io/) - It simulates the Echo experience within your web browser (successfully tested with Firefox - Chrome and Microsoft Edge don't seem to work).
+1. [**Roger, with Alexa**](https://rogertalk.com/login?continue=%2Fauth%2Falexa) - [Roger](https://rogertalk.com/) is a free group voice messenger app, and it supports communicating with Alexa.  See [this Engadget article](https://www.engadget.com/2016/05/12/roger-app-puts-amazon-alexa-in-your-phone-for-free/) for details.
+
+For both of the above, just remember to log in using the same Amazon account that you've used above to set up the skill.
 
 ## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
