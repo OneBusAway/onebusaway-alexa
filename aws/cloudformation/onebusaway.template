@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
 
-  "Description": "OneBusAway Alexa app",
+  "Description": "OneBusAway Alexa app AWS infrastructure",
 
   "Parameters": {
     "UserDbPrimaryReadThroughput": {
@@ -17,13 +17,29 @@
   },
 
   "Outputs": {
-    "appAccessKeyId": {
+    "appExecutionAccessKey": {
       "Description": "AWS access key ID for Alexa app",
-      "Value": {"Ref": "appAccessKey"}
+      "Value": {"Ref": "appExecutionAccessKey"}
     },
-    "appAccessSecretKey": {
+    "appExecutionSecretKey": {
       "Description": "AWS access secret key for Alexa app",
-      "Value": {"Fn::GetAtt": ["appAccessKey", "SecretAccessKey"]}
+      "Value": {"Fn::GetAtt": ["appExecutionAccessKey", "SecretAccessKey"]}
+    },
+    "lambdaDeploymentAccessKey": {
+      "Description": "AWS access key for Lambda deployment",
+      "Value": {"Ref": "lambdaDeploymentAccessKey"}
+    },
+    "lambdaDeploymentSecretKey": {
+      "Description": "AWS access secret key for Lambda deployment",
+      "Value": {"Fn::GetAtt": ["lambdaDeploymentAccessKey", "SecretAccessKey"]}
+    },
+    "lambdaDeploymentS3Bucket": {
+      "Description": "S3 bucket name for Lambda deployment",
+      "Value": {"Ref": "lambdaDeploymentS3Bucket"}
+    },
+    "lambdaExecutionRoleARN": {
+      "Description": "Lambda execution role ARN",
+      "Value": {"Fn::GetAtt": ["lambdaExecutionRole", "Arn"]}
     }
   },
 
@@ -44,10 +60,10 @@
         }
       }
     },
-    "appIamPolicy": {
+    "appExecutionPolicy": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
-        "PolicyName": "ObaAppPolicy",
+        "PolicyName": "oba-app-execution-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [
@@ -77,17 +93,56 @@
           ]
         }
         ,
-        "Users": [{"Ref": "appIamUser"}]
+        "Users": [{"Ref": "appExecutionUser"}]
       }
     },
-    "appIamUser": {
-      "Type": "AWS::IAM::User"
+    "appExecutionUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "oba-app-execution-user"
+      }
     },
-    "appAccessKey": {
+    "appExecutionAccessKey": {
       "Type": "AWS::IAM::AccessKey",
       "Properties": {
-        "UserName": {"Ref": "appIamUser"},
+        "UserName": {"Ref": "appExecutionUser"},
         "Status": "Active"
+      }
+    },
+    "lambdaDeploymentS3Bucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {}
+    },
+    "lambdaDeploymentUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "oba-lambda-deployment-user",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+          "arn:aws:iam::aws:policy/AWSLambdaFullAccess"
+        ]
+      }
+    },
+    "lambdaDeploymentAccessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "UserName": {
+          "Ref": "lambdaDeploymentUser"
+        },
+        "Status": "Active"
+      }
+    },
+    "lambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "oba-lambda-execution-role",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{ "Effect": "Allow", "Principal": {"Service": ["lambda.amazonaws.com"]}, "Action": ["sts:AssumeRole"] }]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ]
       }
     }
   }
