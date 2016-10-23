@@ -11,6 +11,9 @@ local.properties
 .settings/
 .loadpath
 
+# Local configuration file
+src/main/resources/onebusaway.properties
+
 # Eclipse Core
 .project
 
