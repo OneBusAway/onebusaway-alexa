@@ -369,7 +369,7 @@ public class AnonSpeechlet implements Speechlet {
         log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
                         "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'Alexa, open One Bus Away'.  Right now, %s",
+                        "by saying 'open One Bus Away'.  Right now, %s",
                 stopCode, region.getName(), arrivalInfoText);
 
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
