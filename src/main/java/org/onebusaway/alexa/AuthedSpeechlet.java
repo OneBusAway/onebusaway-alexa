@@ -89,7 +89,7 @@ public class AuthedSpeechlet implements Speechlet {
             return getStopDetails();
         } else if (GET_ARRIVALS.equals(intent.getName())) {
             return tellArrivals();
-        } else if (STOP.equals(intent.getName())) {
+        } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
             return goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");

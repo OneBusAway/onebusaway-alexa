@@ -168,7 +168,7 @@ public class AnonSpeechlet implements Speechlet {
             return handleYesIntent(session, askState);
         } else if (NO.equals(intent.getName())) {
             return handleNoIntent(session, askState);
-        } else if (STOP.equals(intent.getName())) {
+        } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
             return goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");
