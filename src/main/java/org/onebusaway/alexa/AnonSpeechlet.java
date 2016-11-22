@@ -105,6 +105,8 @@ public class AnonSpeechlet implements Speechlet {
             return askForCity(Optional.empty());
         } else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
+            //if we're at STOP_BEFORE_CITY, preserve state until we're sure we have a region
+            session.setAttribute(ASK_STATE, askState.toString());
             if (cityName == null) {
                 return askForCity(Optional.empty());
             }
@@ -133,10 +135,19 @@ public class AnonSpeechlet implements Speechlet {
                 session.setAttribute(REGION_ID, region.get().getId());
                 session.setAttribute(REGION_NAME, region.get().getName());
                 session.setAttribute(OBA_BASE_URL, region.get().getObaBaseUrl());
-                PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-                out.setText(String.format("Ok, we found the %s region near you.  What's your stop number?",
-                        region.get().getName()));
-                return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+                //no longer need to preserve STOP_BEFORE_CITY state
+                session.setAttribute(ASK_STATE, AskState.NONE.toString());
+
+                if (askState == AskState.STOP_BEFORE_CITY) {
+                    return setStopNumber(
+                            (String) session.getAttribute(STOP_NUMBER),
+                            session);
+                } else {
+                    PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+                    out.setText(String.format("Ok, we found the %s region near you.  What's your stop number?",
+                            region.get().getName()));
+                    return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+                }
             }
         } else if (GET_CITY.equals(intent.getName())) {
             String city = (String)session.getAttribute(CITY_NAME);
@@ -267,7 +278,7 @@ public class AnonSpeechlet implements Speechlet {
         log.debug(String.format(
                 "Asked to set stop number %s in city %s for region %s...", spokenStopNumber, cityName, regionName));
         if (cityName == null) {
-            return askForCity(Optional.empty());
+            return askForCityAfterStop(spokenStopNumber, session);
         }
 
         // Map city name to a geographic location - even if we've done this before, we want to refresh the info
@@ -317,6 +328,15 @@ public class AnonSpeechlet implements Speechlet {
         }
     }
 
+    private SpeechletResponse askForCityAfterStop(String spokenStopNumber, Session session) {
+        session.setAttribute(STOP_NUMBER, spokenStopNumber);
+        session.setAttribute(ASK_STATE, AskState.STOP_BEFORE_CITY.toString());
+        PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
+        citySpeech.setText(String.format("You haven't set your region yet. In what city is stop %s?", spokenStopNumber));
+
+        return SpeechletResponse.newAskResponse(citySpeech, cityReprompt);
+    }
+
     private SpeechletResponse askToVerifyStop(Session session, ObaStop[] stops) {
         PlainTextOutputSpeech askForVerifyStop = new PlainTextOutputSpeech();
         String stopName = "";
@@ -344,7 +364,7 @@ public class AnonSpeechlet implements Speechlet {
     private SpeechletResponse createOrUpdateUser(Session session,
                                                  String cityName,
                                                  ObaStop stop,
-                                                 ObaRegion region, 
+                                                 ObaRegion region,
                                                  ObaUserClient obaUserClient) throws SpeechletException {
         return createOrUpdateUser(session, cityName, stop.getId(), stop.getStopCode(), region, obaUserClient);
     }
