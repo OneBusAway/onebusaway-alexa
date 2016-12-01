@@ -32,6 +32,7 @@ public class SessionAttribute {
 
     public enum AskState {
         NONE,
-        VERIFYSTOP
+        VERIFYSTOP,
+        STOP_BEFORE_CITY
     }
 }
