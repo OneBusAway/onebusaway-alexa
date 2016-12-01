@@ -20,6 +20,10 @@ import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.util.ArrivalInfo;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Utilities for speech-related actions
  */
@@ -27,27 +31,35 @@ import org.onebusaway.io.client.util.ArrivalInfo;
 public class SpeechUtil {
 
     /**
-     * Format the arrival info for speach
+     * Filter out arrivals and departures which already happened. Format arrival info for speech.
+     *
      * @param arrivals arrival information
      * @param arrivalScanMins number of minutes ahead that the arrival information was requested for
      * @param currentTime the time when this arrival information was generated
      * @return the arrival info text formatted for speech
      */
-    public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime) {
+    public static String prepareArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime) {
         String output;
 
-        if (arrivals.length == 0) {
-            output = "There are no upcoming arrivals at your stop for the next "
-                    + arrivalScanMins + " minutes.";
+        List<ArrivalInfo> arrivalInfos = Arrays.stream(arrivals)
+                .map(arrival -> {
+                    log.info("Arrival: " + arrival);
+                    return new ArrivalInfo(arrival, currentTime, false); //convert
+                })
+                .filter(arrivalInfo -> arrivalInfo.getEta() >= 0L) //leave out arrivals with negative ETA (already arrived/departed), no need to announce them
+                .collect(Collectors.toList());
+
+        if (arrivalInfos.isEmpty()) {
+            output = String.format("There are no upcoming arrivals at your stop for the next %d minutes.", arrivalScanMins);
         } else {
             StringBuilder sb = new StringBuilder();
-            for (ObaArrivalInfo obaArrival: arrivals) {
-                log.info("Arrival: " + obaArrival);
-                ArrivalInfo arrival = new ArrivalInfo(obaArrival, currentTime, false);
-                sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
+            for (ArrivalInfo arrivalInfo: arrivalInfos) {
+                sb.append(arrivalInfo.getLongDescription() + " -- "); //with pause between sentences
             }
             output = sb.toString();
         }
+
         return output;
     }
+
 }

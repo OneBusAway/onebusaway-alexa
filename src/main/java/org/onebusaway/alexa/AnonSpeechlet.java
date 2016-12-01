@@ -384,7 +384,7 @@ public class AnonSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
-        String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
+        String arrivalInfoText = SpeechUtil.prepareArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
 
         log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +

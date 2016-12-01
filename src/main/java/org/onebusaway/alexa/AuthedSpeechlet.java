@@ -177,7 +177,7 @@ public class AuthedSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
-        String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
+        String output = SpeechUtil.prepareArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
 
         log.info("Full text output: " + output);
         saveOutputForRepeat(output);

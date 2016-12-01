@@ -401,6 +401,35 @@ public class AuthedSpeechletTest {
         assertThat(spoken, startsWith("We found 2 stops associated with the stop number."));
     }
 
+    /**
+     * Test that arrivals with negative ETA (already arrived) are not announced.
+     * */
+    @Test
+    public void excludeArrivalsAlreadyArrived() throws SpeechletException, IOException {
+        long now = System.currentTimeMillis();
+
+        //initialize arrivals with one backdated arrival
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
+        obaArrivalInfoArray[0] = obaArrivalInfo;
+
+        new Expectations() {{
+            obaArrivalInfo.getStopSequence(); result = 1;
+            obaArrivalInfo.getScheduledArrivalTime(); result = now - 100500; //set scheduled arrival time in the past
+            obaArrivalInfoResponse.getCurrentTime(); result = now;
+            obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
+        }};
+
+        SpeechletResponse sr = authedSpeechlet.onLaunch(
+                launchRequest,
+                session);
+
+        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+
+        //verify it's been filtered out
+        assertThat(spoken, startsWith("There are no upcoming arrivals at your stop for the next"));
+    }
+
     @Test
     public void goodbye() throws SpeechletException, IOException {
         TestUtil.assertGoodbye(authedSpeechlet, session);
