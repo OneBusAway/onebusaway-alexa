@@ -19,6 +19,9 @@ package org.onebusaway.alexa.util;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.util.ArrivalInfo;
+import org.onebusaway.io.client.util.UIUtils;
+
+import java.util.List;
 
 /**
  * Utilities for speech-related actions
@@ -40,13 +43,11 @@ public class SpeechUtil {
             output = "There are no upcoming arrivals at your stop for the next "
                     + arrivalScanMins + " minutes.";
         } else {
-            StringBuilder sb = new StringBuilder();
-            for (ObaArrivalInfo obaArrival: arrivals) {
-                log.info("Arrival: " + obaArrival);
-                ArrivalInfo arrival = new ArrivalInfo(obaArrival, currentTime, false);
-                sb.append(arrival.getLongDescription() + " -- "); //with pause between sentences
-            }
-            output = sb.toString();
+            List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
+                    currentTime, false);
+            final String SEPARATOR = " -- "; // with pause between sentences
+            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR);
+            log.info("ArrivalInfo: " + output);
         }
         return output;
     }
