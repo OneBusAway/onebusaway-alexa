@@ -44,9 +44,9 @@ public class SpeechUtil {
                     + arrivalScanMins + " minutes.";
         } else {
             List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
-                    currentTime, false);
+                    currentTime, false, false, null);
             final String SEPARATOR = " -- "; // with pause between sentences
-            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR);
+            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, false, null);
             log.info("ArrivalInfo: " + output);
         }
         return output;
