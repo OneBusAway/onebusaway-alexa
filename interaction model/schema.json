@@ -50,6 +50,12 @@
           "type": "TRANSIT_MODES"
         }
       ]
+    },
+    {
+      "intent": "EnableClockTime"
+    },
+    {
+      "intent": "DisableClockTime"
     }
   ]
 }

@@ -33,6 +33,7 @@ import org.onebusaway.io.client.request.ObaStopResponse;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.TimeZone;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
@@ -69,7 +70,8 @@ public class AuthedSpeechlet implements Speechlet {
             out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
             "at a stop of your choice.  You've already configured your region and stop, " +
             "so just open the skill or ask me for arrivals. " +
-            "You can also ask me to change your city or stop.");
+                    "You can also ask me to change your city or stop." +
+                    "I can also tell you times in a clock format such as 10:25 PM.  You can enable this by saying enable clock times, and disable it by saying disable clock times.");
             return SpeechletResponse.newTellResponse(out);
         } else if (REPEAT.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
@@ -89,6 +91,10 @@ public class AuthedSpeechlet implements Speechlet {
             return getStopDetails();
         } else if (GET_ARRIVALS.equals(intent.getName())) {
             return tellArrivals();
+        } else if (ENABLE_CLOCK_TIME.equals(intent.getName())) {
+            return enableClockTime(session);
+        } else if (DISABLE_CLOCK_TIME.equals(intent.getName())) {
+            return disableClockTime(session);
         } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
             return goodbye();
         } else {
@@ -142,6 +148,12 @@ public class AuthedSpeechlet implements Speechlet {
         if (session.getAttribute(LAST_ACCESS_TIME) == null) {
             session.setAttribute(LAST_ACCESS_TIME, userData.getLastAccessTime());
         }
+        if (session.getAttribute(CLOCK_TIME) == null) {
+            session.setAttribute(CLOCK_TIME, userData.getSpeakClockTime());
+        }
+        if (session.getAttribute(TIME_ZONE) == null) {
+            session.setAttribute(TIME_ZONE, userData.getTimeZone());
+        }
     }
 
     private SpeechletResponse getCity() {
@@ -177,9 +189,55 @@ public class AuthedSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
-        String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS, response.getCurrentTime());
+        String timeZoneText = userData.getTimeZone();
+        log.debug("time zone is " + timeZoneText);
+        TimeZone timeZone = null;
+        if (!TextUtils.isEmpty(timeZoneText)) {
+            timeZone = TimeZone.getTimeZone(timeZoneText);
+        }
+
+        String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
+                response.getCurrentTime(), userData.getSpeakClockTime(), timeZone);
 
         log.info("Full text output: " + output);
+        saveOutputForRepeat(output);
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
+
+    private SpeechletResponse enableClockTime(Session session) throws SpeechletException {
+        return updateClockTime(1, session);
+
+    }
+
+    private SpeechletResponse disableClockTime(Session session) throws SpeechletException {
+        return updateClockTime(0, session);
+    }
+
+    /**
+     * Update if clock times should be announced to the user or not (if not, ETAs are used)
+     *
+     * @param enableClockTime true if clock times should be enabled, false if they should be disabled
+     */
+    private SpeechletResponse updateClockTime(long enableClockTime, Session session) throws SpeechletException {
+        TimeZone timeZone;
+        try {
+            timeZone = obaUserClient.getTimeZone();
+        } catch (IOException e) {
+            throw new SpeechletException(e);
+        }
+
+        // Update DAO
+        userData.setSpeakClockTime(enableClockTime);
+        userData.setTimeZone(timeZone.getID());
+        obaDao.saveUserData(userData);
+
+        // Update session
+        session.setAttribute(CLOCK_TIME, enableClockTime);
+        session.setAttribute(TIME_ZONE, timeZone.getID());
+
+        String output = String.format("Clock times are now %s", enableClockTime == 1 ? "enabled" : "disabled");
         saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);

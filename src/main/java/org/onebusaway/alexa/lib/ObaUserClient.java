@@ -19,12 +19,14 @@ package org.onebusaway.alexa.lib;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
+import org.onebusaway.io.client.elements.ObaAgencyWithCoverage;
 import org.onebusaway.io.client.elements.ObaStop;
 import org.onebusaway.io.client.request.*;
 import org.onebusaway.location.Location;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.TimeZone;
 
 @Log4j
 /*
@@ -129,6 +131,23 @@ public class ObaUserClient extends ObaClientSharedCode {
             return response;
         } else {
             throw new IOException(String.format("OBA Error %s getting arrivals and departures for %s", response.getCode(), stopId));
+        }
+    }
+
+    /**
+     * Returns time zone for the current OneBusAway region
+     *
+     * @return time zone for the current OneBusAway region
+     */
+    public TimeZone getTimeZone() throws IOException {
+        ObaAgenciesWithCoverageResponse response = new ObaAgenciesWithCoverageRequest.Builder().build().call();
+        log.debug("ObaAgenciesWithCoverageRequest returned " + response.toString());
+        if (response.getCode() == ObaApi.OBA_OK) {
+            ObaAgencyWithCoverage[] agencies = response.getAgencies();
+            String timeZoneText = response.getRefs().getAgency(agencies[0].getId()).getTimezone();
+            return TimeZone.getTimeZone(timeZoneText);
+        } else {
+            throw new IOException(String.format("OBA Error %s getting timezone", response.getCode()));
         }
     }
 }

@@ -29,6 +29,8 @@ public class SessionAttribute {
     public static final String LAST_ACCESS_TIME = "lastAccessTime";
     public static final String FOUND_STOPS = "foundStops";
     public static final String ASK_STATE = "askState";
+    public static final String CLOCK_TIME = "clockTime";
+    public static final String TIME_ZONE = "timeZone";
 
     public enum AskState {
         NONE,

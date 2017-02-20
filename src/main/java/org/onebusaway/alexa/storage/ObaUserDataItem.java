@@ -80,6 +80,16 @@ public class ObaUserDataItem {
     @DynamoDBAttribute(attributeName = "LastAccessTime")
     private long lastAccessTime;
 
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "SpeakClockTime")
+    private long speakClockTime;
+
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "TimeZone")
+    private String timeZone;
+
     @DynamoDBVersionAttribute
     private Long version;
 }
