@@ -22,6 +22,7 @@ import org.onebusaway.io.client.util.ArrivalInfo;
 import org.onebusaway.io.client.util.UIUtils;
 
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Utilities for speech-related actions
@@ -36,17 +37,22 @@ public class SpeechUtil {
      * @param currentTime the time when this arrival information was generated
      * @return the arrival info text formatted for speech
      */
-    public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime) {
+    public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime, long clockTime, TimeZone timeZone) {
         String output;
+
+        boolean clockTimeBool = false;
+        if (clockTime == 1) {
+            clockTimeBool = true;
+        }
 
         if (arrivals.length == 0) {
             output = "There are no upcoming arrivals at your stop for the next "
                     + arrivalScanMins + " minutes.";
         } else {
             List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
-                    currentTime, false, false, null);
+                    currentTime, false, clockTimeBool, timeZone);
             final String SEPARATOR = " -- "; // with pause between sentences
-            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, false, null);
+            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone);
             log.info("ArrivalInfo: " + output);
         }
         return output;

@@ -54,10 +54,10 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.onebusaway.alexa.ObaIntent.*;
-import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
-import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
+import static org.onebusaway.alexa.SessionAttribute.*;
 import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -274,6 +274,46 @@ public class AuthedSpeechletTest {
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, startsWith("Ok, we found the " + TEST_REGION_1.getName() +
                 " region near you.  What's your stop number?"));
+    }
+
+    @Test
+    public void enableClockTimes() throws SpeechletException {
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(ENABLE_CLOCK_TIME)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Clock times are now enabled"));
+        assertEquals((long) session.getAttribute(CLOCK_TIME), 1L);
+        assertEquals(testUserData.getSpeakClockTime(), 1L);
+    }
+
+    @Test
+    public void disableClockTimes() throws SpeechletException {
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(DISABLE_CLOCK_TIME)
+                                        .withSlots(new HashMap<String, Slot>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Clock times are now disabled"));
+        assertEquals((long) session.getAttribute(CLOCK_TIME), 0L);
+        assertEquals(testUserData.getSpeakClockTime(), 0L);
     }
 
     @Test

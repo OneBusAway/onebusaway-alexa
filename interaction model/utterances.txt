@@ -92,6 +92,16 @@ GetStopNumberIntent what my stop is
 GetStopNumberIntent what my stop i.d. is
 GetStopNumberIntent what my stop name is
 
+EnableClockTime enable clock time
+EnableClockTime enable clock times
+EnableClockTime turn on clock time
+EnableClockTime turn on clock times
+
+DisableClockTime disable clock time
+DisableClockTime disable clock times
+DisableClockTime turn off clock time
+DisableClockTime turn off clock times
+
 GetArrivalsIntent where is my {TransitMode}
 GetArrivalsIntent where's my {TransitMode}
 GetArrivalsIntent when is my {TransitMode}
