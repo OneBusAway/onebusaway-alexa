@@ -384,9 +384,12 @@ public class AnonSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
-        Long speakClockTime = (Long) session.getAttribute(CLOCK_TIME);
-        if (speakClockTime == null) {
-            speakClockTime = 0L;
+        Object speakClockTimeSessionObject = session.getAttribute(CLOCK_TIME);
+        Long speakClockTime = 0L;
+        if (speakClockTimeSessionObject instanceof Integer) {
+            // This happens if it's never been set before - ignore it
+        } else if (speakClockTimeSessionObject instanceof Long) {
+            speakClockTime = (Long) speakClockTimeSessionObject;
         }
 
         TimeZone timeZone;
