@@ -52,7 +52,7 @@ public class SpeechUtil {
             List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
                     currentTime, false, clockTimeBool, timeZone);
             final String SEPARATOR = " -- "; // with pause between sentences
-            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone);
+            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, null);
             log.info("ArrivalInfo: " + output);
         }
         return output;
