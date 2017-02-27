@@ -27,6 +27,7 @@ public class ObaIntent {
     public static final String GET_ARRIVALS = "GetArrivalsIntent";
     public static final String ENABLE_CLOCK_TIME = "EnableClockTime";
     public static final String DISABLE_CLOCK_TIME = "DisableClockTime";
+    public static final String SET_ROUTE_FILTER = "SetRouteFilter";
     public static final String HELP = "AMAZON.HelpIntent";
     public static final String REPEAT = "AMAZON.RepeatIntent";
     public static final String STOP = "AMAZON.StopIntent";

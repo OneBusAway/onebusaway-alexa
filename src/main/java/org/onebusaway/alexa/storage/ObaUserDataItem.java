@@ -25,6 +25,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 /**
  * Model representing an item of the User Data table in DynamoDB for the
  * OneBusAway skill.
@@ -89,6 +92,16 @@ public class ObaUserDataItem {
     @Setter
     @DynamoDBAttribute(attributeName = "TimeZone")
     private String timeZone;
+
+    /**
+     * A set of stops (stop_id is the key) that are each mapped to a set of routeIds that should NOT
+     * be read to the user.  routeIds can change when GTFS data changes, so we need to allow new routeIds to surface if
+     * they haven't been seen before, and then the user can choose to filter them out.
+     */
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "RouteFilters")
+    private HashMap<String, HashSet<String>> routesToFilter;
 
     @DynamoDBVersionAttribute
     private Long version;

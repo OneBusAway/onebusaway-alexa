@@ -99,6 +99,7 @@ public class AnonSpeechlet implements Speechlet {
                 GET_STOP_NUMBER.equals(intent.getName()) ||
                 ENABLE_CLOCK_TIME.equals(intent.getName()) ||
                 DISABLE_CLOCK_TIME.equals(intent.getName()) ||
+                SET_ROUTE_FILTER.equals(intent.getName()) ||
                 REPEAT.equals(intent.getName())) {
             // User asked for help, or we don't yet have enough information to respond.  Return welcome message.
             return askForCity(Optional.empty());
@@ -208,7 +209,7 @@ public class AnonSpeechlet implements Speechlet {
         return askForCity(Optional.empty());
     }
 
-    private AskState getAskState(Session session) {
+    AskState getAskState(Session session) {
         AskState askState = AskState.NONE;
         String savedAskState = (String)session.getAttribute(ASK_STATE);
         if (savedAskState != null) {
@@ -218,7 +219,7 @@ public class AnonSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse handleVerifyStopResponse(Session session, boolean stopFound) throws SpeechletException {
-        ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+        ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(DIALOG_FOUND_STOPS);
         if (stops != null) {
             if (stopFound && stops.size() > 0) {
                 String cityName = (String)session.getAttribute(CITY_NAME);
@@ -250,7 +251,7 @@ public class AnonSpeechlet implements Speechlet {
                 return finishOnboard(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get(), obaUserClient);
             } else if (!stopFound && stops.size() > 1) {
                 stops.remove(0);
-                session.setAttribute(FOUND_STOPS, stops);
+                session.setAttribute(DIALOG_FOUND_STOPS, stops);
                 return askToVerifyStop(session, null);
             }
         }
@@ -341,11 +342,11 @@ public class AnonSpeechlet implements Speechlet {
         String stopName = "";
 
         if (stops != null && stops.length > 0) {
-            session.setAttribute(FOUND_STOPS, stops);
+            session.setAttribute(DIALOG_FOUND_STOPS, stops);
             stopName = stops[0].getName();
             askForVerifyStop.setText(String.format("We found %d stops associated with the stop number. Did you mean the %s stop?", stops.length, stopName));
         } else {
-            ArrayList<ObaStop> foundStops = (ArrayList<ObaStop>) session.getAttribute(FOUND_STOPS);
+            ArrayList<ObaStop> foundStops = (ArrayList<ObaStop>) session.getAttribute(DIALOG_FOUND_STOPS);
             LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) foundStops.get(0);
             stopName = stopData.get("name");
             askForVerifyStop.setText(String.format("Ok, what about the %s stop?", stopName));
@@ -395,17 +396,25 @@ public class AnonSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
+        HashMap<String, HashSet<String>> routeFilters = (HashMap<String, HashSet<String>>) session.getAttribute(ROUTES_TO_FILTER);
+        if (routeFilters == null) {
+            routeFilters = new HashMap<>();
+        }
+        HashSet routesToFilter = routeFilters.get((String) session.getAttribute(STOP_NUMBER));
+
         String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
-                response.getCurrentTime(), speakClockTime, timeZone);
+                response.getCurrentTime(), speakClockTime, timeZone, routesToFilter);
 
         log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
                         "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'open One Bus Away'.  Right now, %s",
+                        "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'.  " +
+                        "You can learn more about other features by asking me for help.  " +
+                        "Right now, %s",
                 stopCode, region.getName(), arrivalInfoText);
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
-                System.currentTimeMillis(), speakClockTime, timeZone);
+                System.currentTimeMillis(), speakClockTime, timeZone, routeFilters);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
@@ -414,7 +423,7 @@ public class AnonSpeechlet implements Speechlet {
 
     private void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
                                     String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                    long speakClockTime, TimeZone timeZone) {
+                                    long speakClockTime, TimeZone timeZone, HashMap<String, HashSet<String>> routeFilters) {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -427,6 +436,7 @@ public class AnonSpeechlet implements Speechlet {
             userData.setLastAccessTime(lastAccessTime);
             userData.setSpeakClockTime(speakClockTime);
             userData.setTimeZone(timeZone.getID());
+            userData.setRoutesToFilter(routeFilters);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -440,13 +450,14 @@ public class AnonSpeechlet implements Speechlet {
                     lastAccessTime,
                     speakClockTime,
                     timeZone.getID(),
+                    new HashMap<>(),
                     null
             );
             obaDao.saveUserData(userData);
         }
     }
 
-    private SpeechletResponse askForCity(Optional<String> currentCityName) {
+    SpeechletResponse askForCity(Optional<String> currentCityName) {
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         if (!currentCityName.isPresent()) {
             out.setText("Welcome to OneBusAway! Let's set you up. " +

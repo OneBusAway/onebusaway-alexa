@@ -27,14 +27,18 @@ public class SessionAttribute {
     public static final String OBA_BASE_URL = "obaBaseUrl";
     public static final String PREVIOUS_RESPONSE = "previousResponse";
     public static final String LAST_ACCESS_TIME = "lastAccessTime";
-    public static final String FOUND_STOPS = "foundStops";
+    public static final String DIALOG_FOUND_STOPS = "foundStops";
     public static final String ASK_STATE = "askState";
     public static final String CLOCK_TIME = "clockTime";
     public static final String TIME_ZONE = "timeZone";
+    public static final String ROUTES_TO_FILTER = "routesToFilter";
+    public static final String DIALOG_ROUTES_TO_ASK_ABOUT = "foundRoutes";
+    public static final String DIALOG_ROUTES_TO_FILTER = "dialogRoutesToFilter";
 
     public enum AskState {
         NONE,
         VERIFYSTOP,
-        STOP_BEFORE_CITY
+        STOP_BEFORE_CITY,
+        FILTER_INDIVIDUAL_ROUTE
     }
 }

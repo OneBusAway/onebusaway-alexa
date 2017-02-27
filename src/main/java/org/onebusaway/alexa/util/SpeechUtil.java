@@ -16,11 +16,14 @@
  */
 package org.onebusaway.alexa.util;
 
+import com.amazon.speech.speechlet.SpeechletResponse;
+import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.util.ArrivalInfo;
 import org.onebusaway.io.client.util.UIUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -35,9 +38,10 @@ public class SpeechUtil {
      * @param arrivals arrival information
      * @param arrivalScanMins number of minutes ahead that the arrival information was requested for
      * @param currentTime the time when this arrival information was generated
+     * @param routesToFilter a set of routeIds for routes that should NOT be read to the user
      * @return the arrival info text formatted for speech
      */
-    public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime, long clockTime, TimeZone timeZone) {
+    public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime, long clockTime, TimeZone timeZone, HashSet<String> routesToFilter) {
         String output;
 
         boolean clockTimeBool = false;
@@ -52,9 +56,24 @@ public class SpeechUtil {
             List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
                     currentTime, false, clockTimeBool, timeZone);
             final String SEPARATOR = " -- "; // with pause between sentences
-            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, null);
+            output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, routesToFilter);
             log.info("ArrivalInfo: " + output);
         }
         return output;
+    }
+
+    public static SpeechletResponse getGeneralErrorMessage() {
+        String output = String.format("Sorry, something went wrong.  Please try it again and it might work.");
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
+
+    public static SpeechletResponse getCommunicationErrorMessage() {
+        String output = String.format("Sorry, something went wrong communicating with your region's OneBusAway server.  " +
+                "Please try it again and it might work.");
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
     }
 }

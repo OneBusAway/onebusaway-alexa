@@ -26,6 +26,7 @@ import org.onebusaway.location.Location;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.TimeZone;
 
 @Log4j
@@ -148,6 +149,43 @@ public class ObaUserClient extends ObaClientSharedCode {
             return TimeZone.getTimeZone(timeZoneText);
         } else {
             throw new IOException(String.format("OBA Error %s getting timezone", response.getCode()));
+        }
+    }
+
+    /**
+     * Returns the full schedule for the given stopId and the given date (or the current date if date is null)
+     *
+     * @param stopId the stopId to return the schedule for
+     * @param date   the date to return the schedule for (or null if the current date should be used)
+     * @return the schedule for the given stop and day (or current date if date was null)
+     */
+    public ObaScheduleForStopResponse getScheduleForStop(@NonNull String stopId,
+                                                         Date date) throws IOException {
+        ObaScheduleForStopRequest.Builder requestBuilder = new ObaScheduleForStopRequest.Builder(stopId);
+        if (date != null) {
+            requestBuilder.setDate(date);
+        }
+        ObaScheduleForStopResponse response = requestBuilder.build().call();
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response;
+        } else {
+            throw new IOException(String.format("OBA Error %s getting full schedule for stop %s", response.getCode(), stopId));
+        }
+    }
+
+    /**
+     * Returns stop information for the given stopId
+     *
+     * @param stopId the stopId to return details for
+     * @return details for the given stopId
+     */
+    public ObaStopResponse getStop(@NonNull String stopId) throws IOException {
+        ObaStopResponse response = new ObaStopRequest.Builder(stopId).build().call();
+        log.debug("ObaStopRequest returned " + response.toString());
+        if (response.getCode() == ObaApi.OBA_OK) {
+            return response;
+        } else {
+            throw new IOException(String.format("OBA Error %s getting details for stop %s", response.getCode(), stopId));
         }
     }
 }
