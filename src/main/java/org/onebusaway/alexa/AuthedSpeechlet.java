@@ -137,8 +137,8 @@ public class AuthedSpeechlet implements Speechlet {
         if (session.getAttribute(CITY_NAME) == null) {
             session.setAttribute(CITY_NAME, userData.getCity());
         }
-        if (session.getAttribute(STOP_NUMBER) == null) {
-            session.setAttribute(STOP_NUMBER, userData.getStopId());
+        if (session.getAttribute(STOP_ID) == null) {
+            session.setAttribute(STOP_ID, userData.getStopId());
         }
         if (session.getAttribute(REGION_ID) == null) {
             session.setAttribute(REGION_ID, userData.getRegionId());
@@ -277,7 +277,7 @@ public class AuthedSpeechlet implements Speechlet {
         // Make sure we clear any existing routes to filter for this session (but leave any persisted)
         session.setAttribute(DIALOG_ROUTES_TO_FILTER, null);
 
-        String stopId = (String) session.getAttribute(STOP_NUMBER);
+        String stopId = (String) session.getAttribute(STOP_ID);
         String regionName = (String) session.getAttribute(REGION_NAME);
         log.debug(String.format(
                 "Asked to set a route filter for stop ID %s in region %s...", stopId, regionName));
@@ -298,6 +298,8 @@ public class AuthedSpeechlet implements Speechlet {
             out.setText(output);
             return SpeechletResponse.newTellResponse(out);
         }
+        session.setAttribute(STOP_CODE, response.getStopCode());
+
         // There is more than one route - ask user which they want to hear arrivals for
         return askToFilterRoute(session, routes);
     }
@@ -311,23 +313,23 @@ public class AuthedSpeechlet implements Speechlet {
      */
     private SpeechletResponse askToFilterRoute(Session session, List<ObaRoute> routes) {
         PlainTextOutputSpeech askForRouteFilter = new PlainTextOutputSpeech();
-        String stopId = (String) session.getAttribute(STOP_NUMBER);
-        String routeName = "";
+        String stopCode = (String) session.getAttribute(STOP_CODE);
+        String routeName;
 
         if (routes != null && routes.size() > 0) {
             session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, routes);
             routeName = UIUtils.getRouteDisplayName(routes.get(0));
-            askForRouteFilter.setText(String.format("Do you want to hear arrivals for %s for stop %s?", routeName, stopId));
+            askForRouteFilter.setText(String.format("Sure, let's set up a route filter for stop %s.  Do you want to hear arrivals for Route %s?", stopCode, routeName));
         } else {
             ArrayList<ObaRoute> routesToAskAbout = (ArrayList<ObaRoute>) session.getAttribute(DIALOG_ROUTES_TO_ASK_ABOUT);
             LinkedHashMap<String, String> routeData = (LinkedHashMap<String, String>) routesToAskAbout.get(0);
             routeName = UIUtils.getRouteDisplayName(routeData.get("shortName"), routeData.get("longName"));
-            askForRouteFilter.setText(String.format("Ok, how about %s?", routeName));
+            askForRouteFilter.setText(String.format("Ok, how about Route %s?", routeName));
         }
 
         Reprompt askForRouteFilterReprompt = new Reprompt();
         PlainTextOutputSpeech repromptText = new PlainTextOutputSpeech();
-        repromptText.setText(String.format("Did you want to hear arrivals for %s for stop %s?", routeName, stopId));
+        repromptText.setText(String.format("Did you want to hear arrivals for %s for stop %s?", routeName, stopCode));
         askForRouteFilterReprompt.setOutputSpeech(repromptText);
 
         session.setAttribute(ASK_STATE, AskState.FILTER_INDIVIDUAL_ROUTE.toString());
@@ -365,7 +367,7 @@ public class AuthedSpeechlet implements Speechlet {
 
     /**
      * User responded saying they did (hearArrivals==true) or did not (hearArrivals==false) want to hear arrivals for a
-     * particular stop (STOP_NUMBER of session) and a paricular route (the 0 index route in the SessionAttribute
+     * particular stop (STOP_ID of session) and a paricular route (the 0 index route in the SessionAttribute
      * DIALOG_ROUTES_TO_ASK_ABOUT ArrayList)
      *
      * @param session
@@ -379,9 +381,9 @@ public class AuthedSpeechlet implements Speechlet {
             // Something went wrong
             return SpeechUtil.getGeneralErrorMessage();
         }
-        HashSet<String> routesToFilter = (HashSet<String>) session.getAttribute(DIALOG_ROUTES_TO_FILTER);
+        ArrayList<String> routesToFilter = (ArrayList<String>) session.getAttribute(DIALOG_ROUTES_TO_FILTER);
         if (routesToFilter == null) {
-            routesToFilter = new HashSet<>();
+            routesToFilter = new ArrayList<>();
         }
 
         // Get the last route we asked about - there should be at least one
@@ -403,16 +405,22 @@ public class AuthedSpeechlet implements Speechlet {
         }
 
         // We've asked about all routes for this stop, so persist the route filter
-        String stopId = (String) session.getAttribute(STOP_NUMBER);
+        String stopId = (String) session.getAttribute(STOP_ID);
         HashMap<String, HashSet<String>> persistedRouteFilter = userData.getRoutesToFilter();
         if (persistedRouteFilter == null) {
             persistedRouteFilter = new HashMap<>();
         }
-        persistedRouteFilter.put(stopId, routesToFilter);
+        // Build HashSet from ArrayList (apparently Alexa sessions don't support HashSets directly)
+        HashSet<String> routesToFilterHashSet = new HashSet<>();
+        for (String routeId : routesToFilter) {
+            routesToFilterHashSet.add(routeId);
+        }
+        persistedRouteFilter.put(stopId, routesToFilterHashSet);
         userData.setRoutesToFilter(persistedRouteFilter);
         obaDao.saveUserData(userData);
 
-        String output = String.format("Alright, I've saved your route filter for your current stop %s.", stopId);
+        String stopCode = (String) session.getAttribute(STOP_CODE);
+        String output = String.format("Alright, I've saved your route filter for stop %s.", stopCode);
         saveOutputForRepeat(output);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);

@@ -140,7 +140,7 @@ public class AnonSpeechlet implements Speechlet {
 
                 if (askState == AskState.STOP_BEFORE_CITY) {
                     return setStopNumber(
-                            (String) session.getAttribute(STOP_NUMBER),
+                            (String) session.getAttribute(STOP_ID),
                             session);
                 } else {
                     PlainTextOutputSpeech out = new PlainTextOutputSpeech();
@@ -165,7 +165,7 @@ public class AnonSpeechlet implements Speechlet {
                 return SpeechletResponse.newAskResponse(out, stopNumReprompt);
             }
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
-            String stopNumberStr = intent.getSlot(STOP_NUMBER).getValue();
+            String stopNumberStr = intent.getSlot(STOP_ID).getValue();
             if (stopNumberStr == null) {
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText("What is your stop number?");
@@ -329,7 +329,7 @@ public class AnonSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse askForCityAfterStop(String spokenStopNumber, Session session) {
-        session.setAttribute(STOP_NUMBER, spokenStopNumber);
+        session.setAttribute(STOP_ID, spokenStopNumber);
         session.setAttribute(ASK_STATE, AskState.STOP_BEFORE_CITY.toString());
         PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
         citySpeech.setText(String.format("You haven't set your region yet. In what city is stop %s?", spokenStopNumber));
@@ -403,7 +403,7 @@ public class AnonSpeechlet implements Speechlet {
         if (routeFilters == null) {
             routeFilters = new HashMap<>();
         }
-        HashSet routesToFilter = routeFilters.get((String) session.getAttribute(STOP_NUMBER));
+        HashSet routesToFilter = routeFilters.get((String) session.getAttribute(STOP_ID));
 
         String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
                 response.getCurrentTime(), speakClockTime, timeZone, routesToFilter);

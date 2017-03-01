@@ -219,8 +219,8 @@ public class AuthedSpeechletTest {
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(newStopCode).build());
         SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -449,7 +449,7 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("stopCode", newStopCode);
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
 
         // Now say the YES intent
         sr = authedSpeechlet.onIntent(
@@ -496,7 +496,7 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("stopCode", newStopCode);
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
 
         // Now say the NO intent
         sr = authedSpeechlet.onIntent(
@@ -555,8 +555,8 @@ public class AuthedSpeechletTest {
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(stopCode).build());
         SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -585,7 +585,7 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStopSerialized);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
     }
 
     @Test

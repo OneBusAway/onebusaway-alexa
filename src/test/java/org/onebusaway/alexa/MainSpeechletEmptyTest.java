@@ -282,8 +282,8 @@ public class MainSpeechletEmptyTest {
     @Test
     public void setStopWithoutStopNumber() throws SpeechletException {
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(null).build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -326,8 +326,8 @@ public class MainSpeechletEmptyTest {
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(newStopCode).build());
         SpeechletResponse sr = mainSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -344,7 +344,7 @@ public class MainSpeechletEmptyTest {
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("You haven't set your region yet. In what city is stop " + newStopCode + "?"));
         assertThat(session.getAttribute(ASK_STATE), equalTo(AskState.STOP_BEFORE_CITY.toString()));
-        assertThat(session.getAttribute(STOP_NUMBER), equalTo(newStopCode));
+        assertThat(session.getAttribute(STOP_ID), equalTo(newStopCode));
 
         HashMap<String, Slot> citySlots = new HashMap<>();
         citySlots.put(CITY_NAME, Slot.builder()
@@ -384,7 +384,7 @@ public class MainSpeechletEmptyTest {
 
         //Session attributes from initial SET_STOP_NUMBER call
         session.setAttribute(ASK_STATE, AskState.STOP_BEFORE_CITY.toString());
-        session.setAttribute(STOP_NUMBER, newStopCode);
+        session.setAttribute(STOP_ID, newStopCode);
 
         HashMap<String, Slot> citySlots = new HashMap<>();
         citySlots.put(CITY_NAME, Slot.builder()
