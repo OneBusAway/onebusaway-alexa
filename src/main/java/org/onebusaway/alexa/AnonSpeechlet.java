@@ -399,11 +399,10 @@ public class AnonSpeechlet implements Speechlet {
             throw new SpeechletException(e);
         }
 
-        HashMap<String, HashSet<String>> routeFilters = (HashMap<String, HashSet<String>>) session.getAttribute(ROUTES_TO_FILTER);
-        if (routeFilters == null) {
-            routeFilters = new HashMap<>();
-        }
-        HashSet routesToFilter = routeFilters.get((String) session.getAttribute(STOP_ID));
+        // This code path is current used for the SetCityIntent if this isn't the users first time using the skill
+        // And, we can't store HashMaps in sessions (they get converted to ArrayLists by Alexa)
+        // So, try to get route filters from persisted data in case the user has previously set them
+        HashSet routesToFilter = SpeechUtil.getRoutesToFilter(obaDao, session);
 
         String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
                 response.getCurrentTime(), speakClockTime, timeZone, routesToFilter);
@@ -417,7 +416,7 @@ public class AnonSpeechlet implements Speechlet {
                 stopCode, region.getName(), arrivalInfoText);
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
-                System.currentTimeMillis(), speakClockTime, timeZone, routeFilters);
+                System.currentTimeMillis(), speakClockTime, timeZone);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
@@ -426,7 +425,7 @@ public class AnonSpeechlet implements Speechlet {
 
     private void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
                                     String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                    long speakClockTime, TimeZone timeZone, HashMap<String, HashSet<String>> routeFilters) {
+                                    long speakClockTime, TimeZone timeZone) {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -439,7 +438,6 @@ public class AnonSpeechlet implements Speechlet {
             userData.setLastAccessTime(lastAccessTime);
             userData.setSpeakClockTime(speakClockTime);
             userData.setTimeZone(timeZone.getID());
-            userData.setRoutesToFilter(routeFilters);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(

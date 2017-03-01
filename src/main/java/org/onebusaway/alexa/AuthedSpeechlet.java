@@ -161,9 +161,6 @@ public class AuthedSpeechlet implements Speechlet {
         if (session.getAttribute(TIME_ZONE) == null) {
             session.setAttribute(TIME_ZONE, userData.getTimeZone());
         }
-        if (session.getAttribute(ROUTES_TO_FILTER) == null) {
-            session.setAttribute(ROUTES_TO_FILTER, userData.getRoutesToFilter());
-        }
     }
 
     private SpeechletResponse getCity() {
@@ -206,11 +203,7 @@ public class AuthedSpeechlet implements Speechlet {
             timeZone = TimeZone.getTimeZone(timeZoneText);
         }
 
-        HashMap<String, HashSet<String>> routeFilters = (HashMap<String, HashSet<String>>) session.getAttribute(ROUTES_TO_FILTER);
-        if (routeFilters == null) {
-            routeFilters = new HashMap<>();
-        }
-        HashSet routesToFilter = routeFilters.get(userData.getStopId());
+        HashSet routesToFilter = SpeechUtil.getRoutesToFilter(obaDao, session);
 
         String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
                 response.getCurrentTime(), userData.getSpeakClockTime(), timeZone, routesToFilter);

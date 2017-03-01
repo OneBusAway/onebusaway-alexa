@@ -32,9 +32,12 @@ public class SessionAttribute {
     public static final String ASK_STATE = "askState";
     public static final String CLOCK_TIME = "clockTime";
     public static final String TIME_ZONE = "timeZone";
-    public static final String ROUTES_TO_FILTER = "routesToFilter";
     public static final String DIALOG_ROUTES_TO_ASK_ABOUT = "foundRoutes";
     public static final String DIALOG_ROUTES_TO_FILTER = "dialogRoutesToFilter";
+
+    // Strangely, we can't save HashSets or HashMaps to sessions (Amazon Alexa converts them to ArrayLists, which
+    // generates a ClassCastException when trying to retrieve them.  This prevents us from saving route filters to sessions.
+    //public static final String ROUTES_TO_FILTER = "routesToFilter";
 
     public enum AskState {
         NONE,

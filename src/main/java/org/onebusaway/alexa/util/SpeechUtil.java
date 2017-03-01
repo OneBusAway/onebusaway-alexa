@@ -16,16 +16,19 @@
  */
 package org.onebusaway.alexa.util;
 
+import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.extern.log4j.Log4j;
+import org.onebusaway.alexa.storage.ObaDao;
+import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
 import org.onebusaway.io.client.util.ArrivalInfo;
 import org.onebusaway.io.client.util.UIUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+
+import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
 
 /**
  * Utilities for speech-related actions
@@ -60,6 +63,27 @@ public class SpeechUtil {
             log.info("ArrivalInfo: " + output);
         }
         return output;
+    }
+
+    /**
+     * Returns the set of routes to filter for the given user and stop ID saved to the provided session, or null if
+     * there is no filter for the given STOP_ID
+     *
+     * @param obaDao
+     * @param session containing STOP_ID
+     * @return the set of routes to filter for the provided STOP_ID in the session for this user, or null if there is no
+     * filter for the given STOP_ID
+     */
+    public static HashSet getRoutesToFilter(ObaDao obaDao, Session session) {
+        HashMap<String, HashSet<String>> routeFilters;
+        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
+        if (optUserData.isPresent()) {
+            routeFilters = optUserData.get().getRoutesToFilter();
+            if (routeFilters != null) {
+                return routeFilters.get((String) session.getAttribute(STOP_ID));
+            }
+        }
+        return null;
     }
 
     public static SpeechletResponse getGeneralErrorMessage() {
