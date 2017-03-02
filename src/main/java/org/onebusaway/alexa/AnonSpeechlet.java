@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Philip M. White (philip@mailworks.org),
+ * Copyright 2016-2017 Philip M. White (philip@mailworks.org),
  * Sean J. Barbeau (sjbarbeau@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,7 @@ import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @Log4j
 public class AnonSpeechlet implements Speechlet {
+
     @Resource
     private ObaDao obaDao;
 
@@ -56,24 +57,8 @@ public class AnonSpeechlet implements Speechlet {
 
     private enum OnboardState {Fresh, OnlyCity}
 
-    private final static Reprompt cityReprompt;
-    private final static Reprompt stopNumReprompt;
-
-    static {
-        PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
-        citySpeech.setText("What is your city?");
-        cityReprompt = new Reprompt();
-        cityReprompt.setOutputSpeech(citySpeech);
-
-        PlainTextOutputSpeech stopNumSpeech = new PlainTextOutputSpeech();
-        stopNumSpeech.setText("What is your stop number?  You can find your stop's number on the placard in the bus zone, or in your OneBusAway app.");
-        stopNumReprompt = new Reprompt();
-        stopNumReprompt.setOutputSpeech(stopNumSpeech);
-    }
-
     @Override
     public void onSessionStarted(SessionStartedRequest sessionStartedRequest, Session session) throws SpeechletException {
-
     }
 
     @Override
@@ -92,7 +77,7 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        AskState askState = getAskState(session);
+        AskState askState = SpeechUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
         if (HELP.equals(intent.getName()) ||
                 GET_ARRIVALS.equals(intent.getName()) ||
@@ -146,7 +131,7 @@ public class AnonSpeechlet implements Speechlet {
                     PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                     out.setText(String.format("Ok, we found the %s region near you.  What's your stop number?",
                             region.get().getName()));
-                    return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+                    return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
                 }
             }
         } else if (GET_CITY.equals(intent.getName())) {
@@ -154,7 +139,7 @@ public class AnonSpeechlet implements Speechlet {
             if (city == null) {
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText("You have not yet told me where you live.  What is your city?");
-                return SpeechletResponse.newAskResponse(out, cityReprompt);
+                return SpeechletResponse.newAskResponse(out, SpeechUtil.getCityReprompt());
             } else {
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText(
@@ -162,14 +147,14 @@ public class AnonSpeechlet implements Speechlet {
                                         "but we still need your stop number. " +
                                         "What's your stop number?",
                                 city));
-                return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+                return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
             }
         } else if (SET_STOP_NUMBER.equals(intent.getName())) {
             String stopNumberStr = intent.getSlot(STOP_ID).getValue();
             if (stopNumberStr == null) {
                 PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                 out.setText("What is your stop number?");
-                return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+                return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
             }
             log.debug("Stop number string received: " + stopNumberStr);
             return setStopNumber(
@@ -180,7 +165,7 @@ public class AnonSpeechlet implements Speechlet {
         } else if (NO.equals(intent.getName())) {
             return handleNoIntent(session, askState);
         } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
-            return goodbye();
+            return SpeechUtil.goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -207,15 +192,6 @@ public class AnonSpeechlet implements Speechlet {
 
         log.error("Received no intent without a question.");
         return askForCity(Optional.empty());
-    }
-
-    AskState getAskState(Session session) {
-        AskState askState = AskState.NONE;
-        String savedAskState = (String)session.getAttribute(ASK_STATE);
-        if (savedAskState != null) {
-            askState = AskState.valueOf(savedAskState);
-        }
-        return askState;
     }
 
     private SpeechletResponse handleVerifyStopResponse(Session session, boolean stopFound) throws SpeechletException {
@@ -269,7 +245,7 @@ public class AnonSpeechlet implements Speechlet {
     private SpeechletResponse reaskForStopNumber() {
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText("OneBusAway could not locate your stop number.  Tell me again, what is your stop number?");
-        return SpeechletResponse.newAskResponse(out, stopNumReprompt);
+        return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
     }
 
     private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) throws SpeechletException {
@@ -334,7 +310,7 @@ public class AnonSpeechlet implements Speechlet {
         PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
         citySpeech.setText(String.format("You haven't set your region yet. In what city is stop %s?", spokenStopNumber));
 
-        return SpeechletResponse.newAskResponse(citySpeech, cityReprompt);
+        return SpeechletResponse.newAskResponse(citySpeech, SpeechUtil.getCityReprompt());
     }
 
     private SpeechletResponse askToVerifyStop(Session session, ObaStop[] stops) {
@@ -484,7 +460,7 @@ public class AnonSpeechlet implements Speechlet {
                 out.setText(String.format(intro + question, currentCityName.get()));
             }
         }
-        return SpeechletResponse.newAskResponse(out, cityReprompt);
+        return SpeechletResponse.newAskResponse(out, SpeechUtil.getCityReprompt());
     }
 
     private String allRegionsSpoken() throws IOException {
@@ -507,12 +483,5 @@ public class AnonSpeechlet implements Speechlet {
         String finalStr = activeRegions.stream().collect(Collectors.joining(""));
         log.debug("All regions spoken: " + finalStr);
         return finalStr;
-    }
-
-    private SpeechletResponse goodbye() {
-        String output = String.format("Good-bye");
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(output);
-        return SpeechletResponse.newTellResponse(out);
     }
 }

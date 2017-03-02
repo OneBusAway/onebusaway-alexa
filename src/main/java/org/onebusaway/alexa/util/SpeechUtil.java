@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2017 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,9 @@ package org.onebusaway.alexa.util;
 import com.amazon.speech.speechlet.Session;
 import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
+import com.amazon.speech.ui.Reprompt;
 import lombok.extern.log4j.Log4j;
+import org.onebusaway.alexa.SessionAttribute;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
@@ -28,6 +30,7 @@ import org.onebusaway.io.client.util.UIUtils;
 
 import java.util.*;
 
+import static org.onebusaway.alexa.SessionAttribute.ASK_STATE;
 import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
 
 /**
@@ -35,6 +38,39 @@ import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
  */
 @Log4j
 public class SpeechUtil {
+
+    private final static Reprompt cityReprompt;
+    private final static Reprompt stopNumReprompt;
+
+    static {
+        PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
+        citySpeech.setText("What is your city?");
+        cityReprompt = new Reprompt();
+        cityReprompt.setOutputSpeech(citySpeech);
+
+        PlainTextOutputSpeech stopNumSpeech = new PlainTextOutputSpeech();
+        stopNumSpeech.setText("What is your stop number?  You can find your stop's number on the placard in the bus zone, or in your OneBusAway app.");
+        stopNumReprompt = new Reprompt();
+        stopNumReprompt.setOutputSpeech(stopNumSpeech);
+    }
+
+    /**
+     * Returns the reprompt for setting a city
+     *
+     * @return the reprompt for setting a city
+     */
+    public static Reprompt getCityReprompt() {
+        return cityReprompt;
+    }
+
+    /**
+     * Returns the reprompt for setting a stop number
+     *
+     * @return
+     */
+    public static Reprompt getStopNumReprompt() {
+        return stopNumReprompt;
+    }
 
     /**
      * Format the arrival info for speach
@@ -84,6 +120,33 @@ public class SpeechUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Return the current AskState from the current session
+     *
+     * @param session
+     * @return the current AskState from the current session
+     */
+    public static SessionAttribute.AskState getAskState(Session session) {
+        SessionAttribute.AskState askState = SessionAttribute.AskState.NONE;
+        String savedAskState = (String) session.getAttribute(ASK_STATE);
+        if (savedAskState != null) {
+            askState = SessionAttribute.AskState.valueOf(savedAskState);
+        }
+        return askState;
+    }
+
+    /**
+     * Returns the goodbye response
+     *
+     * @return the goodbye response
+     */
+    public static SpeechletResponse goodbye() {
+        String output = String.format("Good-bye");
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
     }
 
     public static SpeechletResponse getGeneralErrorMessage() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2017 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,7 +66,7 @@ public class AuthedSpeechlet implements Speechlet {
                                       final Session session)
             throws SpeechletException {
         populateAttributes(session);
-        AskState askState = anonSpeechlet.getAskState(session);
+        AskState askState = SpeechUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
 
         Intent intent = request.getIntent();
@@ -103,7 +103,7 @@ public class AuthedSpeechlet implements Speechlet {
         } else if (SET_ROUTE_FILTER.equals(intent.getName())) {
             return setRouteFilter(session);
         } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
-            return goodbye();
+            return SpeechUtil.goodbye();
         } else {
             throw new SpeechletException("Did not recognize intent name");
         }
@@ -120,13 +120,11 @@ public class AuthedSpeechlet implements Speechlet {
     @Override
     public void onSessionStarted(final SessionStartedRequest request,
                                  final Session session) {
-
     }
 
     @Override
     public void onSessionEnded(final SessionEndedRequest request,
                                final Session session) {
-
     }
 
     /**
@@ -186,7 +184,7 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse tellArrivals(Session session) throws SpeechletException {
-        ObaArrivalInfoResponse response = null;
+        ObaArrivalInfoResponse response;
         try {
             response = obaUserClient.getArrivalsAndDeparturesForStop(
                     userData.getStopId(),
@@ -261,10 +259,10 @@ public class AuthedSpeechlet implements Speechlet {
     }
 
     /**
-     * User asked to filter routes for the currently selected stop
+     * User asked to filter routes for the currently selected stop, so return the initial response
      *
      * @param session
-     * @return
+     * @return the initial response for setting a route filter
      */
     private SpeechletResponse setRouteFilter(final Session session) {
         // Make sure we clear any existing routes to filter for this session (but leave any persisted)
@@ -440,12 +438,5 @@ public class AuthedSpeechlet implements Speechlet {
             return lastOutput;
         }
         return "I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop.";
-    }
-
-    private SpeechletResponse goodbye() {
-        String output = String.format("Good-bye");
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(output);
-        return SpeechletResponse.newTellResponse(out);
     }
 }
