@@ -65,7 +65,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
             throws SpeechletException {
-        populateAttributes(session);
+        SpeechUtil.populateAttributes(session, userData);
         AskState askState = SpeechUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
 
@@ -113,7 +113,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
             throws SpeechletException {
-        populateAttributes(session);
+        SpeechUtil.populateAttributes(session, userData);
         return tellArrivals(session);
     }
 
@@ -125,40 +125,6 @@ public class AuthedSpeechlet implements Speechlet {
     @Override
     public void onSessionEnded(final SessionEndedRequest request,
                                final Session session) {
-    }
-
-    /**
-     * Populates the provided session with persisted user data, if the session attribute is empty
-     * @param session
-     */
-    private void populateAttributes(Session session) {
-        if (session.getAttribute(CITY_NAME) == null) {
-            session.setAttribute(CITY_NAME, userData.getCity());
-        }
-        if (session.getAttribute(STOP_ID) == null) {
-            session.setAttribute(STOP_ID, userData.getStopId());
-        }
-        if (session.getAttribute(REGION_ID) == null) {
-            session.setAttribute(REGION_ID, userData.getRegionId());
-        }
-        if (session.getAttribute(REGION_NAME) == null) {
-            session.setAttribute(REGION_NAME, userData.getRegionName());
-        }
-        if (session.getAttribute(OBA_BASE_URL) == null) {
-            session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
-        }
-        if (session.getAttribute(PREVIOUS_RESPONSE) == null) {
-            session.setAttribute(PREVIOUS_RESPONSE, userData.getPreviousResponse());
-        }
-        if (session.getAttribute(LAST_ACCESS_TIME) == null) {
-            session.setAttribute(LAST_ACCESS_TIME, userData.getLastAccessTime());
-        }
-        if (session.getAttribute(CLOCK_TIME) == null) {
-            session.setAttribute(CLOCK_TIME, userData.getSpeakClockTime());
-        }
-        if (session.getAttribute(TIME_ZONE) == null) {
-            session.setAttribute(TIME_ZONE, userData.getTimeZone());
-        }
     }
 
     private SpeechletResponse getCity() {
