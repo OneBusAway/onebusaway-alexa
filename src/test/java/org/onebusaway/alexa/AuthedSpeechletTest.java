@@ -23,6 +23,7 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import config.UnitTests;
 import mockit.Expectations;
 import mockit.Mocked;
+import mockit.NonStrictExpectations;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -105,6 +107,9 @@ public class AuthedSpeechletTest {
 
     @Mocked
     ObaStop obaStop;
+
+    @Mocked
+    ObaStop obaStop2;
 
     @Mocked
     ObaArrivalInfoResponse obaArrivalInfoResponse;
@@ -393,9 +398,123 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void setStopWithDuplicateIds() throws SpeechletException, IOException {
+    public void setStopWithDuplicateIdsYesFirst() throws SpeechletException, IOException {
         String newStopCode = "2340";
+        String stopName1 = "ABC";
+        String stopName2 = "123";
+        setupStopWithDuplicateIds(newStopCode, stopName1, stopName2);
 
+        // Now say the Yes intent
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is 2340 in the Puget Sound region."));
+    }
+
+    @Test
+    public void setStopWithDuplicateIdsNoThenYes() throws SpeechletException, IOException {
+        String newStopCode = "2340";
+        String stopName1 = "ABC";
+        String stopName2 = "123";
+        setupStopWithDuplicateIds(newStopCode, stopName1, stopName2);
+
+        // Now say the No intent
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, what about the 123 stop?"));
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for obaStopsArray
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> obaStop2Serialized = new LinkedHashMap<>();
+        obaStop2Serialized.put("id", newStopCode);
+        obaStop2Serialized.put("stopCode", newStopCode);
+        obaStop2Serialized.put("name", stopName2);
+        list.add(obaStop2Serialized);
+        session.setAttribute(FOUND_STOPS, list);
+
+        // Now say the YES intent
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is 2340 in the Puget Sound region."));
+    }
+
+    @Test
+    public void setStopWithDuplicateIdsNoThenNo() throws SpeechletException, IOException {
+        String newStopCode = "2340";
+        String stopName1 = "ABC";
+        String stopName2 = "123";
+        setupStopWithDuplicateIds(newStopCode, stopName1, stopName2);
+
+        // Now say the No intent
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, what about the 123 stop?"));
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for obaStopsArray
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> obaStop2Serialized = new LinkedHashMap<>();
+        obaStop2Serialized.put("id", newStopCode);
+        obaStop2Serialized.put("stopCode", newStopCode);
+        obaStop2Serialized.put("name", stopName2);
+        list.add(obaStop2Serialized);
+        session.setAttribute(FOUND_STOPS, list);
+
+        // Now say the NO intent
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("OneBusAway could not locate your stop number."));
+    }
+
+    private void setupStopWithDuplicateIds(String stopCode, String stopName1, String stopName2) throws SpeechletException, IOException {
         // Mock persisted user data for Test Region 2
         testUserData.setUserId(TEST_USER_ID);
         testUserData.setStopId("6497");
@@ -404,29 +523,43 @@ public class AuthedSpeechletTest {
         testUserData.setRegionId(TEST_REGION_2.getId());
         testUserData.setObaBaseUrl(TEST_REGION_2.getObaBaseUrl());
 
+
         // Mock stop info
         ObaStop[] obaStopsArray = new ObaStop[2];
         obaStopsArray[0] = obaStop;
-        obaStopsArray[1] = obaStop;
+        obaStopsArray[1] = obaStop2;
 
-        new Expectations() {{
+        new NonStrictExpectations() {{
             googleMaps.geocode(TEST_REGION_2.getName());
             Location l = new Location("test");
             l.setLatitude(27.9681);
             l.setLongitude(-82.4764);
             result = Optional.of(l);
 
-            obaUserClient.getStopFromCode(l, newStopCode); result = obaStopsArray;
-            obaStop.getName(); result = "stop name";
+            obaStop.getStopCode();
+            result = stopCode;
+            obaStop.getId();
+            result = stopCode;
+            obaStop2.getStopCode();
+            result = stopCode;
+            obaStop2.getId();
+            result = stopCode;
+            obaUserClient.getStopFromCode(l, stopCode);
+            result = obaStopsArray;
+
+            obaStop.getName();
+            result = stopName1;
+            obaStop2.getName();
+            result = stopName2;
             obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_2);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
         slots.put(STOP_NUMBER, Slot.builder()
                 .withName(STOP_NUMBER)
-                .withValue(newStopCode).build());
+                .withValue(stopCode).build());
         SpeechletResponse sr = authedSpeechlet.onIntent(
-                 IntentRequest.builder()
+                IntentRequest.builder()
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
@@ -438,7 +571,21 @@ public class AuthedSpeechletTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("We found 2 stops associated with the stop number."));
+        assertEquals(spoken, "We found 2 stops associated with the stop number. Did you mean the ABC stop?");
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for obaStopsArray
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> obaStop2Serialized = new LinkedHashMap<>();
+        LinkedHashMap<String, String> obaStopSerialized = new LinkedHashMap<>();
+        obaStopSerialized.put("id", stopCode);
+        obaStopSerialized.put("stopCode", stopCode);
+        obaStopSerialized.put("name", stopName1);
+        obaStop2Serialized.put("id", stopCode);
+        obaStop2Serialized.put("stopCode", stopCode);
+        obaStop2Serialized.put("name", stopName2);
+        list.add(obaStopSerialized);
+        list.add(obaStop2Serialized);
+        session.setAttribute(FOUND_STOPS, list);
     }
 
     @Test
