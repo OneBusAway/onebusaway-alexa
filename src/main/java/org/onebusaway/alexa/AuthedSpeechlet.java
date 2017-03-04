@@ -297,6 +297,8 @@ public class AuthedSpeechlet implements Speechlet {
                                               final Session session, AskState askState) throws SpeechletException {
         if (askState == AskState.VERIFYSTOP) {
             // User confirmed that they want to select a particular stop - pass to anonSpeechlet to finish dialog
+            // Restore the session ASK_STATE
+            session.setAttribute(ASK_STATE, askState.toString());
             return anonSpeechlet.onIntent(request, session);
         }
 
@@ -311,6 +313,9 @@ public class AuthedSpeechlet implements Speechlet {
     private SpeechletResponse handleNoIntent(final IntentRequest request,
                                              Session session, AskState askState) throws SpeechletException {
         if (askState == AskState.VERIFYSTOP) {
+            // User said no to the current stop, so ask about the next one - pass to anonSpeechlet to finish dialog
+            // Restore the session ASK_STATE
+            session.setAttribute(ASK_STATE, askState.toString());
             return anonSpeechlet.onIntent(request, session);
         }
 
