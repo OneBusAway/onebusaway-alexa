@@ -98,7 +98,7 @@ public class SpeechUtil {
             final String SEPARATOR = " -- "; // with pause between sentences
             output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, routesToFilter);
             if (TextUtils.isEmpty(output)) {
-                // If all routes currently running routes were filtered out, use no arrivals messsage
+                // If all currently running routes were filtered out, provide no arrivals message
                 output = noArrivals;
             }
             log.info("ArrivalInfo: " + output);
