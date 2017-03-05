@@ -21,6 +21,7 @@ import com.amazon.speech.speechlet.SpeechletResponse;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import lombok.extern.log4j.Log4j;
+import org.apache.http.util.TextUtils;
 import org.onebusaway.alexa.SessionAttribute;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
@@ -87,14 +88,19 @@ public class SpeechUtil {
             clockTimeBool = true;
         }
 
+        String noArrivals = "There are no upcoming arrivals at your stop for the next " + arrivalScanMins + " minutes.";
+
         if (arrivals.length == 0) {
-            output = "There are no upcoming arrivals at your stop for the next "
-                    + arrivalScanMins + " minutes.";
+            output = noArrivals;
         } else {
             List<ArrivalInfo> arrivalInfo = ArrivalInfo.convertObaArrivalInfo(arrivals, null,
                     currentTime, false, clockTimeBool, timeZone);
             final String SEPARATOR = " -- "; // with pause between sentences
             output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, routesToFilter);
+            if (TextUtils.isEmpty(output)) {
+                // If all routes currently running routes were filtered out, use no arrivals messsage
+                output = noArrivals;
+            }
             log.info("ArrivalInfo: " + output);
         }
         return output;
