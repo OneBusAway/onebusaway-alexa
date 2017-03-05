@@ -101,13 +101,13 @@ public class SpeechUtil {
     }
 
     /**
-     * Returns the set of routes to filter for the given user and stop ID saved to the provided session, or null if
-     * there is no filter for the given STOP_ID
+     * Returns the set of routes to filter for the given user and stop ID saved to the provided session or DAO
+     * (in that order), or null if there is no filter for the given STOP_ID
      *
      * @param obaDao
      * @param session containing STOP_ID
-     * @return the set of routes to filter for the provided STOP_ID in the session for this user, or null if there is no
-     * filter for the given STOP_ID
+     * @return the set of routes to filter for the provided STOP_ID in the session or DAO for this user, or null if
+     * there is no filter for the given STOP_ID
      */
     public static HashSet getRoutesToFilter(ObaDao obaDao, Session session) {
         HashMap<String, HashSet<String>> routeFilters;
@@ -115,7 +115,12 @@ public class SpeechUtil {
         if (optUserData.isPresent()) {
             routeFilters = optUserData.get().getRoutesToFilter();
             if (routeFilters != null) {
-                return routeFilters.get((String) session.getAttribute(STOP_ID));
+                String stopId = (String) session.getAttribute(STOP_ID);
+                if (stopId == null) {
+                    // Try to get Stop ID from DAO
+                    optUserData.get().getStopId();
+                }
+                return routeFilters.get(stopId);
             }
         }
         return null;
