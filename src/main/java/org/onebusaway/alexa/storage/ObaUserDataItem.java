@@ -100,8 +100,8 @@ public class ObaUserDataItem {
      */
     @Getter
     @Setter
-    @DynamoDBAttribute(attributeName = "RouteFilters")
-    private HashMap<String, HashSet<String>> routesToFilter;
+    @DynamoDBAttribute(attributeName = "RoutesToFilterOut")
+    private HashMap<String, HashSet<String>> routesToFilterOut;
 
     @DynamoDBVersionAttribute
     private Long version;

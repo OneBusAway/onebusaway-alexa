@@ -37,7 +37,7 @@ public class SessionAttribute {
 
     // Strangely, we can't save HashSets or HashMaps to sessions (Amazon Alexa converts them to ArrayLists, which
     // generates a ClassCastException when trying to retrieve them.  This prevents us from saving route filters to sessions.
-    //public static final String ROUTES_TO_FILTER = "routesToFilter";
+    //public static final String ROUTES_TO_FILTER = "routesToFilterOut";
 
     public enum AskState {
         NONE,

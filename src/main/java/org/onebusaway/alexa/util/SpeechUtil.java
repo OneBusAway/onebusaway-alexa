@@ -119,7 +119,7 @@ public class SpeechUtil {
         HashMap<String, HashSet<String>> routeFilters;
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
-            routeFilters = optUserData.get().getRoutesToFilter();
+            routeFilters = optUserData.get().getRoutesToFilterOut();
             if (routeFilters != null) {
                 String stopId = (String) session.getAttribute(STOP_ID);
                 if (stopId == null) {

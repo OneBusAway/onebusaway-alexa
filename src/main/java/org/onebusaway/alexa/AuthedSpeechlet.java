@@ -368,7 +368,7 @@ public class AuthedSpeechlet implements Speechlet {
 
         // We've asked about all routes for this stop, so persist the route filter
         String stopId = (String) session.getAttribute(STOP_ID);
-        HashMap<String, HashSet<String>> persistedRouteFilter = userData.getRoutesToFilter();
+        HashMap<String, HashSet<String>> persistedRouteFilter = userData.getRoutesToFilterOut();
         if (persistedRouteFilter == null) {
             persistedRouteFilter = new HashMap<>();
         }
@@ -378,7 +378,7 @@ public class AuthedSpeechlet implements Speechlet {
             routesToFilterHashSet.add(routeId);
         }
         persistedRouteFilter.put(stopId, routesToFilterHashSet);
-        userData.setRoutesToFilter(persistedRouteFilter);
+        userData.setRoutesToFilterOut(persistedRouteFilter);
         obaDao.saveUserData(userData);
 
         String stopCode = (String) session.getAttribute(STOP_CODE);
