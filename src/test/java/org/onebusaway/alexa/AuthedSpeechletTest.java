@@ -32,10 +32,7 @@ import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.io.client.elements.ObaArrivalInfo;
-import org.onebusaway.io.client.elements.ObaRegion;
-import org.onebusaway.io.client.elements.ObaRegionElement;
-import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
 import org.onebusaway.location.Location;
@@ -110,6 +107,15 @@ public class AuthedSpeechletTest {
 
     @Mocked
     ObaStop obaStop2;
+
+    @Mocked
+    ObaRoute obaRoute;
+
+    @Mocked
+    ObaRoute obaRoute2;
+
+    @Mocked
+    ObaStopResponse obaStopResponse;
 
     @Mocked
     ObaArrivalInfoResponse obaArrivalInfoResponse;
@@ -586,6 +592,74 @@ public class AuthedSpeechletTest {
         list.add(obaStopSerialized);
         list.add(obaStop2Serialized);
         session.setAttribute(DIALOG_FOUND_STOPS, list);
+    }
+
+    @Test
+    public void setRouteFilter() throws SpeechletException, IOException {
+        String stopId = "6497";
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_5";
+        String routeShortName = "5";
+        String routeLongName = "40th Street";
+
+        // Route 2
+        String routeId2 = "Hillsborough Area Regional Transit_2";
+        String routeShortName2 = "2";
+        String routeLongName2 = "Nebraska Avenue";
+
+        // Mock persisted user data
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId(stopId);
+        testUserData.setCity(TEST_REGION_1.getName());
+        testUserData.setRegionName(TEST_REGION_1.getName());
+        testUserData.setRegionId(TEST_REGION_1.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+
+        // Mock route info
+        ObaRoute[] obaRouteArray = new ObaRoute[2];
+        obaRouteArray[0] = obaRoute;
+        obaRouteArray[1] = obaRoute2;
+
+        new NonStrictExpectations() {{
+            obaRoute.getId();
+            result = routeId;
+            obaRoute.getShortName();
+            result = routeShortName;
+            obaRoute.getLongName();
+            result = routeLongName;
+
+            obaRoute2.getId();
+            result = routeId2;
+            obaRoute2.getShortName();
+            result = routeShortName2;
+            obaRoute2.getLongName();
+            result = routeLongName2;
+
+            obaStopResponse.getStopCode();
+            result = stopId;
+            obaStopResponse.getRoutes();
+            result = obaRouteArray;
+            obaUserClient.getStop(anyString);
+            result = obaStopResponse;
+        }};
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopId));
+
+        // TODO - Test Yes and No responses, as well as the filter that gets written to DynamoDB.  Be sure to set session info like Alexa
     }
 
     @Test
