@@ -88,7 +88,7 @@ public class SpeechUtil {
             clockTimeBool = true;
         }
 
-        String noArrivals = "There are no upcoming arrivals at your stop for the next " + arrivalScanMins + " minutes.";
+        String noArrivals = "There are no upcoming arrivals at your stop for the next " + arrivalScanMins + " minutes";
 
         if (arrivals.length == 0) {
             output = noArrivals;
@@ -99,7 +99,7 @@ public class SpeechUtil {
             output = UIUtils.getArrivalInfoSummary(arrivalInfo, SEPARATOR, clockTimeBool, timeZone, routesToFilter);
             if (TextUtils.isEmpty(output)) {
                 // If all currently running routes were filtered out, provide no arrivals message
-                output = noArrivals;
+                output = noArrivals + ", although arrivals for some routes are currently filtered out.";
             }
             log.info("ArrivalInfo: " + output);
         }

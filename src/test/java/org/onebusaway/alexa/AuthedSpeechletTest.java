@@ -32,6 +32,7 @@ import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
@@ -186,6 +187,49 @@ public class AuthedSpeechletTest {
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("Route 8 Mlk Way Jr is departing now based on the schedule -- "));
+    }
+
+    @Test
+    public void launchTellsArrivalsFilteredAllRoutes() throws SpeechletException, IOException {
+        HashMap<String, HashSet<String>> routeFilters = new HashMap<>();
+        String stopId = "Hillsoborough Area Regional Transit_100";
+        String routeId = "Hillsoborough Area Regional Transit_8";
+        HashSet<String> routesToFilter = new HashSet<>();
+        routesToFilter.add(routeId);
+        routeFilters.put(stopId, routesToFilter);
+        testUserData.setRoutesToFilterOut(routeFilters);
+        testUserData.setStopId(stopId);
+        obaDao.saveUserData(testUserData);
+
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
+        obaArrivalInfoArray[0] = obaArrivalInfo;
+
+        new NonStrictExpectations() {{
+            obaArrivalInfo.getStopId();
+            result = stopId;
+            obaArrivalInfo.getRouteId();
+            result = routeId;
+            obaArrivalInfo.getShortName();
+            result = "8";
+            obaArrivalInfo.getHeadsign();
+            result = "Mlk Way Jr";
+            obaArrivalInfoResponse.getArrivalInfo();
+            result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt);
+            result = obaArrivalInfoResponse;
+
+            obaDao.getUserData(session);
+            result = Optional.of(testUserData);
+        }};
+
+        SpeechUtil.populateAttributes(session, testUserData);
+
+        SpeechletResponse sr = authedSpeechlet.onLaunch(
+                launchRequest,
+                session);
+
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next 65 minutes, although arrivals for some routes are currently filtered out."));
     }
 
     @Test
@@ -396,7 +440,7 @@ public class AuthedSpeechletTest {
                 session);
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
-                + ARRIVALS_SCAN_MINS + " minutes."));
+                + ARRIVALS_SCAN_MINS + " minutes"));
     }
 
     @Test
