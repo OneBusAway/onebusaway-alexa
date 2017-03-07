@@ -249,7 +249,7 @@ public class AuthedSpeechlet implements Speechlet {
 
         List<ObaRoute> routes = response.getRoutes();
         if (routes.size() <= 1) {
-            String output = String.format("There is only one route for this stop, so I can't filter out any routes.");
+            String output = String.format("There is only one route for stop " + response.getStopCode() + ", so I can't filter out any routes.");
             saveOutputForRepeat(output);
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText(output);
