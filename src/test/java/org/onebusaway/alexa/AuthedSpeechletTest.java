@@ -192,8 +192,8 @@ public class AuthedSpeechletTest {
     @Test
     public void launchTellsArrivalsFilteredAllRoutes() throws SpeechletException, IOException {
         HashMap<String, HashSet<String>> routeFilters = new HashMap<>();
-        String stopId = "Hillsoborough Area Regional Transit_100";
-        String routeId = "Hillsoborough Area Regional Transit_8";
+        String stopId = "Hillsborough Area Regional Transit_100";
+        String routeId = "Hillsborough Area Regional Transit_8";
         HashSet<String> routesToFilter = new HashSet<>();
         routesToFilter.add(routeId);
         routeFilters.put(stopId, routesToFilter);
