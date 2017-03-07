@@ -608,6 +608,28 @@ public class AuthedSpeechletTest {
         String routeShortName2 = "2";
         String routeLongName2 = "Nebraska Avenue";
 
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, routeId2, routeShortName2, routeLongName2);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopId + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
+
+        // TODO - Test Yes and No responses, as well as the filter that gets written to DynamoDB.  Be sure to set session info like Alexa
+        // TODO - Add test for filtering routes for stop that has only 1 route
+    }
+
+    private void setupRouteFilter(String stopId, String routeId, String routeShortName, String routeLongName, String routeId2, String routeShortName2, String routeLongName2) throws IOException {
         // Mock persisted user data
         testUserData.setUserId(TEST_USER_ID);
         testUserData.setStopId(stopId);
@@ -643,24 +665,6 @@ public class AuthedSpeechletTest {
             obaUserClient.getStop(anyString);
             result = obaStopResponse;
         }};
-
-        // Ask to set the route filter
-        SpeechletResponse sr = authedSpeechlet.onIntent(
-                IntentRequest.builder()
-                        .withRequestId("test-request-id2")
-                        .withIntent(
-                                Intent.builder()
-                                        .withName(SET_ROUTE_FILTER)
-                                        .build()
-                        )
-                        .build(),
-                session
-        );
-        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopId + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
-
-        // TODO - Test Yes and No responses, as well as the filter that gets written to DynamoDB.  Be sure to set session info like Alexa
-        // TODO - Add test for filtering routes for stop that has only 1 route
     }
 
     @Test
