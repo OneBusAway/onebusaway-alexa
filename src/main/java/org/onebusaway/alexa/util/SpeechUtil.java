@@ -165,12 +165,16 @@ public class SpeechUtil {
         out.setText("The One Bus Away skill serves up fresh, real-time transit information " +
                 "at a stop of your choice.  You've already configured your city and stop, " +
                 "so to hear predictions just open the skill or ask me for arrivals. " +
-                "All predictions are based on real-time information unless they are followed by the words 'according to the schedule'. " +
+                getRealtimeVsStaticText() +
                 "You can filter out certain routes for the currently selected stop by saying `filter routes`. " +
                 "I can also tell you times in a clock format such as 10:25 AM.  You can enable this by saying " +
                 "`enable clock times`, and disable it by saying `disable clock times`. " +
                 "If you'd like to change your city or stop, say `set my city` or `set my stop`, followed by the city or stop number. " +
                 "If you need additional help, please contact me using email at alexa at One Bus Away dot org");
         return SpeechletResponse.newTellResponse(out);
+    }
+
+    public static String getRealtimeVsStaticText() {
+        return "All predictions are based on real-time information unless they are followed by the words 'according to the schedule'. ";
     }
 }

@@ -382,7 +382,7 @@ public class AuthedSpeechletTest {
                 session
         );
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, containsString("You've already configured your region and stop"));
+        assertThat(spoken, containsString("You've already configured your city and stop"));
     }
 
     @Test

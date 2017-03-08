@@ -99,7 +99,8 @@ public class StorageUtil {
         log.info("Full arrival text output: " + arrivalInfoText);
         String outText = String.format("Ok, your stop number is %s in the %s region. " +
                         "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'.  " +
+                        "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'. " +
+                        SpeechUtil.getRealtimeVsStaticText() +
                         "You can learn more about other features by asking me for help.  " +
                         "Right now, %s",
                 stopCode, region.getName(), arrivalInfoText);
