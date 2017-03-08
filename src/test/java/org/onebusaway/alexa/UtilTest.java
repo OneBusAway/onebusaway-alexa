@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.alexa.util.SpeechUtil;
+import org.onebusaway.alexa.util.SessionUtil;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaRegionElement;
 import org.springframework.test.annotation.DirtiesContext;
@@ -42,7 +42,7 @@ import static org.onebusaway.alexa.SessionAttribute.*;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class,
         classes = UnitTests.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SpeechUtilTest {
+public class UtilTest {
     static final String TEST_USER_ID = "test-user-id";
     static final User testUser = User.builder().withUserId(TEST_USER_ID).build();
     Session session;
@@ -101,7 +101,7 @@ public class SpeechUtilTest {
                 .withSessionId("test-session-id")
                 .build();
 
-        SpeechUtil.populateAttributes(emptySession, userData);
+        SessionUtil.populateAttributes(emptySession, userData);
 
         assertEquals(userData.getRegionName(), emptySession.getAttribute(CITY_NAME));
         assertEquals(userData.getStopId(), emptySession.getAttribute(STOP_ID));

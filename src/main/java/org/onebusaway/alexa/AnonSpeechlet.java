@@ -19,29 +19,24 @@ package org.onebusaway.alexa;
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
-import com.amazon.speech.ui.Reprompt;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.alexa.lib.GoogleMaps;
 import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
-import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.alexa.util.SpeechUtil;
+import org.onebusaway.alexa.util.*;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
-import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
-import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
 
 @Log4j
 public class AnonSpeechlet implements Speechlet {
@@ -55,19 +50,17 @@ public class AnonSpeechlet implements Speechlet {
     @Resource
     private ObaClient obaClient;
 
-    private enum OnboardState {Fresh, OnlyCity}
-
     @Override
     public void onSessionStarted(SessionStartedRequest sessionStartedRequest, Session session) throws SpeechletException {
     }
 
     @Override
     public SpeechletResponse onLaunch(LaunchRequest launchRequest, Session session) throws SpeechletException {
-        switch (getOnboardState(session)) {
+        switch (SessionUtil.getOnboardState(session)) {
             case Fresh:
-                return askForCity(Optional.empty());
+                return CityUtil.askForCity(Optional.empty(), obaClient);
             case OnlyCity:
-                return reaskForStopNumber();
+                return StopUtil.reaskForStopNumber();
             default:
                 throw new SpeechletException("Unrecognized onboard state");
         }
@@ -77,7 +70,7 @@ public class AnonSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
         Intent intent = request.getIntent();
-        AskState askState = SpeechUtil.getAskState(session);
+        AskState askState = SessionUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
         if (HELP.equals(intent.getName()) ||
                 GET_ARRIVALS.equals(intent.getName()) ||
@@ -87,19 +80,19 @@ public class AnonSpeechlet implements Speechlet {
                 SET_ROUTE_FILTER.equals(intent.getName()) ||
                 REPEAT.equals(intent.getName())) {
             // User asked for help, or we don't yet have enough information to respond.  Return welcome message.
-            return askForCity(Optional.empty());
+            return CityUtil.askForCity(Optional.empty(), obaClient);
         } else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
             //if we're at STOP_BEFORE_CITY, preserve state until we're sure we have a region
             session.setAttribute(ASK_STATE, askState.toString());
             if (cityName == null) {
-                return askForCity(Optional.empty());
+                return CityUtil.askForCity(Optional.empty(), obaClient);
             }
 
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {
                 // Couldn't find the city at all.
-                return askForCity(Optional.of(cityName));
+                return CityUtil.askForCity(Optional.of(cityName), obaClient);
             }
 
             // Get closest region from geographic location
@@ -108,12 +101,12 @@ public class AnonSpeechlet implements Speechlet {
                 region = obaClient.getClosestRegion(location.get());
             } catch (IOException e) {
                 log.error("Error getting closest region: " + e.getMessage());
-                return askForCity(Optional.of(cityName));
+                return CityUtil.askForCity(Optional.of(cityName), obaClient);
             }
 
             if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
                 // Couldn't find a nearby region that supports the OBA REST API
-                return askForCity(Optional.of(cityName));
+                return CityUtil.askForCity(Optional.of(cityName), obaClient);
             } else {
                 // Got a region!
                 session.setAttribute(CITY_NAME, cityName);
@@ -178,74 +171,20 @@ public class AnonSpeechlet implements Speechlet {
 
     private SpeechletResponse handleYesIntent(Session session, AskState askState) throws SpeechletException {
         if (askState == AskState.VERIFYSTOP) {
-            return handleVerifyStopResponse(session, true /*stopFound*/);
+            return StopUtil.handleDuplicateStopResponse(session, true, googleMaps, obaClient, obaDao);
         }
 
         log.error("Received yes intent without a question.");
-        return askForCity(Optional.empty());
+        return CityUtil.askForCity(Optional.empty(), obaClient);
     }
 
     private SpeechletResponse handleNoIntent(Session session, AskState askState) throws SpeechletException {
         if (askState == AskState.VERIFYSTOP) {
-            return handleVerifyStopResponse(session, false /*stopFound*/);
+            return StopUtil.handleDuplicateStopResponse(session, false, googleMaps, obaClient, obaDao);
         }
 
         log.error("Received no intent without a question.");
-        return askForCity(Optional.empty());
-    }
-
-    private SpeechletResponse handleVerifyStopResponse(Session session, boolean stopFound) throws SpeechletException {
-        ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(DIALOG_FOUND_STOPS);
-        if (stops != null) {
-            if (stopFound && stops.size() > 0) {
-                String cityName = (String)session.getAttribute(CITY_NAME);
-
-                Optional<Location> location = googleMaps.geocode(cityName);
-                if (!location.isPresent()) {
-                    return askForCity(Optional.of(cityName));
-                }
-
-                Optional<ObaRegion> region = null;
-                try {
-                    region = obaClient.getClosestRegion(location.get());
-                } catch (IOException e) {
-                    log.error("Error getting closest region: " + e.getMessage());
-                    return askForCity(Optional.of(cityName));
-                }
-
-                ObaUserClient obaUserClient;
-                try {
-                    obaUserClient = obaClient.withObaBaseUrl(region.get().getObaBaseUrl());
-                } catch (URISyntaxException e) {
-                    log.error("ObaBaseUrl " + region.get().getObaBaseUrl() + " for " + region.get().getName()
-                            + " is invalid: " + e.getMessage());
-                    // Region didn't have a valid URL - ask again and hopefully we find a different one
-                    return askForCity(Optional.of(cityName));
-                }
-
-                LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) stops.get(0);
-                return finishOnboard(session, cityName, stopData.get("id"), stopData.get("stopCode"), region.get(), obaUserClient);
-            } else if (!stopFound && stops.size() > 1) {
-                stops.remove(0);
-                session.setAttribute(DIALOG_FOUND_STOPS, stops);
-                return askToVerifyStop(session, null);
-            }
-        }
-
-        return reaskForStopNumber();
-    }
-
-    private OnboardState getOnboardState(Session session) {
-        if (session.getAttribute(CITY_NAME) != null) {
-            return OnboardState.OnlyCity;
-        } else
-            return OnboardState.Fresh;
-    }
-
-    private SpeechletResponse reaskForStopNumber() {
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText("OneBusAway could not locate your stop number.  Tell me again, what is your stop number?");
-        return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
+        return CityUtil.askForCity(Optional.empty(), obaClient);
     }
 
     private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) throws SpeechletException {
@@ -254,26 +193,26 @@ public class AnonSpeechlet implements Speechlet {
         log.debug(String.format(
                 "Asked to set stop number %s in city %s for region %s...", spokenStopNumber, cityName, regionName));
         if (cityName == null) {
-            return askForCityAfterStop(spokenStopNumber, session);
+            return CityUtil.askForCityAfterStop(spokenStopNumber, session);
         }
 
         // Map city name to a geographic location - even if we've done this before, we want to refresh the info
         Optional<Location> location = googleMaps.geocode(cityName);
         if (!location.isPresent()) {
-            return askForCity(Optional.of(cityName));
+            return CityUtil.askForCity(Optional.of(cityName), obaClient);
         }
 
         // Get closest region from geographic location
-        Optional<ObaRegion> region = null;
+        Optional<ObaRegion> region;
         try {
             region = obaClient.getClosestRegion(location.get());
         } catch (IOException e) {
             log.error("Error getting closest region: " + e.getMessage());
-            return askForCity(Optional.of(cityName));
+            return CityUtil.askForCity(Optional.of(cityName), obaClient);
         }
         if (!region.isPresent() || !RegionUtils.isRegionUsable(region.get())) {
             // Couldn't find a nearby region that supports the OBA REST API
-            return askForCity(Optional.of(cityName));
+            return CityUtil.askForCity(Optional.of(cityName), obaClient);
         }
 
         ObaUserClient obaUserClient;
@@ -283,7 +222,7 @@ public class AnonSpeechlet implements Speechlet {
             log.error("ObaBaseUrl " + region.get().getObaBaseUrl() + " for " + region.get().getName()
                     + " is invalid: " + e.getMessage());
             // Region didn't have a valid URL - ask again and hopefully we find a different one
-            return askForCity(Optional.of(cityName));
+            return CityUtil.askForCity(Optional.of(cityName), obaClient);
         }
 
         ObaStop[] searchResults;
@@ -291,50 +230,17 @@ public class AnonSpeechlet implements Speechlet {
             searchResults = obaUserClient.getStopFromCode(location.get(), spokenStopNumber);
         } catch (IOException e) {
             log.error("Couldn't get stop from code " + spokenStopNumber + ": " + e.getMessage());
-            return reaskForStopNumber();
+            return StopUtil.reaskForStopNumber();
         }
 
         if (searchResults.length == 0) {
-            return reaskForStopNumber();
+            return StopUtil.reaskForStopNumber();
         } else if (searchResults.length > 1) {
-            return askToVerifyStop(session, searchResults);
+            return StopUtil.askUserAboutDuplicateStops(session, searchResults);
         } else {
             // Perfect!
             return finishOnboard(session, cityName, searchResults[0], region.get(), obaUserClient);
         }
-    }
-
-    private SpeechletResponse askForCityAfterStop(String spokenStopNumber, Session session) {
-        session.setAttribute(STOP_ID, spokenStopNumber);
-        session.setAttribute(ASK_STATE, AskState.STOP_BEFORE_CITY.toString());
-        PlainTextOutputSpeech citySpeech = new PlainTextOutputSpeech();
-        citySpeech.setText(String.format("You haven't set your region yet. In what city is stop %s?", spokenStopNumber));
-
-        return SpeechletResponse.newAskResponse(citySpeech, SpeechUtil.getCityReprompt());
-    }
-
-    private SpeechletResponse askToVerifyStop(Session session, ObaStop[] stops) {
-        PlainTextOutputSpeech askForVerifyStop = new PlainTextOutputSpeech();
-        String stopName = "";
-
-        if (stops != null && stops.length > 0) {
-            session.setAttribute(DIALOG_FOUND_STOPS, stops);
-            stopName = stops[0].getName();
-            askForVerifyStop.setText(String.format("We found %d stops associated with the stop number. Did you mean the %s stop?", stops.length, stopName));
-        } else {
-            ArrayList<ObaStop> foundStops = (ArrayList<ObaStop>) session.getAttribute(DIALOG_FOUND_STOPS);
-            LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) foundStops.get(0);
-            stopName = stopData.get("name");
-            askForVerifyStop.setText(String.format("Ok, what about the %s stop?", stopName));
-        }
-
-        PlainTextOutputSpeech verifyStopSpeech = new PlainTextOutputSpeech();
-        verifyStopSpeech.setText(String.format("Did you mean the %s stop?", stopName));
-        Reprompt verifyStopReprompt = new Reprompt();
-        verifyStopReprompt.setOutputSpeech(verifyStopSpeech);
-
-        session.setAttribute(ASK_STATE, AskState.VERIFYSTOP.toString());
-        return SpeechletResponse.newAskResponse(askForVerifyStop, verifyStopReprompt);
     }
 
     private SpeechletResponse finishOnboard(Session session,
@@ -342,148 +248,6 @@ public class AnonSpeechlet implements Speechlet {
                                             ObaStop stop,
                                             ObaRegion region,
                                             ObaUserClient obaUserClient) throws SpeechletException {
-        return finishOnboard(session, cityName, stop.getId(), stop.getStopCode(), region, obaUserClient);
-    }
-
-    private SpeechletResponse finishOnboard(Session session, String cityName, String stopId, String stopCode, ObaRegion region, ObaUserClient obaUserClient) throws SpeechletException {
-        log.debug(String.format(
-                "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
-                cityName, stopId, stopCode, region.getId(), region.getName(), region.getObaBaseUrl()));
-        // Save the current Stop ID to the session so it can be used to pull the route filter
-        session.setAttribute(STOP_ID, stopId);
-        
-        ObaArrivalInfoResponse response;
-        try {
-            response = obaUserClient.getArrivalsAndDeparturesForStop(
-                    stopId,
-                    ARRIVALS_SCAN_MINS
-            );
-        } catch (IOException e) {
-            throw new SpeechletException(e);
-        }
-
-        Object speakClockTimeSessionObject = session.getAttribute(CLOCK_TIME);
-        Long speakClockTime = 0L;
-        if (speakClockTimeSessionObject instanceof Integer) {
-            // This happens if it's never been set before - ignore it
-        } else if (speakClockTimeSessionObject instanceof Long) {
-            speakClockTime = (Long) speakClockTimeSessionObject;
-        }
-
-        TimeZone timeZone;
-        try {
-            timeZone = obaUserClient.getTimeZone();
-        } catch (IOException e) {
-            throw new SpeechletException(e);
-        }
-
-        // This code path is current used for the SetCityIntent if this isn't the users first time using the skill
-        // And, we can't store HashMaps in sessions (they get converted to ArrayLists by Alexa)
-        // So, try to get route filters from persisted data in case the user has previously set them
-        HashSet routesToFilter = SpeechUtil.getRoutesToFilter(obaDao, session);
-
-        String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
-                response.getCurrentTime(), speakClockTime, timeZone, routesToFilter);
-
-        log.info("Full arrival text output: " + arrivalInfoText);
-        String outText = String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'.  " +
-                        "You can learn more about other features by asking me for help.  " +
-                        "Right now, %s",
-                stopCode, region.getName(), arrivalInfoText);
-
-        createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
-                System.currentTimeMillis(), speakClockTime, timeZone);
-
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(outText);
-        return SpeechletResponse.newTellResponse(out);
-    }
-
-    private void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
-                                    String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                    long speakClockTime, TimeZone timeZone) {
-        Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
-        if (optUserData.isPresent()) {
-            ObaUserDataItem userData = optUserData.get();
-            userData.setCity(cityName);
-            userData.setStopId(stopId);
-            userData.setRegionId(regionId);
-            userData.setRegionName(regionName);
-            userData.setObaBaseUrl(regionObaBaseUrl);
-            userData.setPreviousResponse(previousResponse);
-            userData.setLastAccessTime(lastAccessTime);
-            userData.setSpeakClockTime(speakClockTime);
-            userData.setTimeZone(timeZone.getID());
-            obaDao.saveUserData(userData);
-        } else {
-            ObaUserDataItem userData = new ObaUserDataItem(
-                    session.getUser().getUserId(),
-                    cityName,
-                    stopId,
-                    regionId,
-                    regionName,
-                    regionObaBaseUrl,
-                    previousResponse,
-                    lastAccessTime,
-                    speakClockTime,
-                    timeZone.getID(),
-                    new HashMap<>(),
-                    null
-            );
-            obaDao.saveUserData(userData);
-        }
-    }
-
-    SpeechletResponse askForCity(Optional<String> currentCityName) {
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        if (!currentCityName.isPresent()) {
-            out.setText("Welcome to OneBusAway! Let's set you up. " +
-                    "You'll need your city and your stop number. " +
-                    "The stop number is shown on the placard in the bus zone, " +
-                    "on your transit agency's web site, " +
-                    "or in your OneBusAway mobile app. " +
-                    "In what city do you live?");
-        } else {
-            String intro = "OneBusAway could not locate a OneBusAway " +
-                    "region near %s, the city you gave. ";
-            String question = "Tell me again, what's the largest city near you?";
-            try {
-                String allRegions = allRegionsSpoken();
-                out.setText(String.format(intro +
-                        "Supported regions include %s. " +
-                        question,
-                        currentCityName.get(),
-                        allRegions
-                ));
-            } catch (IOException e) {
-                log.error("Error getting all regions: " + e);
-                out.setText(String.format(intro + question, currentCityName.get()));
-            }
-        }
-        return SpeechletResponse.newAskResponse(out, SpeechUtil.getCityReprompt());
-    }
-
-    private String allRegionsSpoken() throws IOException {
-        List<String> activeRegions = obaClient.getAllRegions()
-                .stream()
-                .filter(r -> RegionUtils.isRegionUsable(r)
-                        && !r.getExperimental()
-                        && r.getObaBaseUrl() != null)
-                .map(r -> String.format("%s, ", r.getName()))
-                .sorted()
-                .collect(Collectors.toList());
-        // Some low-level manipulation to beautify the sequence of regions.
-        int lastElem = activeRegions.size()-1;
-        // remove final comma
-        activeRegions.set(lastElem, activeRegions.get(lastElem).replaceFirst(", $", ""));
-        if (activeRegions.size() > 1) {
-            activeRegions.add(lastElem, "and ");
-        }
-
-        String finalStr = activeRegions.stream().collect(Collectors.joining(""));
-        log.debug("All regions spoken: " + finalStr);
-        return finalStr;
+        return StorageUtil.finishOnboard(session, cityName, stop.getId(), stop.getStopCode(), region, obaUserClient, obaDao);
     }
 }

@@ -22,7 +22,6 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
 import lombok.extern.log4j.Log4j;
 import org.apache.http.util.TextUtils;
-import org.onebusaway.alexa.SessionAttribute;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.io.client.elements.ObaArrivalInfo;
@@ -31,7 +30,7 @@ import org.onebusaway.io.client.util.UIUtils;
 
 import java.util.*;
 
-import static org.onebusaway.alexa.SessionAttribute.*;
+import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
 
 /**
  * Utilities for speech-related actions
@@ -132,55 +131,7 @@ public class SpeechUtil {
         return null;
     }
 
-    /**
-     * Return the current AskState from the current session
-     *
-     * @param session
-     * @return the current AskState from the current session
-     */
-    public static SessionAttribute.AskState getAskState(Session session) {
-        SessionAttribute.AskState askState = SessionAttribute.AskState.NONE;
-        String savedAskState = (String) session.getAttribute(ASK_STATE);
-        if (savedAskState != null) {
-            askState = SessionAttribute.AskState.valueOf(savedAskState);
-        }
-        return askState;
-    }
 
-    /**
-     * Populates the provided session with persisted user data, if the session attribute is empty
-     *
-     * @param session
-     */
-    public static void populateAttributes(Session session, ObaUserDataItem userData) {
-        if (session.getAttribute(CITY_NAME) == null) {
-            session.setAttribute(CITY_NAME, userData.getCity());
-        }
-        if (session.getAttribute(STOP_ID) == null) {
-            session.setAttribute(STOP_ID, userData.getStopId());
-        }
-        if (session.getAttribute(REGION_ID) == null) {
-            session.setAttribute(REGION_ID, userData.getRegionId());
-        }
-        if (session.getAttribute(REGION_NAME) == null) {
-            session.setAttribute(REGION_NAME, userData.getRegionName());
-        }
-        if (session.getAttribute(OBA_BASE_URL) == null) {
-            session.setAttribute(OBA_BASE_URL, userData.getObaBaseUrl());
-        }
-        if (session.getAttribute(PREVIOUS_RESPONSE) == null) {
-            session.setAttribute(PREVIOUS_RESPONSE, userData.getPreviousResponse());
-        }
-        if (session.getAttribute(LAST_ACCESS_TIME) == null) {
-            session.setAttribute(LAST_ACCESS_TIME, userData.getLastAccessTime());
-        }
-        if (session.getAttribute(CLOCK_TIME) == null) {
-            session.setAttribute(CLOCK_TIME, userData.getSpeakClockTime());
-        }
-        if (session.getAttribute(TIME_ZONE) == null) {
-            session.setAttribute(TIME_ZONE, userData.getTimeZone());
-        }
-    }
 
     /**
      * Returns the goodbye response

@@ -32,7 +32,7 @@ import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.alexa.util.SpeechUtil;
+import org.onebusaway.alexa.util.SessionUtil;
 import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
@@ -222,7 +222,7 @@ public class AuthedSpeechletTest {
             result = Optional.of(testUserData);
         }};
 
-        SpeechUtil.populateAttributes(session, testUserData);
+        SessionUtil.populateAttributes(session, testUserData);
 
         SpeechletResponse sr = authedSpeechlet.onLaunch(
                 launchRequest,

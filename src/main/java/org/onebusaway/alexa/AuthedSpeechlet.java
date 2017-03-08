@@ -19,7 +19,6 @@ package org.onebusaway.alexa;
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.speechlet.*;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
-import com.amazon.speech.ui.Reprompt;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
@@ -27,16 +26,20 @@ import org.apache.http.util.TextUtils;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.alexa.util.RouteFilterUtil;
+import org.onebusaway.alexa.util.SessionUtil;
 import org.onebusaway.alexa.util.SpeechUtil;
+import org.onebusaway.alexa.util.StorageUtil;
 import org.onebusaway.io.client.elements.ObaRoute;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
-import org.onebusaway.io.client.util.UIUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TimeZone;
 
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
@@ -65,8 +68,8 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
             throws SpeechletException {
-        SpeechUtil.populateAttributes(session, userData);
-        AskState askState = SpeechUtil.getAskState(session);
+        SessionUtil.populateAttributes(session, userData);
+        AskState askState = SessionUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
 
         Intent intent = request.getIntent();
@@ -80,7 +83,7 @@ public class AuthedSpeechlet implements Speechlet {
             return SpeechletResponse.newTellResponse(out);
         } else if (REPEAT.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText(getCachedResponse(session));
+            out.setText(StorageUtil.getCachedResponse(session, userData));
             return SpeechletResponse.newTellResponse(out);
         } else if (SET_CITY.equals(intent.getName())) {
             return anonSpeechlet.onIntent(request, session);
@@ -113,7 +116,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
             throws SpeechletException {
-        SpeechUtil.populateAttributes(session, userData);
+        SessionUtil.populateAttributes(session, userData);
         return tellArrivals(session);
     }
 
@@ -129,21 +132,21 @@ public class AuthedSpeechlet implements Speechlet {
 
     private SpeechletResponse getCity() {
         String output = String.format("You live in %s, near the %s region.", userData.getCity(), userData.getRegionName());
-        saveOutputForRepeat(output);
+        StorageUtil.saveOutputForRepeat(output, obaDao, userData);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
     private SpeechletResponse getStopDetails() throws SpeechletException {
-        ObaStopResponse stop = null;
+        ObaStopResponse stop;
         try {
             stop = obaUserClient.getStopDetails(userData.getStopId());
         } catch (IOException e) {
             throw new SpeechletException(e);
         }
         String output = String.format("Your stop is %s, %s.", stop.getStopCode(), stop.getName());
-        saveOutputForRepeat(output);
+        StorageUtil.saveOutputForRepeat(output, obaDao, userData);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
@@ -173,55 +176,19 @@ public class AuthedSpeechlet implements Speechlet {
                 response.getCurrentTime(), userData.getSpeakClockTime(), timeZone, routesToFilter);
 
         log.info("Full text output: " + output);
-        saveOutputForRepeat(output);
+        StorageUtil.saveOutputForRepeat(output, obaDao, userData);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
     private SpeechletResponse enableClockTime(Session session) throws SpeechletException {
-        return updateClockTime(1, session);
+        return StorageUtil.updateClockTime(1, session, obaDao, userData, obaUserClient);
 
     }
 
     private SpeechletResponse disableClockTime(Session session) throws SpeechletException {
-        return updateClockTime(0, session);
-    }
-
-    /**
-     * Update if clock times should be announced to the user or not (if not, ETAs are used)
-     *
-     * @param enableClockTime true if clock times should be enabled, false if they should be disabled
-     */
-    private SpeechletResponse updateClockTime(long enableClockTime, Session session) throws SpeechletException {
-        TimeZone timeZone;
-        try {
-            timeZone = obaUserClient.getTimeZone();
-        } catch (IOException e) {
-            throw new SpeechletException(e);
-        }
-
-        // Update DAO
-        userData.setSpeakClockTime(enableClockTime);
-        userData.setTimeZone(timeZone.getID());
-        obaDao.saveUserData(userData);
-
-        // Update session
-        session.setAttribute(CLOCK_TIME, enableClockTime);
-        session.setAttribute(TIME_ZONE, timeZone.getID());
-
-        String output = String.format("Clock times are now %s", enableClockTime == 1 ? "enabled" : "disabled");
-        saveOutputForRepeat(output);
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(output);
-        return SpeechletResponse.newTellResponse(out);
-    }
-
-    private void saveOutputForRepeat(String output) {
-        log.debug("Caching output for repeat = " + output);
-        userData.setPreviousResponse(output);
-        userData.setLastAccessTime(System.currentTimeMillis());
-        obaDao.saveUserData(userData);
+        return StorageUtil.updateClockTime(0, session, obaDao, userData, obaUserClient);
     }
 
     /**
@@ -250,7 +217,7 @@ public class AuthedSpeechlet implements Speechlet {
         List<ObaRoute> routes = response.getRoutes();
         if (routes.size() <= 1) {
             String output = String.format("There is only one route for stop " + response.getStopCode() + ", so I can't filter out any routes.");
-            saveOutputForRepeat(output);
+            StorageUtil.saveOutputForRepeat(output, obaDao, userData);
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText(output);
             return SpeechletResponse.newTellResponse(out);
@@ -258,39 +225,7 @@ public class AuthedSpeechlet implements Speechlet {
         session.setAttribute(STOP_CODE, response.getStopCode());
 
         // There is more than one route - ask user which they want to hear arrivals for
-        return askToFilterRoute(session, routes);
-    }
-
-    /**
-     * Ask the user if they want to hear arrivals for the first route, from the provided list of routes
-     *
-     * @param session
-     * @param routes  list of routes from which the first route will be taken
-     * @return response to be read to the user asking if they want to hear arrivals for the first route in the provided list of routes
-     */
-    private SpeechletResponse askToFilterRoute(Session session, List<ObaRoute> routes) {
-        PlainTextOutputSpeech askForRouteFilter = new PlainTextOutputSpeech();
-        String stopCode = (String) session.getAttribute(STOP_CODE);
-        String routeName;
-
-        if (routes != null && routes.size() > 0) {
-            session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, routes);
-            routeName = UIUtils.getRouteDisplayName(routes.get(0));
-            askForRouteFilter.setText(String.format("Sure, let's set up a route filter for stop %s.  Do you want to hear arrivals for Route %s?", stopCode, routeName));
-        } else {
-            ArrayList<ObaRoute> routesToAskAbout = (ArrayList<ObaRoute>) session.getAttribute(DIALOG_ROUTES_TO_ASK_ABOUT);
-            LinkedHashMap<String, String> routeData = (LinkedHashMap<String, String>) routesToAskAbout.get(0);
-            routeName = UIUtils.getRouteDisplayName(routeData.get("shortName"), routeData.get("longName"));
-            askForRouteFilter.setText(String.format("Ok, how about Route %s?", routeName));
-        }
-
-        Reprompt askForRouteFilterReprompt = new Reprompt();
-        PlainTextOutputSpeech repromptText = new PlainTextOutputSpeech();
-        repromptText.setText(String.format("Did you want to hear arrivals for %s for stop %s?", routeName, stopCode));
-        askForRouteFilterReprompt.setOutputSpeech(repromptText);
-
-        session.setAttribute(ASK_STATE, AskState.FILTER_INDIVIDUAL_ROUTE.toString());
-        return SpeechletResponse.newAskResponse(askForRouteFilter, askForRouteFilterReprompt);
+        return RouteFilterUtil.askUserAboutFilterRoute(session, routes);
     }
 
     private SpeechletResponse handleYesIntent(final IntentRequest request,
@@ -303,11 +238,11 @@ public class AuthedSpeechlet implements Speechlet {
         }
 
         if (askState == AskState.FILTER_INDIVIDUAL_ROUTE) {
-            return handleFilterIndividualRoute(session, true);
+            return RouteFilterUtil.handleFilterRouteResponse(session, true, obaDao, userData);
         }
 
         log.error("Received yes intent without a question.");
-        return anonSpeechlet.askForCity(Optional.empty());
+        return SpeechUtil.getGeneralErrorMessage();
     }
 
     private SpeechletResponse handleNoIntent(final IntentRequest request,
@@ -320,94 +255,10 @@ public class AuthedSpeechlet implements Speechlet {
         }
 
         if (askState == AskState.FILTER_INDIVIDUAL_ROUTE) {
-            return handleFilterIndividualRoute(session, false);
+            return RouteFilterUtil.handleFilterRouteResponse(session, false, obaDao, userData);
         }
 
         log.error("Received no intent without a question.");
-        return anonSpeechlet.askForCity(Optional.empty());
-    }
-
-    /**
-     * User responded saying they did (hearArrivals==true) or did not (hearArrivals==false) want to hear arrivals for a
-     * particular stop (STOP_ID of session) and a paricular route (the 0 index route in the SessionAttribute
-     * DIALOG_ROUTES_TO_ASK_ABOUT ArrayList)
-     *
-     * @param session
-     * @param hearArrivals true if the user wanted to hear arrivals about the 0 index route, false if they did not
-     * @return
-     * @throws SpeechletException
-     */
-    private SpeechletResponse handleFilterIndividualRoute(Session session, boolean hearArrivals) throws SpeechletException {
-        ArrayList<ObaRoute> routes = (ArrayList<ObaRoute>) session.getAttribute(DIALOG_ROUTES_TO_ASK_ABOUT);
-        if (routes == null) {
-            // Something went wrong
-            return SpeechUtil.getGeneralErrorMessage();
-        }
-        ArrayList<String> routesToFilter = (ArrayList<String>) session.getAttribute(DIALOG_ROUTES_TO_FILTER);
-        if (routesToFilter == null) {
-            routesToFilter = new ArrayList<>();
-        }
-
-        // Get the last route we asked about - there should be at least one
-        LinkedHashMap<String, String> routeData = (LinkedHashMap<String, String>) routes.get(0);
-
-        if (!hearArrivals) {
-            // The user doesn't want to hear arrivals for this route, so add the routeId to set of route filters
-            routesToFilter.add(routeData.get("id"));
-            session.setAttribute(DIALOG_ROUTES_TO_FILTER, routesToFilter);
-        }
-
-        // Remove route we just asked about, so we can ask about the next one (if there are any left)
-        routes.remove(0);
-
-        if (routes.size() > 0) {
-            // Ask about the next route
-            session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, routes);
-            return askToFilterRoute(session, null);
-        }
-
-        // We've asked about all routes for this stop, so persist the route filter
-        String stopId = (String) session.getAttribute(STOP_ID);
-        HashMap<String, HashSet<String>> persistedRouteFilter = userData.getRoutesToFilterOut();
-        if (persistedRouteFilter == null) {
-            persistedRouteFilter = new HashMap<>();
-        }
-        // Build HashSet from ArrayList (apparently Alexa sessions don't support HashSets directly)
-        HashSet<String> routesToFilterHashSet = new HashSet<>();
-        for (String routeId : routesToFilter) {
-            routesToFilterHashSet.add(routeId);
-        }
-        persistedRouteFilter.put(stopId, routesToFilterHashSet);
-        userData.setRoutesToFilterOut(persistedRouteFilter);
-        obaDao.saveUserData(userData);
-
-        String stopCode = (String) session.getAttribute(STOP_CODE);
-        String output = String.format("Alright, I've saved your route filter for stop %s.", stopCode);
-        saveOutputForRepeat(output);
-        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(output);
-        return SpeechletResponse.newTellResponse(out);
-    }
-
-    /**
-     * Gets a previously cached response to repeat to the user
-     * @param session
-     * @return a previously cached response to repeat to the user, or a friendly error message
-     * if there isn't anything to repeat.
-     */
-    private String getCachedResponse(Session session) {
-        // Try session first
-        String lastOutput = (String) session.getAttribute(PREVIOUS_RESPONSE);
-        if (!TextUtils.isEmpty(lastOutput)) {
-            log.debug("Repeating last output from session = " + lastOutput);
-            return lastOutput;
-        }
-        // Try persisted data
-        lastOutput = userData.getPreviousResponse();
-        if (!TextUtils.isEmpty(lastOutput)) {
-            log.debug("Repeating last output from obaDao = " + lastOutput);
-            return lastOutput;
-        }
-        return "I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop.";
+        return SpeechUtil.getGeneralErrorMessage();
     }
 }
