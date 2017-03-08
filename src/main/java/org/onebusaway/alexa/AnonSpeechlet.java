@@ -349,7 +349,9 @@ public class AnonSpeechlet implements Speechlet {
         log.debug(String.format(
                 "Crupdating user with city %s and stop ID %s, code %s, regionId %d, regionName %s, obaBaseUrl %s.",
                 cityName, stopId, stopCode, region.getId(), region.getName(), region.getObaBaseUrl()));
-
+        // Save the current Stop ID to the session so it can be used to pull the route filter
+        session.setAttribute(STOP_ID, stopId);
+        
         ObaArrivalInfoResponse response;
         try {
             response = obaUserClient.getArrivalsAndDeparturesForStop(

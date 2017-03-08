@@ -124,7 +124,7 @@ public class SpeechUtil {
                 String stopId = (String) session.getAttribute(STOP_ID);
                 if (stopId == null) {
                     // Try to get Stop ID from DAO
-                    optUserData.get().getStopId();
+                    stopId = optUserData.get().getStopId();
                 }
                 return routeFilters.get(stopId);
             }
