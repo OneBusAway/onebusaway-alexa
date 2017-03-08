@@ -74,13 +74,7 @@ public class AuthedSpeechlet implements Speechlet {
 
         Intent intent = request.getIntent();
         if (HELP.equals(intent.getName())) {
-            PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-            out.setText("The OneBusAway skill will tell you upcoming transit arrivals " +
-            "at a stop of your choice.  You've already configured your region and stop, " +
-            "so just open the skill or ask me for arrivals. " +
-                    "You can also ask me to change your city or stop." +
-                    "I can also tell you times in a clock format such as 10:25 PM.  You can enable this by saying enable clock times, and disable it by saying disable clock times.");
-            return SpeechletResponse.newTellResponse(out);
+            return SpeechUtil.getHelpMessage();
         } else if (REPEAT.equals(intent.getName())) {
             PlainTextOutputSpeech out = new PlainTextOutputSpeech();
             out.setText(StorageUtil.getCachedResponse(session, userData));
