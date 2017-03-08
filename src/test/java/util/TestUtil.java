@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.onebusaway.alexa.ObaIntent.STOP;
 import static org.onebusaway.alexa.SessionAttribute.CITY_NAME;
-import static org.onebusaway.alexa.SessionAttribute.STOP_NUMBER;
+import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
 
 /**
  * Utilities to assist in testing the OBA Alexa skill
@@ -54,8 +54,8 @@ public class TestUtil {
         slots.put(CITY_NAME, Slot.builder()
                 .withName(CITY_NAME)
                 .withValue("Tampa").build());
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue("6497").build());
 
         // Loop through all intents using reflection to make sure we're handling them

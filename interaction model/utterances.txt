@@ -102,6 +102,13 @@ DisableClockTime disable clock times
 DisableClockTime turn off clock time
 DisableClockTime turn off clock times
 
+SetRouteFilter set a route filter
+SetRouteFilter set my route filter
+SetRouteFilter create a route filter
+SetRouteFilter create my route filter
+SetRouteFilter filter routes
+SetRouteFilter filter out routes
+
 GetArrivalsIntent where is my {TransitMode}
 GetArrivalsIntent where's my {TransitMode}
 GetArrivalsIntent when is my {TransitMode}

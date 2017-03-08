@@ -27,6 +27,8 @@ import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+
 @Configuration
 public class UnitTests {
     @Bean
@@ -60,7 +62,7 @@ public class UnitTests {
 
     @Bean
     public ObaUserDataItem testUserData() {
-        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", "", System.currentTimeMillis(), 0, "America/Los_Angeles", null);
+        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", "", System.currentTimeMillis(), 0, "America/Los_Angeles", new HashMap<>(), null);
     }
 
     @Bean

@@ -32,10 +32,8 @@ import org.onebusaway.alexa.lib.ObaClient;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
-import org.onebusaway.io.client.elements.ObaArrivalInfo;
-import org.onebusaway.io.client.elements.ObaRegion;
-import org.onebusaway.io.client.elements.ObaRegionElement;
-import org.onebusaway.io.client.elements.ObaStop;
+import org.onebusaway.alexa.util.SpeechUtil;
+import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
 import org.onebusaway.location.Location;
@@ -48,16 +46,12 @@ import util.TestUtil;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.onebusaway.alexa.ObaIntent.*;
 import static org.onebusaway.alexa.SessionAttribute.*;
 import static org.onebusaway.alexa.lib.ObaUserClient.ARRIVALS_SCAN_MINS;
@@ -110,6 +104,15 @@ public class AuthedSpeechletTest {
 
     @Mocked
     ObaStop obaStop2;
+
+    @Mocked
+    ObaRoute obaRoute;
+
+    @Mocked
+    ObaRoute obaRoute2;
+
+    @Mocked
+    ObaStopResponse obaStopResponse;
 
     @Mocked
     ObaArrivalInfoResponse obaArrivalInfoResponse;
@@ -187,6 +190,49 @@ public class AuthedSpeechletTest {
     }
 
     @Test
+    public void launchTellsArrivalsFilteredAllRoutes() throws SpeechletException, IOException {
+        HashMap<String, HashSet<String>> routeFilters = new HashMap<>();
+        String stopId = "Hillsborough Area Regional Transit_100";
+        String routeId = "Hillsborough Area Regional Transit_8";
+        HashSet<String> routesToFilter = new HashSet<>();
+        routesToFilter.add(routeId);
+        routeFilters.put(stopId, routesToFilter);
+        testUserData.setRoutesToFilterOut(routeFilters);
+        testUserData.setStopId(stopId);
+        obaDao.saveUserData(testUserData);
+
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
+        obaArrivalInfoArray[0] = obaArrivalInfo;
+
+        new NonStrictExpectations() {{
+            obaArrivalInfo.getStopId();
+            result = stopId;
+            obaArrivalInfo.getRouteId();
+            result = routeId;
+            obaArrivalInfo.getShortName();
+            result = "8";
+            obaArrivalInfo.getHeadsign();
+            result = "Mlk Way Jr";
+            obaArrivalInfoResponse.getArrivalInfo();
+            result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt);
+            result = obaArrivalInfoResponse;
+
+            obaDao.getUserData(session);
+            result = Optional.of(testUserData);
+        }};
+
+        SpeechUtil.populateAttributes(session, testUserData);
+
+        SpeechletResponse sr = authedSpeechlet.onLaunch(
+                launchRequest,
+                session);
+
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next 65 minutes, although arrivals for some routes are currently filtered out."));
+    }
+
+    @Test
     public void setStopNumber() throws SpeechletException, IOException {
         String newStopCode = "3105";
 
@@ -219,8 +265,8 @@ public class AuthedSpeechletTest {
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(newStopCode).build());
         SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -394,7 +440,7 @@ public class AuthedSpeechletTest {
                 session);
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("There are no upcoming arrivals at your stop for the next "
-                + ARRIVALS_SCAN_MINS + " minutes."));
+                + ARRIVALS_SCAN_MINS + " minutes"));
     }
 
     @Test
@@ -449,7 +495,7 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("stopCode", newStopCode);
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
 
         // Now say the YES intent
         sr = authedSpeechlet.onIntent(
@@ -496,7 +542,7 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("stopCode", newStopCode);
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
 
         // Now say the NO intent
         sr = authedSpeechlet.onIntent(
@@ -555,8 +601,8 @@ public class AuthedSpeechletTest {
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
-        slots.put(STOP_NUMBER, Slot.builder()
-                .withName(STOP_NUMBER)
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
                 .withValue(stopCode).build());
         SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
@@ -585,7 +631,436 @@ public class AuthedSpeechletTest {
         obaStop2Serialized.put("name", stopName2);
         list.add(obaStopSerialized);
         list.add(obaStop2Serialized);
-        session.setAttribute(FOUND_STOPS, list);
+        session.setAttribute(DIALOG_FOUND_STOPS, list);
+    }
+
+    @Test
+    public void setRouteFilterNoYes() throws SpeechletException, IOException {
+        String stopId = "6497";
+        String stopCode = stopId;
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_1";
+        String routeShortName = "1";
+        String routeLongName = "40th Street";
+
+        // Route 2
+        String routeId2 = "Hillsborough Area Regional Transit_2";
+        String routeShortName2 = "2";
+        String routeLongName2 = "Nebraska Avenue";
+
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, routeId2, routeShortName2, routeLongName2);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopCode + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for routes
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> route1Serialized = new LinkedHashMap<>();
+        route1Serialized.put("id", routeId);
+        route1Serialized.put("shortName", routeShortName);
+        route1Serialized.put("longName", routeLongName);
+        list.add(route1Serialized);
+        LinkedHashMap<String, String> route2Serialized = new LinkedHashMap<>();
+        route2Serialized.put("id", routeId2);
+        route2Serialized.put("shortName", routeShortName2);
+        route2Serialized.put("longName", routeLongName2);
+        list.add(route2Serialized);
+        session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, list);
+
+        // First say the Yes intent
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, how about Route " + routeShortName2 + "?"));
+
+        // Then say YES again
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Alright, I've saved your route filter for stop " + stopCode + "."));
+
+        // Test to make sure that both routes are being filtered out
+        HashMap<String, HashSet<String>> routeFilters = testUserData.getRoutesToFilterOut();
+        HashSet<String> routesToFilterHashSet = routeFilters.get(stopId);
+        assertFalse(routesToFilterHashSet.contains(routeId));
+        assertFalse(routesToFilterHashSet.contains(routeId2));
+    }
+
+    @Test
+    public void setRouteFilterYesNo() throws SpeechletException, IOException {
+        String stopId = "6497";
+        String stopCode = stopId;
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_1";
+        String routeShortName = "1";
+        String routeLongName = "40th Street";
+
+        // Route 2
+        String routeId2 = "Hillsborough Area Regional Transit_2";
+        String routeShortName2 = "2";
+        String routeLongName2 = "Nebraska Avenue";
+
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, routeId2, routeShortName2, routeLongName2);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopCode + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
+
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for routes
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> route1Serialized = new LinkedHashMap<>();
+        route1Serialized.put("id", routeId);
+        route1Serialized.put("shortName", routeShortName);
+        route1Serialized.put("longName", routeLongName);
+        list.add(route1Serialized);
+        LinkedHashMap<String, String> route2Serialized = new LinkedHashMap<>();
+        route2Serialized.put("id", routeId2);
+        route2Serialized.put("shortName", routeShortName2);
+        route2Serialized.put("longName", routeLongName2);
+        list.add(route2Serialized);
+        session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, list);
+
+        // Say YES
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, how about Route " + routeShortName2 + "?"));
+
+        // Say NO
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Alright, I've saved your route filter for stop " + stopCode + "."));
+
+        // Test to make sure that both routes are being filtered out
+        HashMap<String, HashSet<String>> routeFilters = testUserData.getRoutesToFilterOut();
+        HashSet<String> routesToFilterHashSet = routeFilters.get(stopId);
+        assertFalse(routesToFilterHashSet.contains(routeId));
+        assertTrue(routesToFilterHashSet.contains(routeId2));
+    }
+
+    @Test
+    public void setRouteFilterYesYes() throws SpeechletException, IOException {
+        String stopId = "6497";
+        String stopCode = stopId;
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_1";
+        String routeShortName = "1";
+        String routeLongName = "40th Street";
+
+        // Route 2
+        String routeId2 = "Hillsborough Area Regional Transit_2";
+        String routeShortName2 = "2";
+        String routeLongName2 = "Nebraska Avenue";
+
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, routeId2, routeShortName2, routeLongName2);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopCode + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for routes
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> route1Serialized = new LinkedHashMap<>();
+        route1Serialized.put("id", routeId);
+        route1Serialized.put("shortName", routeShortName);
+        route1Serialized.put("longName", routeLongName);
+        list.add(route1Serialized);
+        LinkedHashMap<String, String> route2Serialized = new LinkedHashMap<>();
+        route2Serialized.put("id", routeId2);
+        route2Serialized.put("shortName", routeShortName2);
+        route2Serialized.put("longName", routeLongName2);
+        list.add(route2Serialized);
+        session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, list);
+
+        // First say the No intent
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, how about Route " + routeShortName2 + "?"));
+
+        // Say YES
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(YES)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Alright, I've saved your route filter for stop " + stopCode + "."));
+
+        // Test to make sure that both routes are being filtered out
+        HashMap<String, HashSet<String>> routeFilters = testUserData.getRoutesToFilterOut();
+        HashSet<String> routesToFilterHashSet = routeFilters.get(stopId);
+        assertTrue(routesToFilterHashSet.contains(routeId));
+        assertFalse(routesToFilterHashSet.contains(routeId2));
+    }
+
+    @Test
+    public void setRouteFilterNoNo() throws SpeechletException, IOException {
+        String stopId = "6497";
+        String stopCode = stopId;
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_1";
+        String routeShortName = "1";
+        String routeLongName = "40th Street";
+
+        // Route 2
+        String routeId2 = "Hillsborough Area Regional Transit_2";
+        String routeShortName2 = "2";
+        String routeLongName2 = "Nebraska Avenue";
+
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, routeId2, routeShortName2, routeLongName2);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Sure, let's set up a route filter for stop " + stopCode + ".  Do you want to hear arrivals for Route " + routeShortName + "?"));
+
+
+        // Alexa does some data conversion for session variables - we need to imitate that here for routes
+        ArrayList<LinkedHashMap<String, String>> list = new ArrayList<>();
+        LinkedHashMap<String, String> route1Serialized = new LinkedHashMap<>();
+        route1Serialized.put("id", routeId);
+        route1Serialized.put("shortName", routeShortName);
+        route1Serialized.put("longName", routeLongName);
+        list.add(route1Serialized);
+        LinkedHashMap<String, String> route2Serialized = new LinkedHashMap<>();
+        route2Serialized.put("id", routeId2);
+        route2Serialized.put("shortName", routeShortName2);
+        route2Serialized.put("longName", routeLongName2);
+        list.add(route2Serialized);
+        session.setAttribute(DIALOG_ROUTES_TO_ASK_ABOUT, list);
+
+        // Say No
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, how about Route " + routeShortName2 + "?"));
+
+        // Say No
+        sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(NO)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Alright, I've saved your route filter for stop " + stopCode + "."));
+
+        // Test to make sure that both routes are being filtered out
+        HashMap<String, HashSet<String>> routeFilters = testUserData.getRoutesToFilterOut();
+        HashSet<String> routesToFilterHashSet = routeFilters.get(stopId);
+        assertTrue(routesToFilterHashSet.contains(routeId));
+        assertTrue(routesToFilterHashSet.contains(routeId2));
+    }
+
+    @Test
+    public void setRouteFilterOnlyOneRoute() throws SpeechletException, IOException {
+        String stopId = "6497";
+        String stopCode = stopId;
+
+        // Route 1
+        String routeId = "Hillsborough Area Regional Transit_1";
+        String routeShortName = "1";
+        String routeLongName = "40th Street";
+
+        // Route 2 - set to null so it's not added to route list (we only want one route in list)
+        setupRouteFilter(stopId, routeId, routeShortName, routeLongName, null, null, null);
+
+        // Ask to set the route filter
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id2")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_ROUTE_FILTER)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("There is only one route for stop " + stopCode + ", so I can't filter out any routes."));
+    }
+
+    /**
+     * Properites to set up a route filter with.  If routeId2 properties are null, then only one route is added for the
+     * stop, otherwise 2 routes are added for the stop.
+     *
+     * @param stopId
+     * @param routeId
+     * @param routeShortName
+     * @param routeLongName
+     * @param routeId2
+     * @param routeShortName2
+     * @param routeLongName2
+     * @throws IOException
+     */
+    private void setupRouteFilter(String stopId, String routeId, String routeShortName, String routeLongName, String routeId2, String routeShortName2, String routeLongName2) throws IOException {
+        // Mock persisted user data
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId(stopId);
+        testUserData.setCity(TEST_REGION_1.getName());
+        testUserData.setRegionName(TEST_REGION_1.getName());
+        testUserData.setRegionId(TEST_REGION_1.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+
+        ObaRoute[] obaRouteArray;
+
+        // Mock route info
+        if (routeId2 != null) {
+            obaRouteArray = new ObaRoute[2];
+            obaRouteArray[0] = obaRoute;
+            obaRouteArray[1] = obaRoute2;
+        } else {
+            obaRouteArray = new ObaRoute[1];
+            obaRouteArray[0] = obaRoute;
+        }
+
+        new NonStrictExpectations() {{
+            obaRoute.getId();
+            result = routeId;
+            obaRoute.getShortName();
+            result = routeShortName;
+            obaRoute.getLongName();
+            result = routeLongName;
+
+            obaRoute2.getId();
+            result = routeId2;
+            obaRoute2.getShortName();
+            result = routeShortName2;
+            obaRoute2.getLongName();
+            result = routeLongName2;
+
+            obaStopResponse.getStopCode();
+            result = stopId;
+            obaStopResponse.getRoutes();
+            result = obaRouteArray;
+            obaUserClient.getStop(anyString);
+            result = obaStopResponse;
+        }};
     }
 
     @Test
