@@ -170,9 +170,15 @@ public class AuthedSpeechlet implements Speechlet {
                 response.getCurrentTime(), userData.getSpeakClockTime(), timeZone, routesToFilter);
 
         log.info("Full text output: " + output);
-        StorageUtil.saveOutputForRepeat(output, obaDao, userData);
+
+        // Build the full text response to the user
+        StringBuilder builder = new StringBuilder();
+        builder.append(SpeechUtil.getAnnounceFeaturev1_1_0Text(session));
+        builder.append(output);
+
+        StorageUtil.saveOutputForRepeat(builder.toString(), obaDao, userData);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
-        out.setText(output);
+        out.setText(builder.toString());
         return SpeechletResponse.newTellResponse(out);
     }
 

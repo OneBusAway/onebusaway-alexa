@@ -83,6 +83,9 @@ public class ObaUserDataItem {
     @DynamoDBAttribute(attributeName = "LastAccessTime")
     private long lastAccessTime;
 
+    /**
+     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     */
     @Getter
     @Setter
     @DynamoDBAttribute(attributeName = "SpeakClockTime")
@@ -102,6 +105,26 @@ public class ObaUserDataItem {
     @Setter
     @DynamoDBAttribute(attributeName = "RoutesToFilterOut")
     private HashMap<String, HashSet<String>> routesToFilterOut;
+
+    /**
+     * Whether or not we've given the user the introduction to OneBusAway when they first use the skill
+     * <p>
+     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     */
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "AnnouncedIntroduction")
+    private long announcedIntroduction;
+
+    /**
+     * Whether or not we've given the user an update for what's new in v1.1.0
+     * <p>
+     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     */
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "AnnouncedFeatures-v1_1_0")
+    private long announcedFeaturesv1_1_0;
 
     @DynamoDBVersionAttribute
     private Long version;

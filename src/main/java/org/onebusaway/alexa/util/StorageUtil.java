@@ -91,22 +91,30 @@ public class StorageUtil {
         // This code path is current used for the SetCityIntent if this isn't the users first time using the skill
         // And, we can't store HashMaps in sessions (they get converted to ArrayLists by Alexa)
         // So, try to get route filters from persisted data in case the user has previously set them
-        HashSet routesToFilter = SpeechUtil.getRoutesToFilter(obaDao, session);
+        HashSet<String> routesToFilter = SpeechUtil.getRoutesToFilter(obaDao, session);
 
         String arrivalInfoText = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
                 response.getCurrentTime(), speakClockTime, timeZone, routesToFilter);
 
         log.info("Full arrival text output: " + arrivalInfoText);
-        String outText = String.format("Ok, your stop number is %s in the %s region. " +
-                        "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
-                        "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'. " +
-                        SpeechUtil.getRealtimeVsStaticText() +
-                        "You can learn more about other features by asking me for help.  " +
-                        "Right now, %s",
-                stopCode, region.getName(), arrivalInfoText);
+
+        // Build the full text response to the user
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, region.getName()));
+
+        String introText = SpeechUtil.getIntroductionText(session);
+        builder.append(introText);
+
+        // Update v1.1.0 announce session variable to show we've already read this to the user
+        // (the v1.1.0 text is included in the general intro text)
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
+        builder.append(String.format("Right now, %s", arrivalInfoText));
+        String outText = builder.toString();
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
-                System.currentTimeMillis(), speakClockTime, timeZone, obaDao);
+                System.currentTimeMillis(), speakClockTime, timeZone, (Long) session.getAttribute(ANNOUNCED_INTRODUCTION),
+                (Long) session.getAttribute(ANNOUNCED_FEATURES_V1_1_0), obaDao);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
@@ -126,11 +134,13 @@ public class StorageUtil {
      * @param lastAccessTime
      * @param speakClockTime
      * @param timeZone
+     * @param announcedIntroduction
+     * @param announcedFeaturesv1_1_0
      * @param obaDao
      */
     public static void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
                                           String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                          long speakClockTime, TimeZone timeZone, ObaDao obaDao) {
+                                          long speakClockTime, TimeZone timeZone, long announcedIntroduction, long announcedFeaturesv1_1_0, ObaDao obaDao) {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -143,6 +153,7 @@ public class StorageUtil {
             userData.setLastAccessTime(lastAccessTime);
             userData.setSpeakClockTime(speakClockTime);
             userData.setTimeZone(timeZone.getID());
+            userData.setAnnouncedFeaturesv1_1_0(announcedFeaturesv1_1_0);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -157,6 +168,8 @@ public class StorageUtil {
                     speakClockTime,
                     timeZone.getID(),
                     new HashMap<>(),
+                    announcedIntroduction,
+                    announcedFeaturesv1_1_0,
                     null
             );
             obaDao.saveUserData(userData);
