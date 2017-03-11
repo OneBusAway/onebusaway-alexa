@@ -176,6 +176,11 @@ public class AuthedSpeechlet implements Speechlet {
         builder.append(SpeechUtil.getAnnounceFeaturev1_1_0Text(session));
         builder.append(output);
 
+        // Save that we've already read the tutorial info to the user
+        userData.setAnnouncedIntroduction(1L);
+        userData.setAnnouncedFeaturesv1_1_0(1L);
+        obaDao.saveUserData(userData);
+
         StorageUtil.saveOutputForRepeat(builder.toString(), obaDao, userData);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(builder.toString());

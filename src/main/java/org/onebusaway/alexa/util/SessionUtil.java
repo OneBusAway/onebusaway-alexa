@@ -76,5 +76,11 @@ public class SessionUtil {
         if (session.getAttribute(TIME_ZONE) == null) {
             session.setAttribute(TIME_ZONE, userData.getTimeZone());
         }
+        if (session.getAttribute(ANNOUNCED_INTRODUCTION) == null) {
+            session.setAttribute(ANNOUNCED_INTRODUCTION, userData.getTimeZone());
+        }
+        if (session.getAttribute(ANNOUNCED_FEATURES_V1_1_0) == null) {
+            session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, userData.getTimeZone());
+        }
     }
 }

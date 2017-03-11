@@ -101,20 +101,13 @@ public class StorageUtil {
         // Build the full text response to the user
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, region.getName()));
-
-        String introText = SpeechUtil.getIntroductionText(session);
-        builder.append(introText);
-
-        // Update v1.1.0 announce session variable to show we've already read this to the user
-        // (the v1.1.0 text is included in the general intro text)
-        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
-
+        builder.append(SpeechUtil.getIntroductionText(session));
         builder.append(String.format("Right now, %s", arrivalInfoText));
         String outText = builder.toString();
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
-                System.currentTimeMillis(), speakClockTime, timeZone, (Long) session.getAttribute(ANNOUNCED_INTRODUCTION),
-                (Long) session.getAttribute(ANNOUNCED_FEATURES_V1_1_0), obaDao);
+                System.currentTimeMillis(), speakClockTime, timeZone, 1L,
+                1L, obaDao);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
