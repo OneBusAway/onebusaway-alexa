@@ -146,6 +146,7 @@ public class StorageUtil {
             userData.setLastAccessTime(lastAccessTime);
             userData.setSpeakClockTime(speakClockTime);
             userData.setTimeZone(timeZone.getID());
+            userData.setAnnouncedIntroduction(announcedIntroduction);
             userData.setAnnouncedFeaturesv1_1_0(announcedFeaturesv1_1_0);
             obaDao.saveUserData(userData);
         } else {

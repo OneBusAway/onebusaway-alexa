@@ -248,12 +248,8 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void setStopNumber() throws SpeechletException, IOException {
+    public void setStopNumberTutorial() throws SpeechletException, IOException {
         String newStopCode = "3105";
-
-        // Turn off tutorials
-        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
-        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
 
         // Mock persisted user data
         testUserData.setUserId(TEST_USER_ID);
@@ -262,6 +258,8 @@ public class AuthedSpeechletTest {
         testUserData.setRegionName(TEST_REGION_1.getName());
         testUserData.setRegionId(TEST_REGION_1.getId());
         testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+        testUserData.setAnnouncedIntroduction(0L);
+        testUserData.setAnnouncedFeaturesv1_1_0(0L);
 
         // Mock stop info
         ObaStop[] obaStopsArray = new ObaStop[1];
@@ -299,17 +297,55 @@ public class AuthedSpeechletTest {
                         .build(),
                 session
         );
-        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. "));
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. " +
+                "Great.  I am ready to tell you about the next bus."));
+    }
 
-        // Turn on tutorials
-        session.setAttribute(ANNOUNCED_INTRODUCTION, 0L);
-        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 0L);
-        testUserData.setAnnouncedIntroduction(0L);
-        testUserData.setAnnouncedFeaturesv1_1_0(0L);
-        obaDao.saveUserData(testUserData);
+    @Test
+    public void setStopNumberNoTutorial() throws SpeechletException, IOException {
+        String newStopCode = "3105";
 
-        sr = authedSpeechlet.onIntent(
+        // Mock persisted user data
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId("6497");
+        testUserData.setCity(TEST_REGION_1.getName());
+        testUserData.setRegionName(TEST_REGION_1.getName());
+        testUserData.setRegionId(TEST_REGION_1.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+        testUserData.setAnnouncedIntroduction(1L);
+        testUserData.setAnnouncedFeaturesv1_1_0(1L);
+
+        // Mock stop info
+        ObaStop[] obaStopsArray = new ObaStop[1];
+        obaStopsArray[0] = obaStop;
+
+        new NonStrictExpectations() {{
+            googleMaps.geocode(TEST_REGION_1.getName());
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+
+            obaStop.getStopCode();
+            result = newStopCode;
+            obaStop.getId();
+            result = newStopCode;
+            obaUserClient.getStopFromCode(l, newStopCode);
+            result = obaStopsArray;
+
+            obaClient.getClosestRegion(l);
+            result = Optional.of(TEST_REGION_1);
+
+            obaDao.getUserData(session);
+            result = Optional.of(testUserData);
+        }};
+
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
+                .withValue(newStopCode).build());
+        SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
                         .withRequestId("test-request-id")
                         .withIntent(
@@ -321,9 +357,8 @@ public class AuthedSpeechletTest {
                         .build(),
                 session
         );
-        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. " +
-                "Great.  I am ready to tell you about the next bus."));
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. Right now"));
     }
 
     @Test
