@@ -199,7 +199,7 @@ public class AuthedSpeechletTest {
                 session);
 
         spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
-        assertThat(spoken, startsWith("Guess what!  I learned some new tricks"));
+        assertThat(spoken, startsWith("Guess what!  I just got back from"));
     }
 
     @Test

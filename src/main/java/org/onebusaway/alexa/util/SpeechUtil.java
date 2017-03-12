@@ -230,8 +230,9 @@ public class SpeechUtil {
         if (announcedFeaturesv1_1_0 == null || announcedFeaturesv1_1_0 == 0L) {
             // We haven't told the user about new v1.1.0 features yet - update the session and return the text
             session.setAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0, 1L);
-            return "Guess what!  I learned some new tricks at transportation camp over spring break.  If you want me to " +
-                    "filter routes for your currently selected stop, say 'filter routes'.  " +
+            return "Guess what!  I just got back from spring break transportation camp.  Check out what I learned - " +
+                    "I think you're going to love it.  " +
+                    "If you want me to filter routes for your currently selected stop, say 'filter routes'.  " +
                     HELP_CLOCK_TIME_TEXT +
                     "Right now, ";
         } else {
