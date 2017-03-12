@@ -37,6 +37,7 @@ import java.util.*;
 @Log4j
 public class SpeechUtil {
 
+    private static final String HELP = "You can learn more about other features by asking me for help. ";
     private static final String HELP_REAL_TIME_VS_STATIC_TEXT = "All predictions are based on real-time information unless they are followed by the words 'according to the schedule'. ";
     private static final String HELP_CLOCK_TIME_TEXT = "I can also tell you times in a clock format such as 10:25 AM.  You can enable this by saying " +
             "`enable clock times`. ";
@@ -202,7 +203,7 @@ public class SpeechUtil {
             return "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
                     "by saying 'open One Bus Away', and filter routes for your currently selected stop by saying 'filter routes'. " +
                     HELP_REAL_TIME_VS_STATIC_TEXT +
-                    "You can learn more about other features by asking me for help.  ";
+                    HELP;
         } else {
             return "";
         }
@@ -234,6 +235,7 @@ public class SpeechUtil {
                     "I think you're going to love it.  " +
                     "If you want me to filter routes for your currently selected stop, say 'filter routes'.  " +
                     HELP_CLOCK_TIME_TEXT +
+                    HELP_REAL_TIME_VS_STATIC_TEXT +
                     "Right now, ";
         } else {
             return "";
