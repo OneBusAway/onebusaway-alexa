@@ -93,8 +93,8 @@ public class UtilTest {
                 0,
                 "America/Los_Angeles",
                 new HashMap<>(),
-                0,
-                0,
+                1L,
+                1L,
                 null
         );
 
@@ -114,5 +114,7 @@ public class UtilTest {
         assertEquals(userData.getLastAccessTime(), emptySession.getAttribute(LAST_ACCESS_TIME));
         assertEquals(userData.getSpeakClockTime(), emptySession.getAttribute(CLOCK_TIME));
         assertEquals(userData.getTimeZone(), emptySession.getAttribute(TIME_ZONE));
+        assertEquals(userData.getAnnouncedIntroduction(), emptySession.getAttribute(ANNOUNCED_INTRODUCTION));
+        assertEquals(userData.getAnnouncedFeaturesv1_1_0(), emptySession.getAttribute(ANNOUNCED_FEATURES_V1_1_0));
     }
 }

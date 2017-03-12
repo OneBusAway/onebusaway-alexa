@@ -213,7 +213,7 @@ public class SpeechUtil {
     public static String getAnnounceFeaturev1_1_0Text(Session session) {
         Long announcedFeaturesv1_1_0 = (Long) session.getAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0);
 
-        if (announcedFeaturesv1_1_0 == null || announcedFeaturesv1_1_0 == 0) {
+        if (announcedFeaturesv1_1_0 == null || announcedFeaturesv1_1_0 == 0L) {
             // We haven't told the user about new v1.1.0 features yet - update the session and return the text
             session.setAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0, 1L);
             return "Guess what!  I learned some new tricks at transportation camp over spring break.  If you want me to " +
