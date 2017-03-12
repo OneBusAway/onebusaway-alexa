@@ -187,9 +187,16 @@ public class SpeechUtil {
      * @return intro text if session attribute ANNOUNCED_INTRODUCTION is 0, or empty string if is 1
      */
     public static String getIntroductionText(Session session) {
-        Long introductionText = (Long) session.getAttribute(SessionAttribute.ANNOUNCED_INTRODUCTION);
+        Long introductionText = null;
+        Object introductionTextObject = session.getAttribute(SessionAttribute.ANNOUNCED_INTRODUCTION);
+        if (introductionTextObject instanceof Integer) {
+            // This happens if it's never been set before - ignore it and use default 0 value
+            introductionText = 0L;
+        } else if (introductionTextObject instanceof Long) {
+            introductionText = (Long) introductionTextObject;
+        }
 
-        if (introductionText == null || introductionText == 0) {
+        if (introductionText == null || introductionText == 0L) {
             // We haven't told the user about general OBA features yet - update the session and return the text
             session.setAttribute(SessionAttribute.ANNOUNCED_INTRODUCTION, 1L);
             return "Great.  I am ready to tell you about the next bus.  You can always ask me for arrival times " +
@@ -211,7 +218,14 @@ public class SpeechUtil {
      * @return v1.1.0 feature text if session attribute ANNOUNCED_FEATURES_V1_1_0 is 0, or empty string if is 1
      */
     public static String getAnnounceFeaturev1_1_0Text(Session session) {
-        Long announcedFeaturesv1_1_0 = (Long) session.getAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0);
+        Long announcedFeaturesv1_1_0 = null;
+        Object announcedFeaturesv1_1_0Object = session.getAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0);
+        if (announcedFeaturesv1_1_0Object instanceof Integer) {
+            // This happens if it's never been set before - ignore it and use default 0 value
+            announcedFeaturesv1_1_0 = 0L;
+        } else if (announcedFeaturesv1_1_0Object instanceof Long) {
+            announcedFeaturesv1_1_0 = (Long) announcedFeaturesv1_1_0Object;
+        }
 
         if (announcedFeaturesv1_1_0 == null || announcedFeaturesv1_1_0 == 0L) {
             // We haven't told the user about new v1.1.0 features yet - update the session and return the text
