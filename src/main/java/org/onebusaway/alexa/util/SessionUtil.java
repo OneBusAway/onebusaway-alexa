@@ -77,10 +77,10 @@ public class SessionUtil {
             session.setAttribute(TIME_ZONE, userData.getTimeZone());
         }
         if (session.getAttribute(ANNOUNCED_INTRODUCTION) == null) {
-            session.setAttribute(ANNOUNCED_INTRODUCTION, userData.getTimeZone());
+            session.setAttribute(ANNOUNCED_INTRODUCTION, userData.getAnnouncedIntroduction());
         }
         if (session.getAttribute(ANNOUNCED_FEATURES_V1_1_0) == null) {
-            session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, userData.getTimeZone());
+            session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, userData.getAnnouncedFeaturesv1_1_0());
         }
     }
 }

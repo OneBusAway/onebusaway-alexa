@@ -501,6 +501,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void setStopWithDuplicateIdsYesFirst() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         String newStopCode = "2340";
         String stopName1 = "ABC";
         String stopName2 = "123";
@@ -524,6 +528,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void setStopWithDuplicateIdsNoThenYes() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         String newStopCode = "2340";
         String stopName1 = "ABC";
         String stopName2 = "123";
