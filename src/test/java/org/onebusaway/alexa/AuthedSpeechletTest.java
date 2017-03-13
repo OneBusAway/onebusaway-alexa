@@ -172,6 +172,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void launchTellsArrivals() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
         obaArrivalInfoArray[0] = obaArrivalInfo;
         new Expectations() {{
@@ -187,6 +191,15 @@ public class AuthedSpeechletTest {
 
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, equalTo("Route 8 Mlk Way Jr is departing now based on the schedule -- "));
+
+        // Turn on tutorials
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 0L);
+        sr = authedSpeechlet.onLaunch(
+                launchRequest,
+                session);
+
+        spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Guess what!  I just got back from"));
     }
 
     @Test
@@ -199,6 +212,8 @@ public class AuthedSpeechletTest {
         routeFilters.put(stopId, routesToFilter);
         testUserData.setRoutesToFilterOut(routeFilters);
         testUserData.setStopId(stopId);
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
         obaDao.saveUserData(testUserData);
 
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
@@ -233,7 +248,7 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void setStopNumber() throws SpeechletException, IOException {
+    public void setStopNumberTutorial() throws SpeechletException, IOException {
         String newStopCode = "3105";
 
         // Mock persisted user data
@@ -243,12 +258,14 @@ public class AuthedSpeechletTest {
         testUserData.setRegionName(TEST_REGION_1.getName());
         testUserData.setRegionId(TEST_REGION_1.getId());
         testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+        testUserData.setAnnouncedIntroduction(0L);
+        testUserData.setAnnouncedFeaturesv1_1_0(0L);
 
         // Mock stop info
         ObaStop[] obaStopsArray = new ObaStop[1];
         obaStopsArray[0] = obaStop;
 
-        new Expectations() {{
+        new NonStrictExpectations() {{
             googleMaps.geocode(TEST_REGION_1.getName());
             Location l = new Location("test");
             l.setLatitude(27.9681);
@@ -280,9 +297,68 @@ public class AuthedSpeechletTest {
                         .build(),
                 session
         );
-        String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. " +
                 "Great.  I am ready to tell you about the next bus."));
+    }
+
+    @Test
+    public void setStopNumberNoTutorial() throws SpeechletException, IOException {
+        String newStopCode = "3105";
+
+        // Mock persisted user data
+        testUserData.setUserId(TEST_USER_ID);
+        testUserData.setStopId("6497");
+        testUserData.setCity(TEST_REGION_1.getName());
+        testUserData.setRegionName(TEST_REGION_1.getName());
+        testUserData.setRegionId(TEST_REGION_1.getId());
+        testUserData.setObaBaseUrl(TEST_REGION_1.getObaBaseUrl());
+        testUserData.setAnnouncedIntroduction(1L);
+        testUserData.setAnnouncedFeaturesv1_1_0(1L);
+
+        // Mock stop info
+        ObaStop[] obaStopsArray = new ObaStop[1];
+        obaStopsArray[0] = obaStop;
+
+        new NonStrictExpectations() {{
+            googleMaps.geocode(TEST_REGION_1.getName());
+            Location l = new Location("test");
+            l.setLatitude(27.9681);
+            l.setLongitude(-82.4764);
+            result = Optional.of(l);
+
+            obaStop.getStopCode();
+            result = newStopCode;
+            obaStop.getId();
+            result = newStopCode;
+            obaUserClient.getStopFromCode(l, newStopCode);
+            result = obaStopsArray;
+
+            obaClient.getClosestRegion(l);
+            result = Optional.of(TEST_REGION_1);
+
+            obaDao.getUserData(session);
+            result = Optional.of(testUserData);
+        }};
+
+        HashMap<String, Slot> slots = new HashMap<>();
+        slots.put(STOP_ID, Slot.builder()
+                .withName(STOP_ID)
+                .withValue(newStopCode).build());
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(SET_STOP_NUMBER)
+                                        .withSlots(slots)
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, startsWith("Ok, your stop number is " + newStopCode + " in the " + TEST_REGION_1.getName() + " region. Right now"));
     }
 
     @Test
@@ -387,6 +463,28 @@ public class AuthedSpeechletTest {
 
     @Test
     public void repeat() throws SpeechletException, URISyntaxException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
+        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
+        obaArrivalInfoArray[0] = obaArrivalInfo;
+        String response = "Route 8 Mlk Way Jr is departing now based on the schedule -- ";
+
+        new NonStrictExpectations() {{
+            obaArrivalInfo.getShortName();
+            result = "8";
+            obaArrivalInfo.getHeadsign();
+            result = "Mlk Way Jr";
+            obaArrivalInfoResponse.getArrivalInfo();
+            result = obaArrivalInfoArray;
+            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt);
+            result = obaArrivalInfoResponse;
+            obaDao.getUserData(session);
+            result = Optional.of(testUserData);
+        }};
+
+        // Try the repeat intent - this simulates after initial setup, when we don't yet have anything to repeat
         IntentRequest repeatIntent = IntentRequest.builder()
                 .withRequestId("test-request-id")
                 .withIntent(
@@ -396,25 +494,14 @@ public class AuthedSpeechletTest {
                                 .build()
                 )
                 .build();
-        // Try the repeat intent - this simulates after initial setup, when we don't yet have anything to repeat
         SpeechletResponse sr = authedSpeechlet.onIntent(repeatIntent, session);
         String spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("I'm sorry, I don't have anything to repeat.  You can ask me for arrival times for your stop."));
 
-        ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[1];
-        obaArrivalInfoArray[0] = obaArrivalInfo;
-        new Expectations() {{
-            obaArrivalInfo.getShortName(); result = "8";
-            obaArrivalInfo.getHeadsign(); result = "Mlk Way Jr";
-            obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
-            obaUserClient.getArrivalsAndDeparturesForStop(anyString, anyInt); result = obaArrivalInfoResponse;
-        }};
-        String response = "Route 8 Mlk Way Jr is departing now based on the schedule -- ";
-
         // Test initial request/response - this should also save the response for later retrieval via repeat intent
         sr = authedSpeechlet.onLaunch(launchRequest, session);
         spoken = ((PlainTextOutputSpeech)sr.getOutputSpeech()).getText();
-        assertThat(spoken, equalTo(response));
+        assertThat(spoken, startsWith(response));
 
         // Now try repeat intent again, with a fresh session - we should get the last response again
         Session newSession = Session.builder()
@@ -429,6 +516,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void noUpcomingArrivals() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         ObaArrivalInfo[] obaArrivalInfoArray = new ObaArrivalInfo[0];
         new Expectations() {{
             obaArrivalInfoResponse.getArrivalInfo(); result = obaArrivalInfoArray;
@@ -445,6 +536,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void setStopWithDuplicateIdsYesFirst() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         String newStopCode = "2340";
         String stopName1 = "ABC";
         String stopName2 = "123";
@@ -468,6 +563,10 @@ public class AuthedSpeechletTest {
 
     @Test
     public void setStopWithDuplicateIdsNoThenYes() throws SpeechletException, IOException {
+        // Turn off tutorials
+        session.setAttribute(ANNOUNCED_INTRODUCTION, 1L);
+        session.setAttribute(ANNOUNCED_FEATURES_V1_1_0, 1L);
+
         String newStopCode = "2340";
         String stopName1 = "ABC";
         String stopName2 = "123";
