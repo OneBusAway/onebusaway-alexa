@@ -76,7 +76,8 @@ public class StorageUtil {
         Object speakClockTimeSessionObject = session.getAttribute(CLOCK_TIME);
         Long speakClockTime = 0L;
         if (speakClockTimeSessionObject instanceof Integer) {
-            // This happens if it's never been set before - ignore it
+            // This happens if it's been persisted to a session with more than one exchange with user - convert to long
+            speakClockTime = Long.valueOf((Integer) speakClockTimeSessionObject);
         } else if (speakClockTimeSessionObject instanceof Long) {
             speakClockTime = (Long) speakClockTimeSessionObject;
         }

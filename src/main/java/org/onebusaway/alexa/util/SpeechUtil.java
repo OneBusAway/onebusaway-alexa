@@ -191,8 +191,8 @@ public class SpeechUtil {
         Long introductionText = null;
         Object introductionTextObject = session.getAttribute(SessionAttribute.ANNOUNCED_INTRODUCTION);
         if (introductionTextObject instanceof Integer) {
-            // This happens if it's never been set before - ignore it and use default 0 value
-            introductionText = 0L;
+            // This happens if it's been persisted to a session with more than one exchange with user - convert to long
+            introductionText = Long.valueOf((Integer) introductionTextObject);
         } else if (introductionTextObject instanceof Long) {
             introductionText = (Long) introductionTextObject;
         }
@@ -222,8 +222,8 @@ public class SpeechUtil {
         Long announcedFeaturesv1_1_0 = null;
         Object announcedFeaturesv1_1_0Object = session.getAttribute(SessionAttribute.ANNOUNCED_FEATURES_V1_1_0);
         if (announcedFeaturesv1_1_0Object instanceof Integer) {
-            // This happens if it's never been set before - ignore it and use default 0 value
-            announcedFeaturesv1_1_0 = 0L;
+            // This happens if it's been persisted to a session with more than one exchange with user - convert to long
+            announcedFeaturesv1_1_0 = Long.valueOf((Integer) announcedFeaturesv1_1_0Object);
         } else if (announcedFeaturesv1_1_0Object instanceof Long) {
             announcedFeaturesv1_1_0 = (Long) announcedFeaturesv1_1_0Object;
         }
