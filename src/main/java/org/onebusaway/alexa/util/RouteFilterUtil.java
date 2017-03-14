@@ -59,7 +59,7 @@ public class RouteFilterUtil {
 
         Reprompt askForRouteFilterReprompt = new Reprompt();
         PlainTextOutputSpeech repromptText = new PlainTextOutputSpeech();
-        repromptText.setText(String.format("Did you want to hear arrivals for %s for stop %s?", routeName, stopCode));
+        repromptText.setText(String.format("Did you want to hear arrivals for Route %s for stop %s?", routeName, stopCode));
         askForRouteFilterReprompt.setOutputSpeech(repromptText);
 
         session.setAttribute(ASK_STATE, AskState.FILTER_INDIVIDUAL_ROUTE.toString());
