@@ -19,9 +19,14 @@ You can also search for and enable skills in the Alexa app:
 
 ### Using the OneBusAway skill
 
-Just say "Alexa, open OneBusAway" to get started.  You'll set your city and favorite stop, using the stop number.  Then, just say "Alexa, open OneBusAway" to get arrival times for your favorite stop.  You can also change your city or stop at any point, or ask OneBusAway to repeat the last information.
+Just say "Alexa, open OneBusAway" to get started. You'll set your city and favorite stop, using the stop number. Then, just say "Alexa, open OneBusAway" to get arrival times for your favorite stop. You can find your stop number on the placard in the bus zone, in your OneBusAway mobile app, or on your agency website. If you have trouble finding your stop number, see our guide for ["Finding your stop number"](https://github.com/OneBusAway/onebusaway-alexa/wiki/Finding-your-stop-number).  
 
-You can find your stop number on the placard in the bus zone, in your OneBusAway mobile app, or on your agency website.  If you have trouble finding your stop number, see our guide for ["Finding your stop number"](https://github.com/OneBusAway/onebusaway-alexa/wiki/Finding-your-stop-number).
+Other features - say `Alexa, ask OneBusAway to...`:
+* `...filter routes` to filter out arrivals for particular routes for your currently selected stop
+* `...enable clock times` to announce times in a clock format like "at 10:25am" instead of "in 5 minutes"
+* `...set my stop to X` to change your stop to the specified number
+* `...set my city to X` to change your city to the specified city
+* `...repeat` to repeat the last message
 
 Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt) for the full list of spoken phrases we support.
 
