@@ -150,7 +150,7 @@ Don't have an Amazon Echo?  No worries, there are a few options.
 1. ~~[**Roger, with Alexa**](https://rogertalk.com/login?continue=%2Fauth%2Falexa) - [Roger](https://rogertalk.com/) is a free group voice messenger app, and it supports communicating with Alexa.  See [this Engadget article](https://www.engadget.com/2016/05/12/roger-app-puts-amazon-alexa-in-your-phone-for-free/) for details.~~ Roger [shut down](https://medium.com/roger-talk/what-weve-been-up-to-project-fika-79e4ee3d44f8#.lz2pnpy3c) on March 15th, 2017.
 1. [Amazon App on iOS](http://www.macworld.com/article/3181810/ios/amazon-brings-alexa-to-its-main-ios-app-to-help-iphone-users-shop-and-track-orders.html) - You can now access Alexa skills via the Amazon iOS app.  See [this article](http://www.macworld.com/article/3181810/ios/amazon-brings-alexa-to-its-main-ios-app-to-help-iphone-users-shop-and-track-orders.html) for details.
 
-For both of the above, just remember to log in using the same Amazon account that you've used above to set up the skill.
+Just remember to log in using the same Amazon account that you've used above to set up the skill.
 
 ## License
 [Apache v2.0](http://www.apache.org/licenses/LICENSE-2.0)
