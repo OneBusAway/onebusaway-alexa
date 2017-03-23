@@ -126,6 +126,15 @@ public class ObaUserDataItem {
     @DynamoDBAttribute(attributeName = "AnnouncedFeatures-v1_1_0")
     private long announcedFeaturesv1_1_0;
 
+    /**
+     * Whether or not the user should hear information for experimental regions
+     * <p>
+     */
+    @Getter
+    @Setter
+    @DynamoDBAttribute(attributeName = "ExperimentalRegions")
+    private boolean experimentalRegions;
+
     @DynamoDBVersionAttribute
     private Long version;
 }

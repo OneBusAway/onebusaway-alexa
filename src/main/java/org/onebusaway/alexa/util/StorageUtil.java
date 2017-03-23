@@ -89,6 +89,8 @@ public class StorageUtil {
             throw new SpeechletException(e);
         }
 
+        boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
+
         // This code path is current used for the SetCityIntent if this isn't the users first time using the skill
         // And, we can't store HashMaps in sessions (they get converted to ArrayLists by Alexa)
         // So, try to get route filters from persisted data in case the user has previously set them
@@ -108,7 +110,7 @@ public class StorageUtil {
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
                 System.currentTimeMillis(), speakClockTime, timeZone, 1L,
-                1L, obaDao);
+                1L, experimentalRegions, obaDao);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
@@ -134,7 +136,8 @@ public class StorageUtil {
      */
     public static void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
                                           String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                          long speakClockTime, TimeZone timeZone, long announcedIntroduction, long announcedFeaturesv1_1_0, ObaDao obaDao) {
+                                          long speakClockTime, TimeZone timeZone, long announcedIntroduction, long announcedFeaturesv1_1_0,
+                                          boolean experimentalRegions, ObaDao obaDao) {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -149,6 +152,7 @@ public class StorageUtil {
             userData.setTimeZone(timeZone.getID());
             userData.setAnnouncedIntroduction(announcedIntroduction);
             userData.setAnnouncedFeaturesv1_1_0(announcedFeaturesv1_1_0);
+            userData.setExperimentalRegions(experimentalRegions);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -165,6 +169,7 @@ public class StorageUtil {
                     new HashMap<>(),
                     announcedIntroduction,
                     announcedFeaturesv1_1_0,
+                    experimentalRegions,
                     null
             );
             obaDao.saveUserData(userData);

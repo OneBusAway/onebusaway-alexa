@@ -237,7 +237,7 @@ public class AuthedSpeechletTest {
             result = Optional.of(testUserData);
         }};
 
-        SessionUtil.populateAttributes(session, testUserData);
+        SessionUtil.populateAttributes(session, Optional.of(testUserData));
 
         SpeechletResponse sr = authedSpeechlet.onLaunch(
                 launchRequest,
@@ -276,7 +276,8 @@ public class AuthedSpeechletTest {
             obaStop.getId(); result = newStopCode;
             obaUserClient.getStopFromCode(l, newStopCode); result = obaStopsArray;
 
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_1);
 
             obaDao.getUserData(session); result = Optional.of(testUserData);
         }};
@@ -334,7 +335,7 @@ public class AuthedSpeechletTest {
             obaUserClient.getStopFromCode(l, newStopCode);
             result = obaStopsArray;
 
-            obaClient.getClosestRegion(l);
+            obaClient.getClosestRegion(l, false);
             result = Optional.of(TEST_REGION_1);
 
             obaDao.getUserData(session);
@@ -379,7 +380,8 @@ public class AuthedSpeechletTest {
             l.setLongitude(-82.4764);
             result = Optional.of(l);
 
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_1);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
@@ -696,7 +698,8 @@ public class AuthedSpeechletTest {
             result = stopName1;
             obaStop2.getName();
             result = stopName2;
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_2);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_2);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
@@ -1169,7 +1172,7 @@ public class AuthedSpeechletTest {
 
     public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
         new Expectations() {{
-            obaClient.getAllRegions();
+            obaClient.getAllRegions(false);
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
             regions.add(TEST_REGION_1);
             regions.add(TEST_REGION_2);

@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.onebusaway.alexa.ObaIntent.*;
@@ -68,7 +69,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
             throws SpeechletException {
-        SessionUtil.populateAttributes(session, userData);
+        SessionUtil.populateAttributes(session, Optional.of(userData));
         AskState askState = SessionUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
 
@@ -110,7 +111,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
             throws SpeechletException {
-        SessionUtil.populateAttributes(session, userData);
+        SessionUtil.populateAttributes(session, Optional.of(userData));
         return tellArrivals(session);
     }
 

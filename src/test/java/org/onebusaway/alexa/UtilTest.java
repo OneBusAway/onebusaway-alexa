@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
+import org.onebusaway.alexa.util.CityUtil;
 import org.onebusaway.alexa.util.SessionUtil;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaRegionElement;
@@ -33,7 +34,9 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.annotation.Resource;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.onebusaway.alexa.SessionAttribute.*;
@@ -47,7 +50,22 @@ public class UtilTest {
     static final User testUser = User.builder().withUserId(TEST_USER_ID).build();
     Session session;
 
-    private static final ObaRegion TEST_REGION = new ObaRegionElement(
+    private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
+            1,
+            "Tampa",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_2 = new ObaRegionElement(
             2,
             "Puget Sound",
             true,
@@ -59,6 +77,36 @@ public class UtilTest {
             true, true, true,
             "test-twitter",
             false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_3 = new ObaRegionElement(
+            2,
+            "Atlanta",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_EXPERIMENTAL = new ObaRegionElement(
+            3,
+            "Boston (beta)",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            true,
             "test-stop-info-url"
     );
 
@@ -85,9 +133,9 @@ public class UtilTest {
                 TEST_USER_ID,
                 "Puget Sound",
                 "6497",
-                TEST_REGION.getId(),
-                TEST_REGION.getName(),
-                TEST_REGION.getObaBaseUrl(),
+                TEST_REGION_2.getId(),
+                TEST_REGION_2.getName(),
+                TEST_REGION_2.getObaBaseUrl(),
                 "",
                 System.currentTimeMillis(),
                 0,
@@ -95,6 +143,7 @@ public class UtilTest {
                 new HashMap<>(),
                 1L,
                 1L,
+                false,
                 null
         );
 
@@ -103,7 +152,7 @@ public class UtilTest {
                 .withSessionId("test-session-id")
                 .build();
 
-        SessionUtil.populateAttributes(emptySession, userData);
+        SessionUtil.populateAttributes(emptySession, Optional.of(userData));
 
         assertEquals(userData.getRegionName(), emptySession.getAttribute(CITY_NAME));
         assertEquals(userData.getStopId(), emptySession.getAttribute(STOP_ID));
@@ -116,5 +165,20 @@ public class UtilTest {
         assertEquals(userData.getTimeZone(), emptySession.getAttribute(TIME_ZONE));
         assertEquals(userData.getAnnouncedIntroduction(), emptySession.getAttribute(ANNOUNCED_INTRODUCTION));
         assertEquals(userData.getAnnouncedFeaturesv1_1_0(), emptySession.getAttribute(ANNOUNCED_FEATURES_V1_1_0));
+    }
+
+    @Test
+    public void getRegionListText() {
+        ArrayList<ObaRegion> regions = new ArrayList<>();
+        regions.add(TEST_REGION_1);
+        regions.add(TEST_REGION_2);
+        regions.add(TEST_REGION_3);
+        regions.add(TEST_REGION_EXPERIMENTAL);
+
+        String productionRegions = CityUtil.allRegionsSpoken(regions, false);
+        assertEquals("Supported regions include Atlanta, Puget Sound, and Tampa. ", productionRegions);
+
+        String allRegions = CityUtil.allRegionsSpoken(regions, false);
+        assertEquals("Supported regions include Atlanta, Boston, Puget Sound, and Tampa. ", allRegions);
     }
 }

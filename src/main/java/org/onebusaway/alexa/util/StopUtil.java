@@ -69,21 +69,22 @@ public class StopUtil {
      */
     public static SpeechletResponse handleDuplicateStopResponse(Session session, boolean stopFound, GoogleMaps googleMaps, ObaClient obaClient, ObaDao obaDao) throws SpeechletException {
         ArrayList<ObaStop> stops = (ArrayList<ObaStop>) session.getAttribute(DIALOG_FOUND_STOPS);
+        boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
         if (stops != null) {
             if (stopFound && stops.size() > 0) {
                 String cityName = (String) session.getAttribute(CITY_NAME);
 
                 Optional<Location> location = googleMaps.geocode(cityName);
                 if (!location.isPresent()) {
-                    return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                    return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
                 }
 
                 Optional<ObaRegion> region;
                 try {
-                    region = obaClient.getClosestRegion(location.get());
+                    region = obaClient.getClosestRegion(location.get(), experimentalRegions);
                 } catch (IOException e) {
                     log.error("Error getting closest region: " + e.getMessage());
-                    return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                    return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
                 }
 
                 ObaUserClient obaUserClient;
@@ -93,7 +94,7 @@ public class StopUtil {
                     log.error("ObaBaseUrl " + region.get().getObaBaseUrl() + " for " + region.get().getName()
                             + " is invalid: " + e.getMessage());
                     // Region didn't have a valid URL - ask again and hopefully we find a different one
-                    return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                    return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
                 }
 
                 LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) stops.get(0);

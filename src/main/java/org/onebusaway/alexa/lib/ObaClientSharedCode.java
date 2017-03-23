@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Log4j
 public abstract class ObaClientSharedCode {
@@ -42,26 +43,33 @@ public abstract class ObaClientSharedCode {
      * which we will then use to get stop and arrival data for that region.
      *
      * @param l geographic location used to search for nearby regions
+     * @param includeExperimentalRegions true if experimental (beta) regions should be included, false if they should not
      * @return the closest region in the Regions API to the given location, or null if there are no nearby regions
      * (within 100 miles of the provided location) or a region couldn't be found.
      */
-    public Optional<ObaRegion> getClosestRegion(@NonNull Location l) throws IOException {
+    public Optional<ObaRegion> getClosestRegion(@NonNull Location l, boolean includeExperimentalRegions) throws IOException {
         log.debug("Invoked getClosestRegion() with location " + l.toString());
         return Optional.ofNullable(RegionUtils.getClosestRegion(
-                getAllRegions(),
+                getAllRegions(includeExperimentalRegions),
                 l,
                 true)); // enforce proximity threshold
     }
 
     /**
      * Get all OBA regions from the Regions API ((http://regions.onebusaway.org/regions-v3.json))
+     * @param includeExperimentalRegions true if experimental (beta) regions should be included, false if they should not
      * @return all OBA regions
      * @throws SpeechletException
      */
-    public List<ObaRegion> getAllRegions() throws IOException {
+    public List<ObaRegion> getAllRegions(boolean includeExperimentalRegions) throws IOException {
         ObaRegionsResponse response = ObaRegionsRequest.newRequest().call();
         if (response.getCode() == ObaApi.OBA_OK) {
-            return Arrays.asList(response.getRegions());
+            List<ObaRegion> regions = Arrays.asList(response.getRegions());
+            return regions.stream()
+                    .filter(r -> RegionUtils.isRegionUsable(r)
+                            && (!r.getExperimental() || includeExperimentalRegions)
+                            && r.getObaBaseUrl() != null)
+                    .collect(Collectors.toList());
         } else {
             throw new IOException("Error getting regions");
         }

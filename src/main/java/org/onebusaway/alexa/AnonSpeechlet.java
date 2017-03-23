@@ -56,9 +56,10 @@ public class AnonSpeechlet implements Speechlet {
 
     @Override
     public SpeechletResponse onLaunch(LaunchRequest launchRequest, Session session) throws SpeechletException {
+        SessionUtil.populateAttributes(session, obaDao.getUserData(session));
         switch (SessionUtil.getOnboardState(session)) {
             case Fresh:
-                return CityUtil.askForCity(Optional.empty(), obaClient);
+                return CityUtil.askForCity(Optional.empty(), obaClient, session);
             case OnlyCity:
                 return StopUtil.reaskForStopNumber();
             default:
@@ -69,6 +70,7 @@ public class AnonSpeechlet implements Speechlet {
     @Override
     public SpeechletResponse onIntent(IntentRequest request, Session session)
             throws SpeechletException {
+        SessionUtil.populateAttributes(session, obaDao.getUserData(session));
         Intent intent = request.getIntent();
         AskState askState = SessionUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
@@ -80,33 +82,34 @@ public class AnonSpeechlet implements Speechlet {
                 SET_ROUTE_FILTER.equals(intent.getName()) ||
                 REPEAT.equals(intent.getName())) {
             // User asked for help, or we don't yet have enough information to respond.  Return welcome message.
-            return CityUtil.askForCity(Optional.empty(), obaClient);
+            return CityUtil.askForCity(Optional.empty(), obaClient, session);
         } else if (SET_CITY.equals(intent.getName())) {
             String cityName = intent.getSlot(CITY_NAME).getValue();
+            boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
             //if we're at STOP_BEFORE_CITY, preserve state until we're sure we have a region
             session.setAttribute(ASK_STATE, askState.toString());
             if (cityName == null) {
-                return CityUtil.askForCity(Optional.empty(), obaClient);
+                return CityUtil.askForCity(Optional.empty(), obaClient, session);
             }
 
             Optional<Location> location = googleMaps.geocode(cityName);
             if (!location.isPresent()) {
                 // Couldn't find the city at all.
-                return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
             }
 
             // Get closest region from geographic location
             Optional<ObaRegion> region;
             try {
-                region = obaClient.getClosestRegion(location.get());
+                region = obaClient.getClosestRegion(location.get(), experimentalRegions);
             } catch (IOException e) {
                 log.error("Error getting closest region: " + e.getMessage());
-                return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
             }
 
             if (!region.isPresent() || region.get().getObaBaseUrl() == null) {
                 // Couldn't find a nearby region that supports the OBA REST API
-                return CityUtil.askForCity(Optional.of(cityName), obaClient);
+                return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
             } else {
                 // Got a region!
                 session.setAttribute(CITY_NAME, cityName);
@@ -175,7 +178,7 @@ public class AnonSpeechlet implements Speechlet {
         }
 
         log.error("Received yes intent without a question.");
-        return CityUtil.askForCity(Optional.empty(), obaClient);
+        return CityUtil.askForCity(Optional.empty(), obaClient, session);
     }
 
     private SpeechletResponse handleNoIntent(Session session, AskState askState) throws SpeechletException {
@@ -184,12 +187,13 @@ public class AnonSpeechlet implements Speechlet {
         }
 
         log.error("Received no intent without a question.");
-        return CityUtil.askForCity(Optional.empty(), obaClient);
+        return CityUtil.askForCity(Optional.empty(), obaClient, session);
     }
 
     private SpeechletResponse setStopNumber(String spokenStopNumber, Session session) throws SpeechletException {
         String cityName = (String) session.getAttribute(CITY_NAME);
         String regionName = (String) session.getAttribute(REGION_NAME);
+        boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
         log.debug(String.format(
                 "Asked to set stop number %s in city %s for region %s...", spokenStopNumber, cityName, regionName));
         if (cityName == null) {
@@ -199,20 +203,20 @@ public class AnonSpeechlet implements Speechlet {
         // Map city name to a geographic location - even if we've done this before, we want to refresh the info
         Optional<Location> location = googleMaps.geocode(cityName);
         if (!location.isPresent()) {
-            return CityUtil.askForCity(Optional.of(cityName), obaClient);
+            return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
 
         // Get closest region from geographic location
         Optional<ObaRegion> region;
         try {
-            region = obaClient.getClosestRegion(location.get());
+            region = obaClient.getClosestRegion(location.get(), experimentalRegions);
         } catch (IOException e) {
             log.error("Error getting closest region: " + e.getMessage());
-            return CityUtil.askForCity(Optional.of(cityName), obaClient);
+            return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
         if (!region.isPresent() || !RegionUtils.isRegionUsable(region.get())) {
             // Couldn't find a nearby region that supports the OBA REST API
-            return CityUtil.askForCity(Optional.of(cityName), obaClient);
+            return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
 
         ObaUserClient obaUserClient;
@@ -222,7 +226,7 @@ public class AnonSpeechlet implements Speechlet {
             log.error("ObaBaseUrl " + region.get().getObaBaseUrl() + " for " + region.get().getName()
                     + " is invalid: " + e.getMessage());
             // Region didn't have a valid URL - ask again and hopefully we find a different one
-            return CityUtil.askForCity(Optional.of(cityName), obaClient);
+            return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
 
         ObaStop[] searchResults;
