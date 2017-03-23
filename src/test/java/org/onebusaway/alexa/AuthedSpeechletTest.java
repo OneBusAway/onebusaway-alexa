@@ -159,6 +159,9 @@ public class AuthedSpeechletTest {
     @Mocked
     ObaDao obaDao;
 
+    @Mocked
+    ArrayList<ObaRegion> obaRegions;
+
     @Resource
     AuthedSpeechlet authedSpeechlet;
 
@@ -1196,14 +1199,25 @@ public class AuthedSpeechletTest {
     }
 
     @Test
-    public void enableExperimentalRegions() throws SpeechletException {
+    public void enableExperimentalRegions() throws SpeechletException, IOException {
+        obaRegions = new ArrayList<>(4);
+        obaRegions.add(TEST_REGION_1);
+        obaRegions.add(TEST_REGION_2);
+        obaRegions.add(TEST_REGION_3);
+        obaRegions.add(TEST_REGION_EXPERIMENTAL);
+
+        new Expectations() {{
+            obaUserClient.getAllRegions(anyBoolean);
+            result = obaRegions;
+        }};
+
         SpeechletResponse sr = authedSpeechlet.onIntent(
                 IntentRequest.builder()
                         .withRequestId("test-request-id")
                         .withIntent(
                                 Intent.builder()
                                         .withName(ENABLE_EXPERIMENTAL_REGIONS)
-                                        .withSlots(new HashMap<String, Slot>())
+                                        .withSlots(new HashMap<>())
                                         .build()
                         )
                         .build(),
@@ -1211,20 +1225,22 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now enabled"));
-        assertEquals((long) session.getAttribute(EXPERIMENTAL_REGIONS), true);
+        assertThat(spoken, containsString("Boston"));
+        assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), true);
         assertEquals(testUserData.isExperimentalRegions(), true);
     }
 
     @Test
     public void disableExperimentalRegions() throws SpeechletException, IOException {
+        obaRegions = new ArrayList<>(4);
+        obaRegions.add(TEST_REGION_1);
+        obaRegions.add(TEST_REGION_2);
+        obaRegions.add(TEST_REGION_3);
+        obaRegions.add(TEST_REGION_EXPERIMENTAL);
+
         new Expectations() {{
-            obaClient.getAllRegions(false);
-            ArrayList<ObaRegion> regions = new ArrayList<>(1);
-            regions.add(TEST_REGION_1);
-            regions.add(TEST_REGION_2);
-            regions.add(TEST_REGION_3);
-            regions.add(TEST_REGION_EXPERIMENTAL);
-            result = regions;
+            obaUserClient.getAllRegions(anyBoolean);
+            result = obaRegions;
         }};
 
         SpeechletResponse sr = authedSpeechlet.onIntent(
@@ -1233,7 +1249,7 @@ public class AuthedSpeechletTest {
                         .withIntent(
                                 Intent.builder()
                                         .withName(DISABLE_EXPERIMENTAL_REGIONS)
-                                        .withSlots(new HashMap<String, Slot>())
+                                        .withSlots(new HashMap<>())
                                         .build()
                         )
                         .build(),
@@ -1241,6 +1257,7 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now disabled"));
+        assertFalse(spoken.contains("Boston"));
         assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), false);
         assertEquals(testUserData.isExperimentalRegions(), false);
     }
