@@ -100,6 +100,10 @@ public class AuthedSpeechlet implements Speechlet {
             return disableClockTime(session);
         } else if (SET_ROUTE_FILTER.equals(intent.getName())) {
             return setRouteFilter(session);
+        } else if (ENABLE_EXPERIMENTAL_REGIONS.equals(intent.getName())) {
+            return enableExperimentalRegions(session);
+        } else if (DISABLE_EXPERIMENTAL_REGIONS.equals(intent.getName())) {
+            return disableExperimentalRegions(session);
         } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
             return SpeechUtil.goodbye();
         } else {
@@ -266,5 +270,14 @@ public class AuthedSpeechlet implements Speechlet {
 
         log.error("Received no intent without a question.");
         return SpeechUtil.getGeneralErrorMessage();
+    }
+
+    private SpeechletResponse enableExperimentalRegions(Session session) throws SpeechletException {
+        return StorageUtil.updateExperimentalRegions(true, session, obaDao, userData, obaUserClient);
+
+    }
+
+    private SpeechletResponse disableExperimentalRegions(Session session) throws SpeechletException {
+        return StorageUtil.updateExperimentalRegions(false, session, obaDao, userData, obaUserClient);
     }
 }

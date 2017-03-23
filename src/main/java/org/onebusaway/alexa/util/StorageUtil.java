@@ -242,4 +242,32 @@ public class StorageUtil {
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
+
+    /**
+     * Update if experimental regions should be included in available regions
+     *
+     * @param enableExperimentalRegions true if experimental regions should be enabled, false if they should be disabled
+     * @return a message to the user saying experimental regions are enabled or disabled, depending on enableExperimentalRegions
+     */
+    public static SpeechletResponse updateExperimentalRegions(boolean enableExperimentalRegions, Session session, ObaDao obaDao, ObaUserDataItem obaUserDataItem, ObaUserClient obaUserClient) throws SpeechletException {
+        // Update DAO
+        obaUserDataItem.setExperimentalRegions(enableExperimentalRegions);
+        obaDao.saveUserData(obaUserDataItem);
+
+        // Update session
+        session.setAttribute(EXPERIMENTAL_REGIONS, enableExperimentalRegions);
+
+        String allRegions = "";
+        try {
+            allRegions = CityUtil.allRegionsSpoken(obaUserClient.getAllRegions(enableExperimentalRegions), enableExperimentalRegions);
+        } catch (IOException e) {
+            log.error("Error getting all regions: " + e);
+        }
+
+        String output = String.format("Experimental regions are now %s. ", enableExperimentalRegions ? "enabled" : "disabled", allRegions);
+        StorageUtil.saveOutputForRepeat(output, obaDao, obaUserDataItem);
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
 }

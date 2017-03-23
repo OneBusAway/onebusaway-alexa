@@ -109,6 +109,24 @@ SetRouteFilter create my route filter
 SetRouteFilter filter routes
 SetRouteFilter filter out routes
 
+EnableExperimentalRegions enable experimental region
+EnableExperimentalRegions enable experimental regions
+EnableExperimentalRegions turn on experimental region
+EnableExperimentalRegions turn on experimental regions
+EnableExperimentalRegions enable beta region
+EnableExperimentalRegions enable beta regions
+EnableExperimentalRegions turn on beta region
+EnableExperimentalRegions turn on beta regions
+
+DisableExperimentalRegions disable experimental region
+DisableExperimentalRegions disable experimental regions
+DisableExperimentalRegions turn off experimental region
+DisableExperimentalRegions turn off experimental regions
+DisableExperimentalRegions disable beta region
+DisableExperimentalRegions disable beta regions
+DisableExperimentalRegions turn off beta region
+DisableExperimentalRegions turn off beta regions
+
 GetArrivalsIntent where is my {TransitMode}
 GetArrivalsIntent where's my {TransitMode}
 GetArrivalsIntent when is my {TransitMode}

@@ -178,7 +178,7 @@ public class UtilTest {
         String productionRegions = CityUtil.allRegionsSpoken(regions, false);
         assertEquals("Supported regions include Atlanta, Puget Sound, and Tampa. ", productionRegions);
 
-        String allRegions = CityUtil.allRegionsSpoken(regions, false);
+        String allRegions = CityUtil.allRegionsSpoken(regions, true);
         assertEquals("Supported regions include Atlanta, Boston, Puget Sound, and Tampa. ", allRegions);
     }
 }

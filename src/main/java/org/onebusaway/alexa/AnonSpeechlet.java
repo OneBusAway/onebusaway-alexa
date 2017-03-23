@@ -80,6 +80,8 @@ public class AnonSpeechlet implements Speechlet {
                 ENABLE_CLOCK_TIME.equals(intent.getName()) ||
                 DISABLE_CLOCK_TIME.equals(intent.getName()) ||
                 SET_ROUTE_FILTER.equals(intent.getName()) ||
+                DISABLE_EXPERIMENTAL_REGIONS.equals(intent.getName()) ||
+                ENABLE_EXPERIMENTAL_REGIONS.equals(intent.getName()) ||
                 REPEAT.equals(intent.getName())) {
             // User asked for help, or we don't yet have enough information to respond.  Return welcome message.
             return CityUtil.askForCity(Optional.empty(), obaClient, session);
