@@ -59,6 +59,12 @@
     },
     {
       "intent": "SetRouteFilter"
+    },
+    {
+      "intent": "EnableExperimentalRegions"
+    },
+    {
+      "intent": "DisableExperimentalRegions"
     }
   ]
 }
