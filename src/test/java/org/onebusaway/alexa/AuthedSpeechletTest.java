@@ -1225,7 +1225,7 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now enabled"));
-        assertThat(spoken, containsString("Boston"));
+        assertThat(spoken, containsString(TEST_REGION_EXPERIMENTAL.getName().replace(" (beta)", "")));
         assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), true);
         assertEquals(testUserData.isExperimentalRegions(), true);
     }
@@ -1257,7 +1257,7 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now disabled"));
-        assertFalse(spoken.contains("Boston"));
+        assertFalse(spoken.contains(TEST_REGION_EXPERIMENTAL.getName()));
         assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), false);
         assertEquals(testUserData.isExperimentalRegions(), false);
     }
