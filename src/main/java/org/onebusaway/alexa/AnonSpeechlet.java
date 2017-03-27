@@ -128,7 +128,7 @@ public class AnonSpeechlet implements Speechlet {
                 } else {
                     PlainTextOutputSpeech out = new PlainTextOutputSpeech();
                     out.setText(String.format("Ok, we found the %s region near you.  What's your stop number?",
-                            region.get().getName()));
+                            SpeechUtil.formatRegionName(region.get().getName())));
                     return SpeechletResponse.newAskResponse(out, SpeechUtil.getStopNumReprompt());
                 }
             }

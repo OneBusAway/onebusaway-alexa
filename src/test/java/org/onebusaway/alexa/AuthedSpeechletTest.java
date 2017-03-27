@@ -33,6 +33,7 @@ import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.alexa.util.SessionUtil;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
@@ -1225,7 +1226,7 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now enabled"));
-        assertThat(spoken, containsString(TEST_REGION_EXPERIMENTAL.getName().replace(" (beta)", "")));
+        assertThat(spoken, containsString(SpeechUtil.formatRegionName(TEST_REGION_EXPERIMENTAL.getName())));
         assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), true);
         assertEquals(testUserData.isExperimentalRegions(), true);
     }
@@ -1257,7 +1258,7 @@ public class AuthedSpeechletTest {
         );
         String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
         assertThat(spoken, containsString("Experimental regions are now disabled"));
-        assertFalse(spoken.contains(TEST_REGION_EXPERIMENTAL.getName()));
+        assertFalse(spoken.contains(SpeechUtil.formatRegionName(TEST_REGION_EXPERIMENTAL.getName())));
         assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), false);
         assertEquals(testUserData.isExperimentalRegions(), false);
     }

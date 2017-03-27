@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.alexa.util.CityUtil;
 import org.onebusaway.alexa.util.SessionUtil;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaRegionElement;
 import org.springframework.test.annotation.DirtiesContext;
@@ -180,5 +181,14 @@ public class UtilTest {
 
         String allRegions = CityUtil.allRegionsSpoken(regions, true);
         assertEquals("Supported regions include Atlanta, Boston, Puget Sound, and Tampa. ", allRegions);
+    }
+
+    @Test
+    public void formatRegionNameForSpeech() {
+        String regionName = "Test region name";
+        String betaName = "Second region (beta)";
+
+        assertEquals("Test region name", SpeechUtil.formatRegionName(regionName));
+        assertEquals("Second region", SpeechUtil.formatRegionName(betaName));
     }
 }

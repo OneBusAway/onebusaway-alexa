@@ -85,7 +85,7 @@ public class CityUtil {
                 .filter(r -> RegionUtils.isRegionUsable(r)
                         && (!r.getExperimental() || includeExperimentalRegions)
                         && r.getObaBaseUrl() != null)
-                .map(r -> String.format("%s, ", r.getName().replace(" (beta)", "")))
+                .map(r -> String.format("%s, ", SpeechUtil.formatRegionName(r.getName())))
                 .sorted()
                 .collect(Collectors.toList());
         // Some low-level manipulation to beautify the sequence of regions.

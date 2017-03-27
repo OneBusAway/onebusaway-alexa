@@ -103,7 +103,7 @@ public class StorageUtil {
 
         // Build the full text response to the user
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, region.getName()));
+        builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, SpeechUtil.formatRegionName(region.getName())));
         builder.append(SpeechUtil.getIntroductionText(session));
         builder.append(String.format("Right now, %s", arrivalInfoText));
         String outText = builder.toString();
