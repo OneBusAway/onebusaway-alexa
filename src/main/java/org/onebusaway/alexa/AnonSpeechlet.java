@@ -27,7 +27,6 @@ import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.util.*;
 import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.elements.ObaStop;
-import org.onebusaway.io.client.util.RegionUtils;
 import org.onebusaway.location.Location;
 
 import javax.annotation.Resource;
@@ -216,7 +215,7 @@ public class AnonSpeechlet implements Speechlet {
             log.error("Error getting closest region: " + e.getMessage());
             return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
-        if (!region.isPresent() || !RegionUtils.isRegionUsable(region.get())) {
+        if (!region.isPresent()) {
             // Couldn't find a nearby region that supports the OBA REST API
             return CityUtil.askForCity(Optional.of(cityName), obaClient, session);
         }
