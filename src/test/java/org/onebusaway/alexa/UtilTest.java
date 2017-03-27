@@ -52,7 +52,7 @@ public class UtilTest {
     Session session;
 
     private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
-            1,
+            0,
             "Tampa",
             true,
             "http://test-oba-url.example.com",
@@ -67,7 +67,7 @@ public class UtilTest {
     );
 
     private static final ObaRegion TEST_REGION_2 = new ObaRegionElement(
-            2,
+            1,
             "Puget Sound",
             true,
             "http://test-oba-url.example.com",
@@ -82,7 +82,7 @@ public class UtilTest {
     );
 
     private static final ObaRegion TEST_REGION_3 = new ObaRegionElement(
-            2,
+            3,
             "Atlanta",
             true,
             "http://test-oba-url.example.com",
@@ -97,7 +97,7 @@ public class UtilTest {
     );
 
     private static final ObaRegion TEST_REGION_EXPERIMENTAL = new ObaRegionElement(
-            3,
+            4,
             "Boston (beta)",
             true,
             "http://test-oba-url.example.com",
@@ -108,6 +108,21 @@ public class UtilTest {
             true, true, true,
             "test-twitter",
             true,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_NEW_YORK = new ObaRegionElement(
+            2,
+            "New York",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, false, true,
+            "test-twitter",
+            false,
             "test-stop-info-url"
     );
 
@@ -175,12 +190,13 @@ public class UtilTest {
         regions.add(TEST_REGION_2);
         regions.add(TEST_REGION_3);
         regions.add(TEST_REGION_EXPERIMENTAL);
+        regions.add(TEST_REGION_NEW_YORK);
 
         String productionRegions = CityUtil.allRegionsSpoken(regions, false);
         assertEquals("Supported regions include Atlanta, Puget Sound, and Tampa. ", productionRegions);
 
         String allRegions = CityUtil.allRegionsSpoken(regions, true);
-        assertEquals("Supported regions include Atlanta, Boston, Puget Sound, and Tampa. ", allRegions);
+        assertEquals("Supported regions include Atlanta, Boston, New York, Puget Sound, and Tampa. ", allRegions);
     }
 
     @Test

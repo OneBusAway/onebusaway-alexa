@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.onebusaway.alexa.util.CityUtil.NEW_YORK_REGION_ID;
+
 @Log4j
 public abstract class ObaClientSharedCode {
 
@@ -66,7 +68,7 @@ public abstract class ObaClientSharedCode {
         if (response.getCode() == ObaApi.OBA_OK) {
             List<ObaRegion> regions = Arrays.asList(response.getRegions());
             return regions.stream()
-                    .filter(r -> RegionUtils.isRegionUsable(r)
+                    .filter(r -> (RegionUtils.isRegionUsable(r) || (r.getId() == NEW_YORK_REGION_ID && includeExperimentalRegions))
                             && (!r.getExperimental() || includeExperimentalRegions)
                             && r.getObaBaseUrl() != null)
                     .collect(Collectors.toList());

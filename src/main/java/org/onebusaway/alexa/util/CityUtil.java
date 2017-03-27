@@ -37,6 +37,8 @@ import static org.onebusaway.alexa.SessionAttribute.*;
 @Log4j
 public class CityUtil {
 
+    public static long NEW_YORK_REGION_ID = 2;  // From http://regions.onebusaway.org/regions-v3.json
+
     /**
      * Returns the response required to start the initial dialog with the user to select their city/region
      *
@@ -82,7 +84,7 @@ public class CityUtil {
     public static String allRegionsSpoken(List<ObaRegion> regions, boolean includeExperimentalRegions) {
         List<String> activeRegions = regions
                 .stream()
-                .filter(r -> RegionUtils.isRegionUsable(r)
+                .filter(r -> (RegionUtils.isRegionUsable(r) || (r.getId() == NEW_YORK_REGION_ID && includeExperimentalRegions))
                         && (!r.getExperimental() || includeExperimentalRegions)
                         && r.getObaBaseUrl() != null)
                 .map(r -> String.format("%s, ", SpeechUtil.formatRegionName(r.getName())))
