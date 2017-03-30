@@ -84,7 +84,7 @@ public class ObaUserDataItem {
     private long lastAccessTime;
 
     /**
-     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     * 0 for false, 1 for true (I thought DynamoDB didn't persist booleans at the time - FIXME?)
      */
     @Getter
     @Setter
@@ -109,7 +109,7 @@ public class ObaUserDataItem {
     /**
      * Whether or not we've given the user the introduction to OneBusAway when they first use the skill
      * <p>
-     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     * 0 for false, 1 for true (I thought DynamoDB didn't persist booleans at the time - FIXME?)
      */
     @Getter
     @Setter
@@ -119,7 +119,7 @@ public class ObaUserDataItem {
     /**
      * Whether or not we've given the user an update for what's new in v1.1.0
      * <p>
-     * 0 for false, 1 for true (Apparently DynamoDB doesn't persist booleans)
+     * 0 for false, 1 for true (I thought DynamoDB didn't persist booleans at the time - FIXME?)
      */
     @Getter
     @Setter
