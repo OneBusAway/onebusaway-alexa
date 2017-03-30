@@ -54,7 +54,7 @@ public abstract class ObaClientSharedCode {
         return Optional.ofNullable(RegionUtils.getClosestRegion(
                 getAllRegions(includeExperimentalRegions),
                 l,
-                true)); // enforce proximity threshold
+                true, false)); // enforce proximity threshold
     }
 
     /**
