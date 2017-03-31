@@ -27,6 +27,7 @@ Other features - say `Alexa, ask OneBusAway to...`:
 * `...set my stop to X` to change your stop to the specified number
 * `...set my city to X` to change your city to the specified city
 * `...repeat` to repeat the last message
+* `...enable experimental regions` to enable regions that may be unstable and without real-time info
 
 Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt) for the full list of spoken phrases we support.
 
