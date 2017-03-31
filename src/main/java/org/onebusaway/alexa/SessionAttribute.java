@@ -36,6 +36,7 @@ public class SessionAttribute {
     public static final String DIALOG_ROUTES_TO_FILTER = "dialogRoutesToFilter";
     public static final String ANNOUNCED_INTRODUCTION = "announcedIntroduction";
     public static final String ANNOUNCED_FEATURES_V1_1_0 = "announcedFeaturesv1_1_0";
+    public static final String EXPERIMENTAL_REGIONS = "experimentalRegions";
 
     // Strangely, we can't save HashSets or HashMaps to sessions (Amazon Alexa converts them to ArrayLists, which
     // generates a ClassCastException when trying to retrieve them.  This prevents us from saving route filters to sessions.

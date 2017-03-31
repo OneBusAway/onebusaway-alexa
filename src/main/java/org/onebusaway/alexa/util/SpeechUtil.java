@@ -144,22 +144,22 @@ public class SpeechUtil {
      * @return the goodbye response
      */
     public static SpeechletResponse goodbye() {
-        String output = String.format("Good-bye");
+        String output = "Good-bye";
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
     public static SpeechletResponse getGeneralErrorMessage() {
-        String output = String.format("Sorry, something went wrong.  Please try it again and it might work.");
+        String output = "Sorry, something went wrong.  Please try it again and it might work.";
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
     }
 
     public static SpeechletResponse getCommunicationErrorMessage() {
-        String output = String.format("Sorry, something went wrong communicating with your region's OneBusAway server.  " +
-                "Please try it again and it might work.");
+        String output = "Sorry, something went wrong communicating with your region's OneBusAway server.  " +
+                "Please try it again and it might work.";
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
         return SpeechletResponse.newTellResponse(out);
@@ -187,7 +187,7 @@ public class SpeechUtil {
      * @param session if session attribute ANNOUNCED_INTRODUCTION is 0 will return intro text, if is 1 will return empty string
      * @return intro text if session attribute ANNOUNCED_INTRODUCTION is 0, or empty string if is 1
      */
-    public static String getIntroductionText(Session session) {
+    static String getIntroductionText(Session session) {
         Long introductionText = null;
         Object introductionTextObject = session.getAttribute(SessionAttribute.ANNOUNCED_INTRODUCTION);
         if (introductionTextObject instanceof Integer) {
@@ -240,5 +240,15 @@ public class SpeechUtil {
         } else {
             return "";
         }
+    }
+
+    /**
+     * Formats a region name for speech, including removing "(beta)" from experimental region names
+     *
+     * @param regionName region name to format
+     * @return a region name formatted for speech, including removing "(beta)" from experimental region names
+     */
+    public static String formatRegionName(String regionName) {
+        return regionName.replace(" (beta)", "");
     }
 }

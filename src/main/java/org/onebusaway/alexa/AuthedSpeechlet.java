@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static org.onebusaway.alexa.ObaIntent.*;
@@ -68,7 +69,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onIntent(final IntentRequest request,
                                       final Session session)
             throws SpeechletException {
-        SessionUtil.populateAttributes(session, userData);
+        SessionUtil.populateAttributes(session, Optional.of(userData));
         AskState askState = SessionUtil.getAskState(session);
         session.setAttribute(ASK_STATE, AskState.NONE.toString());
 
@@ -99,6 +100,10 @@ public class AuthedSpeechlet implements Speechlet {
             return disableClockTime(session);
         } else if (SET_ROUTE_FILTER.equals(intent.getName())) {
             return setRouteFilter(session);
+        } else if (ENABLE_EXPERIMENTAL_REGIONS.equals(intent.getName())) {
+            return enableExperimentalRegions(session);
+        } else if (DISABLE_EXPERIMENTAL_REGIONS.equals(intent.getName())) {
+            return disableExperimentalRegions(session);
         } else if (STOP.equals(intent.getName()) || CANCEL.equals(intent.getName())) {
             return SpeechUtil.goodbye();
         } else {
@@ -110,7 +115,7 @@ public class AuthedSpeechlet implements Speechlet {
     public SpeechletResponse onLaunch(final LaunchRequest request,
                                       final Session session)
             throws SpeechletException {
-        SessionUtil.populateAttributes(session, userData);
+        SessionUtil.populateAttributes(session, Optional.of(userData));
         return tellArrivals(session);
     }
 
@@ -265,5 +270,14 @@ public class AuthedSpeechlet implements Speechlet {
 
         log.error("Received no intent without a question.");
         return SpeechUtil.getGeneralErrorMessage();
+    }
+
+    private SpeechletResponse enableExperimentalRegions(Session session) throws SpeechletException {
+        return StorageUtil.updateExperimentalRegions(true, session, obaDao, userData, obaUserClient);
+
+    }
+
+    private SpeechletResponse disableExperimentalRegions(Session session) throws SpeechletException {
+        return StorageUtil.updateExperimentalRegions(false, session, obaDao, userData, obaUserClient);
     }
 }

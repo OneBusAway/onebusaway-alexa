@@ -21,6 +21,7 @@ import com.amazon.speech.ui.PlainTextOutputSpeech;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.alexa.SessionAttribute;
 import org.onebusaway.alexa.lib.ObaClient;
+import org.onebusaway.io.client.elements.ObaRegion;
 import org.onebusaway.io.client.util.RegionUtils;
 
 import java.io.IOException;
@@ -28,8 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.onebusaway.alexa.SessionAttribute.ASK_STATE;
-import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
+import static org.onebusaway.alexa.SessionAttribute.*;
 
 /**
  * Utilities for setting up the region/city for a OneBusAway Alexa user
@@ -37,13 +37,16 @@ import static org.onebusaway.alexa.SessionAttribute.STOP_ID;
 @Log4j
 public class CityUtil {
 
+    public static long NEW_YORK_REGION_ID = 2;  // From http://regions.onebusaway.org/regions-v3.json
+
     /**
      * Returns the response required to start the initial dialog with the user to select their city/region
      *
      * @param currentCityName the city name the user requested, or null if the user didn't say a city/region name
      * @return the response required to start the initial dialog with the user to select their city/region
      */
-    public static SpeechletResponse askForCity(Optional<String> currentCityName, ObaClient obaClient) {
+    public static SpeechletResponse askForCity(Optional<String> currentCityName, ObaClient obaClient, Session session) {
+        boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         if (!currentCityName.isPresent()) {
             out.setText("Welcome to OneBusAway! Let's set you up. " +
@@ -57,13 +60,11 @@ public class CityUtil {
                     "region near %s, the city you gave. ";
             String question = "Tell me again, what's the largest city near you?";
             try {
-                String allRegions = allRegionsSpoken(obaClient);
+                String allRegions = allRegionsSpoken(obaClient.getAllRegions(experimentalRegions), experimentalRegions);
                 out.setText(String.format(intro +
-                                "Supported regions include %s. " +
+                                allRegions +
                                 question,
-                        currentCityName.get(),
-                        allRegions
-                ));
+                        currentCityName.get()));
             } catch (IOException e) {
                 log.error("Error getting all regions: " + e);
                 out.setText(String.format(intro + question, currentCityName.get()));
@@ -75,17 +76,18 @@ public class CityUtil {
     /**
      * Returns the text for listing all supported regions to the user
      *
-     * @param obaClient client used to fetch all regions from the OBA Regions API
+     * @param regions a list of all ObaRegions
+     * @param includeExperimentalRegions true if experimental (beta) regions should be included, false if they should not
      * @return the text for listing all supported regions to the user
      * @throws IOException
      */
-    public static String allRegionsSpoken(ObaClient obaClient) throws IOException {
-        List<String> activeRegions = obaClient.getAllRegions()
+    public static String allRegionsSpoken(List<ObaRegion> regions, boolean includeExperimentalRegions) {
+        List<String> activeRegions = regions
                 .stream()
-                .filter(r -> RegionUtils.isRegionUsable(r)
-                        && !r.getExperimental()
+                .filter(r -> (RegionUtils.isRegionUsable(r) || (r.getId() == NEW_YORK_REGION_ID && includeExperimentalRegions))
+                        && (!r.getExperimental() || includeExperimentalRegions)
                         && r.getObaBaseUrl() != null)
-                .map(r -> String.format("%s, ", r.getName()))
+                .map(r -> String.format("%s, ", SpeechUtil.formatRegionName(r.getName())))
                 .sorted()
                 .collect(Collectors.toList());
         // Some low-level manipulation to beautify the sequence of regions.
@@ -98,7 +100,7 @@ public class CityUtil {
 
         String finalStr = activeRegions.stream().collect(Collectors.joining(""));
         log.debug("All regions spoken: " + finalStr);
-        return finalStr;
+        return String.format("Supported regions include %s. ", finalStr);
     }
 
     /**

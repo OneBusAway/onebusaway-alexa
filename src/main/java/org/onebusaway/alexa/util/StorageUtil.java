@@ -89,6 +89,8 @@ public class StorageUtil {
             throw new SpeechletException(e);
         }
 
+        boolean experimentalRegions = (boolean) session.getAttribute(EXPERIMENTAL_REGIONS);
+
         // This code path is current used for the SetCityIntent if this isn't the users first time using the skill
         // And, we can't store HashMaps in sessions (they get converted to ArrayLists by Alexa)
         // So, try to get route filters from persisted data in case the user has previously set them
@@ -101,14 +103,14 @@ public class StorageUtil {
 
         // Build the full text response to the user
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, region.getName()));
+        builder.append(String.format("Ok, your stop number is %s in the %s region. ", stopCode, SpeechUtil.formatRegionName(region.getName())));
         builder.append(SpeechUtil.getIntroductionText(session));
         builder.append(String.format("Right now, %s", arrivalInfoText));
         String outText = builder.toString();
 
         createOrUpdateUser(session, cityName, stopId, region.getId(), region.getName(), region.getObaBaseUrl(), outText,
                 System.currentTimeMillis(), speakClockTime, timeZone, 1L,
-                1L, obaDao);
+                1L, experimentalRegions, obaDao);
 
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(outText);
@@ -134,7 +136,8 @@ public class StorageUtil {
      */
     public static void createOrUpdateUser(Session session, String cityName, String stopId, long regionId, String regionName,
                                           String regionObaBaseUrl, String previousResponse, long lastAccessTime,
-                                          long speakClockTime, TimeZone timeZone, long announcedIntroduction, long announcedFeaturesv1_1_0, ObaDao obaDao) {
+                                          long speakClockTime, TimeZone timeZone, long announcedIntroduction, long announcedFeaturesv1_1_0,
+                                          boolean experimentalRegions, ObaDao obaDao) {
         Optional<ObaUserDataItem> optUserData = obaDao.getUserData(session);
         if (optUserData.isPresent()) {
             ObaUserDataItem userData = optUserData.get();
@@ -149,6 +152,7 @@ public class StorageUtil {
             userData.setTimeZone(timeZone.getID());
             userData.setAnnouncedIntroduction(announcedIntroduction);
             userData.setAnnouncedFeaturesv1_1_0(announcedFeaturesv1_1_0);
+            userData.setExperimentalRegions(experimentalRegions);
             obaDao.saveUserData(userData);
         } else {
             ObaUserDataItem userData = new ObaUserDataItem(
@@ -165,6 +169,7 @@ public class StorageUtil {
                     new HashMap<>(),
                     announcedIntroduction,
                     announcedFeaturesv1_1_0,
+                    experimentalRegions,
                     null
             );
             obaDao.saveUserData(userData);
@@ -232,6 +237,34 @@ public class StorageUtil {
         session.setAttribute(TIME_ZONE, timeZone.getID());
 
         String output = String.format("Clock times are now %s", enableClockTime == 1 ? "enabled" : "disabled");
+        StorageUtil.saveOutputForRepeat(output, obaDao, obaUserDataItem);
+        PlainTextOutputSpeech out = new PlainTextOutputSpeech();
+        out.setText(output);
+        return SpeechletResponse.newTellResponse(out);
+    }
+
+    /**
+     * Update if experimental regions should be included in available regions
+     *
+     * @param enableExperimentalRegions true if experimental regions should be enabled, false if they should be disabled
+     * @return a message to the user saying experimental regions are enabled or disabled, depending on enableExperimentalRegions
+     */
+    public static SpeechletResponse updateExperimentalRegions(boolean enableExperimentalRegions, Session session, ObaDao obaDao, ObaUserDataItem obaUserDataItem, ObaUserClient obaUserClient) throws SpeechletException {
+        // Update DAO
+        obaUserDataItem.setExperimentalRegions(enableExperimentalRegions);
+        obaDao.saveUserData(obaUserDataItem);
+
+        // Update session
+        session.setAttribute(EXPERIMENTAL_REGIONS, enableExperimentalRegions);
+
+        String allRegions = "";
+        try {
+            allRegions = CityUtil.allRegionsSpoken(obaUserClient.getAllRegions(enableExperimentalRegions), enableExperimentalRegions);
+        } catch (IOException e) {
+            log.error("Error getting all regions: " + e);
+        }
+
+        String output = String.format("Experimental regions are now %s. %s", enableExperimentalRegions ? "enabled" : "disabled", allRegions);
         StorageUtil.saveOutputForRepeat(output, obaDao, obaUserDataItem);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);

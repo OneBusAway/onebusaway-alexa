@@ -33,6 +33,7 @@ import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.alexa.util.SessionUtil;
+import org.onebusaway.alexa.util.SpeechUtil;
 import org.onebusaway.io.client.elements.*;
 import org.onebusaway.io.client.request.ObaArrivalInfoResponse;
 import org.onebusaway.io.client.request.ObaStopResponse;
@@ -67,7 +68,7 @@ public class AuthedSpeechletTest {
     static final LaunchRequest launchRequest = LaunchRequest.builder().withRequestId("test-req-id").build();
 
     private static final ObaRegion TEST_REGION_1 = new ObaRegionElement(
-            1,
+            0,
             "Tampa Bay",
             true,
             "http://api.tampa.onebusaway.org/api/",
@@ -82,7 +83,7 @@ public class AuthedSpeechletTest {
     );
 
     private static final ObaRegion TEST_REGION_2 = new ObaRegionElement(
-            2,
+            1,
             "Puget Sound",
             true,
             "http://test-oba-url.example.com",
@@ -91,6 +92,51 @@ public class AuthedSpeechletTest {
             "test-lang",
             "test-contact-email",
             true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_3 = new ObaRegionElement(
+            3,
+            "Atlanta",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            false,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_EXPERIMENTAL = new ObaRegionElement(
+            7,
+            "Boston (beta)",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, true, true,
+            "test-twitter",
+            true,
+            "test-stop-info-url"
+    );
+
+    private static final ObaRegion TEST_REGION_NEW_YORK = new ObaRegionElement(
+            2,
+            "New York",
+            true,
+            "http://test-oba-url.example.com",
+            "test-siri-url",
+            new ObaRegionElement.Bounds[0],
+            "test-lang",
+            "test-contact-email",
+            true, false, true,
             "test-twitter",
             false,
             "test-stop-info-url"
@@ -128,6 +174,9 @@ public class AuthedSpeechletTest {
 
     @Mocked
     ObaDao obaDao;
+
+    @Mocked
+    ArrayList<ObaRegion> obaRegions;
 
     @Resource
     AuthedSpeechlet authedSpeechlet;
@@ -237,7 +286,7 @@ public class AuthedSpeechletTest {
             result = Optional.of(testUserData);
         }};
 
-        SessionUtil.populateAttributes(session, testUserData);
+        SessionUtil.populateAttributes(session, Optional.of(testUserData));
 
         SpeechletResponse sr = authedSpeechlet.onLaunch(
                 launchRequest,
@@ -276,7 +325,8 @@ public class AuthedSpeechletTest {
             obaStop.getId(); result = newStopCode;
             obaUserClient.getStopFromCode(l, newStopCode); result = obaStopsArray;
 
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_1);
 
             obaDao.getUserData(session); result = Optional.of(testUserData);
         }};
@@ -334,7 +384,7 @@ public class AuthedSpeechletTest {
             obaUserClient.getStopFromCode(l, newStopCode);
             result = obaStopsArray;
 
-            obaClient.getClosestRegion(l);
+            obaClient.getClosestRegion(l, false);
             result = Optional.of(TEST_REGION_1);
 
             obaDao.getUserData(session);
@@ -379,7 +429,8 @@ public class AuthedSpeechletTest {
             l.setLongitude(-82.4764);
             result = Optional.of(l);
 
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_1);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_1);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
@@ -696,7 +747,8 @@ public class AuthedSpeechletTest {
             result = stopName1;
             obaStop2.getName();
             result = stopName2;
-            obaClient.getClosestRegion(l); result = Optional.of(TEST_REGION_2);
+            obaClient.getClosestRegion(l, false);
+            result = Optional.of(TEST_REGION_2);
         }};
 
         HashMap<String, Slot> slots = new HashMap<>();
@@ -1163,13 +1215,83 @@ public class AuthedSpeechletTest {
     }
 
     @Test
+    public void enableExperimentalRegions() throws SpeechletException, IOException {
+        obaRegions = new ArrayList<>(4);
+        obaRegions.add(TEST_REGION_1);
+        obaRegions.add(TEST_REGION_2);
+        obaRegions.add(TEST_REGION_3);
+        obaRegions.add(TEST_REGION_EXPERIMENTAL);
+        obaRegions.add(TEST_REGION_NEW_YORK);
+
+        new Expectations() {{
+            obaUserClient.getAllRegions(anyBoolean);
+            result = obaRegions;
+        }};
+
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(ENABLE_EXPERIMENTAL_REGIONS)
+                                        .withSlots(new HashMap<>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Experimental regions are now enabled"));
+        assertThat(spoken, containsString(SpeechUtil.formatRegionName(TEST_REGION_1.getName())));
+        assertThat(spoken, containsString(SpeechUtil.formatRegionName(TEST_REGION_EXPERIMENTAL.getName())));
+        assertThat(spoken, containsString(SpeechUtil.formatRegionName(TEST_REGION_NEW_YORK.getName())));
+        assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), true);
+        assertEquals(testUserData.isExperimentalRegions(), true);
+    }
+
+    @Test
+    public void disableExperimentalRegions() throws SpeechletException, IOException {
+        obaRegions = new ArrayList<>(4);
+        obaRegions.add(TEST_REGION_1);
+        obaRegions.add(TEST_REGION_2);
+        obaRegions.add(TEST_REGION_3);
+        obaRegions.add(TEST_REGION_EXPERIMENTAL);
+        obaRegions.add(TEST_REGION_NEW_YORK);
+
+        new Expectations() {{
+            obaUserClient.getAllRegions(anyBoolean);
+            result = obaRegions;
+        }};
+
+        SpeechletResponse sr = authedSpeechlet.onIntent(
+                IntentRequest.builder()
+                        .withRequestId("test-request-id")
+                        .withIntent(
+                                Intent.builder()
+                                        .withName(DISABLE_EXPERIMENTAL_REGIONS)
+                                        .withSlots(new HashMap<>())
+                                        .build()
+                        )
+                        .build(),
+                session
+        );
+        String spoken = ((PlainTextOutputSpeech) sr.getOutputSpeech()).getText();
+        assertThat(spoken, containsString("Experimental regions are now disabled"));
+        assertThat(spoken, containsString(SpeechUtil.formatRegionName(TEST_REGION_1.getName())));
+        assertFalse(spoken.contains(SpeechUtil.formatRegionName(TEST_REGION_EXPERIMENTAL.getName())));
+        assertFalse(spoken.contains(SpeechUtil.formatRegionName(TEST_REGION_NEW_YORK.getName())));
+        assertEquals(session.getAttribute(EXPERIMENTAL_REGIONS), false);
+        assertEquals(testUserData.isExperimentalRegions(), false);
+    }
+
+    @Test
     public void goodbye() throws SpeechletException, IOException {
         TestUtil.assertGoodbye(authedSpeechlet, session);
     }
 
     public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
         new Expectations() {{
-            obaClient.getAllRegions();
+            obaClient.getAllRegions(false);
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
             regions.add(TEST_REGION_1);
             regions.add(TEST_REGION_2);

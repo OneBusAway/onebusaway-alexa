@@ -62,7 +62,7 @@ public class UnitTests {
 
     @Bean
     public ObaUserDataItem testUserData() {
-        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", "", System.currentTimeMillis(), 0, "America/Los_Angeles", new HashMap<>(), 0, 0, null);
+        return new ObaUserDataItem("test-user-id", "Seattle", "test-stop-id", 1, "Puget Sound", "http://api.pugetsound.onebusaway.org/", "", System.currentTimeMillis(), 0, "America/Los_Angeles", new HashMap<>(), 0L, 0L, false, null);
     }
 
     @Bean

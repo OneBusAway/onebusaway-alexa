@@ -198,7 +198,7 @@ public class MainSpeechletEmptyTest {
             l.setLongitude(-122.3331);
             result = Optional.of(l);
 
-            obaClient.getClosestRegion(l);
+            obaClient.getClosestRegion(l, false);
             result = Optional.of(TEST_REGION_1);
         }};
         HashMap<String, Slot> slots = new HashMap<>();
@@ -225,7 +225,7 @@ public class MainSpeechletEmptyTest {
     @Test
     public void unrecognizedCity() throws SpeechletException, IOException {
         new Expectations() {{
-            obaClient.getAllRegions();
+            obaClient.getAllRegions(false);
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
             regions.add(TEST_REGION_1);
             regions.add(TEST_REGION_2);
@@ -314,7 +314,7 @@ public class MainSpeechletEmptyTest {
             l.setLongitude(-122.3331);
             result = Optional.of(l);
 
-            obaClient.getClosestRegion(l);
+            obaClient.getClosestRegion(l, false);
             result = Optional.of(TEST_REGION_1);
 
             obaStop.getStopCode();
@@ -374,7 +374,7 @@ public class MainSpeechletEmptyTest {
         String newStopCode = "2245";
 
         new Expectations() {{
-            obaClient.getAllRegions();
+            obaClient.getAllRegions(false);
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
             regions.add(TEST_REGION_1);
             regions.add(TEST_REGION_2);
@@ -474,7 +474,7 @@ public class MainSpeechletEmptyTest {
     @Test
     public void allIntents() throws SpeechletException, IOException, IllegalAccessException {
         new Expectations() {{
-            obaClient.getAllRegions();
+            obaClient.getAllRegions(false);
             ArrayList<ObaRegion> regions = new ArrayList<>(1);
             regions.add(TEST_REGION_1);
             regions.add(TEST_REGION_2);
