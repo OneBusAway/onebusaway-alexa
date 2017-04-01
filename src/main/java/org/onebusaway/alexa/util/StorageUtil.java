@@ -266,7 +266,7 @@ public class StorageUtil {
 
         String output = String.format("Experimental regions are now %s. %s",
                 enableExperimentalRegions ? "enabled.  Please note that experimental regions may be unstable " +
-                        "and may not have real-time infornation." : "disabled", allRegions);
+                        "and may not have real-time information" : "disabled", allRegions);
         StorageUtil.saveOutputForRepeat(output, obaDao, obaUserDataItem);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
