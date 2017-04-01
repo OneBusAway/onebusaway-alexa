@@ -264,7 +264,9 @@ public class StorageUtil {
             log.error("Error getting all regions: " + e);
         }
 
-        String output = String.format("Experimental regions are now %s. %s", enableExperimentalRegions ? "enabled" : "disabled", allRegions);
+        String output = String.format("Experimental regions are now %s. %s",
+                enableExperimentalRegions ? "enabled.  Please note that experimental regions may be unstable " +
+                        "and may not have real-time infornation." : "disabled", allRegions);
         StorageUtil.saveOutputForRepeat(output, obaDao, obaUserDataItem);
         PlainTextOutputSpeech out = new PlainTextOutputSpeech();
         out.setText(output);
