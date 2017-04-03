@@ -4,7 +4,7 @@
 
     <groupId>org.onebusaway</groupId>
     <artifactId>onebusaway-alexa</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>OneBusAway client for Alexa</name>
