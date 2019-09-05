@@ -41,6 +41,7 @@ The OneBusAway skill is currently available in the following cities:
 * Puget Sound, WA
 * Rogue Valley Transportation District, Oregon
 * San Diego Metropolitan Transit System, California
+* Spokane, WA
 * Tampa, FL
 * Washington, D.C.
 * York, Canada
