@@ -22,6 +22,9 @@ import org.springframework.context.annotation.Configuration;
 
 import static org.onebusaway.alexa.config.ObaProperty.GOOGLE_MAPS_API_KEY;
 
+/**
+ * Google Map Service Spring config.
+ */
 @Configuration
 public class GoogleMapsConfig {
     @Value("${" + GOOGLE_MAPS_API_KEY + "}")

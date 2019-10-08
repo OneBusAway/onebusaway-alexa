@@ -17,7 +17,7 @@
 package org.onebusaway.alexa.config;
 
 /**
- * Keys for properties defined in the /src/main/resources/onebusaway.properties file
+ * Keys for properties defined in the /src/main/resources/onebusaway.properties file.
  */
 public class ObaProperty {
     public static final String APP_SKILL_ID_DEVELOPMENT = "skill-app-id-development";

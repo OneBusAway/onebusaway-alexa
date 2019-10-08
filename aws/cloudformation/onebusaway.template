@@ -60,6 +60,42 @@
         }
       }
     },
+    "enableDb": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "ObaUserEnable",
+        "AttributeDefinitions": [
+          { "AttributeName": "UserId", "AttributeType": "S" },
+          { "AttributeName": "EnableTime", "AttributeType": "N" }
+        ],
+        "KeySchema": [
+          { "AttributeName": "UserId", "KeyType": "HASH" },
+          { "AttributeName" : "EnableTime", "KeyType" : "RANGE" }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": {"Ref": "UserDbPrimaryReadThroughput"},
+          "WriteCapacityUnits": {"Ref": "UserDbPrimaryWriteThroughput"}
+        }
+      }
+     },
+     "relationDb": {
+       "Type": "AWS::DynamoDB::Table",
+       "Properties": {
+         "TableName": "ObaUserRelation",
+         "AttributeDefinitions": [
+           { "AttributeName": "UserId", "AttributeType": "S" },
+           { "AttributeName": "PersonId", "AttributeType": "S" }
+         ],
+         "KeySchema": [
+           { "AttributeName": "UserId", "KeyType": "HASH" },
+           { "AttributeName" : "PersonId", "KeyType" : "RANGE" }
+         ],
+         "ProvisionedThroughput": {
+           "ReadCapacityUnits": {"Ref": "UserDbPrimaryReadThroughput"},
+           "WriteCapacityUnits": {"Ref": "UserDbPrimaryWriteThroughput"}
+         }
+       }
+     },
     "appExecutionPolicy": {
       "Type": "AWS::IAM::Policy",
       "Properties": {
@@ -79,16 +115,11 @@
                 "dynamodb:UpdateItem"
               ],
               "Effect": "Allow",
-              "Resource": {"Fn::Join": [
-                "", [
-                  "arn:aws:dynamodb:",
-                  {"Ref": "AWS::Region"},
-                  ":",
-                  {"Ref": "AWS::AccountId"},
-                  ":table/",
-                  {"Ref": "userDb"}
-                ]
-              ]}
+              "Resource": [
+                    {"Fn::Join":["",["arn:aws:dynamodb:",{"Ref":"AWS::Region"},":",{"Ref":"AWS::AccountId"},":table/",{"Ref":"userDb"}]]},
+                    {"Fn::Join":["",["arn:aws:dynamodb:",{"Ref":"AWS::Region"},":",{"Ref":"AWS::AccountId"},":table/",{"Ref":"enableDb"}]]},
+                    {"Fn::Join":["",["arn:aws:dynamodb:",{"Ref":"AWS::Region"},":",{"Ref":"AWS::AccountId"},":table/",{"Ref":"relationDb"}]]}
+                  ]
             }
           ]
         }

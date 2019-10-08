@@ -24,6 +24,9 @@ import org.springframework.context.annotation.Configuration;
 import static org.onebusaway.alexa.config.ObaProperty.AWS_KEY_ID;
 import static org.onebusaway.alexa.config.ObaProperty.AWS_SECRET_KEY;
 
+/**
+ * Amazon Web Services config.
+ */
 @Configuration
 public class AwsConfig {
     @Value("${" + AWS_KEY_ID + "}")

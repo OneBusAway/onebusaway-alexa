@@ -28,7 +28,7 @@ import org.onebusaway.location.Location;
 import java.util.Optional;
 
 /**
- * Utilities for accessing Google web APIs
+ * Utilities for accessing Google web APIs.
  */
 @AllArgsConstructor
 @Log4j
@@ -38,7 +38,7 @@ public class GoogleMaps {
 
 	/**
 	 * Returns the location of a city using the Google Geocoding API
-	 * 
+	 *
 	 * @param cityName city to geocode
 	 * @return the location of a city using the Google Geocoding API, or null if the location
 	 *         couldn't be geocoded.

@@ -15,31 +15,93 @@
  */
 package org.onebusaway.alexa.config;
 
-import org.onebusaway.alexa.AnonSpeechlet;
-import org.onebusaway.alexa.AuthedSpeechlet;
-import org.onebusaway.alexa.MainSpeechlet;
+import com.amazon.ask.Skill;
+import com.amazon.ask.Skills;
+import com.amazon.ask.builder.StandardSkillBuilder;
+import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+/**
+ * OneBusAway skill Spring config, which contains all handlers and skill ID filter.
+ */
 @PropertySource("classpath:/onebusaway.properties")
-@ComponentScan(basePackages={"org.onebusaway.alexa.config"})
+@ComponentScan(basePackages = {"org.onebusaway.alexa.config"})
 @Component
+@Import(
+        HandlerConfig.class
+)
+@Log4j
 public class ApplicationConfig {
-    @Bean
-    public MainSpeechlet mainSpeechlet() {
-        return new MainSpeechlet();
-    }
+    /**
+     * Spring config for all Handlers.
+     */
+    @Inject
+    private HandlerConfig handlerConfig;
 
-    @Bean
-    public AnonSpeechlet anonSpeechlet() {
-        return new AnonSpeechlet();
-    }
+    /**
+     * Devo Skill Id.
+     */
+    @Value("${" + ObaProperty.APP_SKILL_ID_DEVELOPMENT + ":}")
+    private String devoSkillId;
 
+    /**
+     * Prod Skill Id.
+     */
+    @Value("${" + ObaProperty.APP_SKILL_ID_PRODUCTION + ":}")
+    private String prodSkillId;
+
+    /**
+     * OneBusAway skill.
+     */
     @Bean
-    public AuthedSpeechlet authedSpeechlet() { return new AuthedSpeechlet(); }
+    public Skill oneBusAwaySkill() {
+        StandardSkillBuilder standardSkillBuilder = Skills.standard()
+                .addRequestHandlers(
+                        //Intent handlers.
+                        handlerConfig.launchRequestHandler(),
+                        handlerConfig.cancelIntentHandler(),
+                        handlerConfig.disableClockTimeHandler(),
+                        handlerConfig.disableExperimentalRegionsHandler(),
+                        handlerConfig.enableClockTimeHandler(),
+                        handlerConfig.enableExperimentalRegionsHandler(),
+                        handlerConfig.getArrivalsIntentHandler(),
+                        handlerConfig.getCityIntentHandler(),
+                        handlerConfig.getStopNumberIntentHandler(),
+                        handlerConfig.helpIntentHandler(),
+                        handlerConfig.noIntentHandler(),
+                        handlerConfig.repeatIntentHandler(),
+                        handlerConfig.setCityIntentHandler(),
+                        handlerConfig.setRouteFilterIntentHandler(),
+                        handlerConfig.setStopNumberIntentHandler(),
+                        handlerConfig.yesIntentHandler(),
+                        handlerConfig.stopIntentHandler(),
+                        //Event handlers.
+                        handlerConfig.skillEnableEventHandler(),
+                        handlerConfig.skillDisableEventHandler(),
+                        //NOTE unknown request handler has to be at last
+                        // to handle recognized request because canHandle always return true.
+                        handlerConfig.unknownRequestHandler())
+                .addExceptionHandler(handlerConfig.genericExceptionHandler());
+        if (StringUtils.isNotBlank(prodSkillId)) {
+            log.info("Using prod skill Id " + prodSkillId);
+            standardSkillBuilder.withSkillId(prodSkillId);
+        } else if (StringUtils.isNotBlank(devoSkillId)) {
+            log.info("Using devo skill Id " + devoSkillId);
+            standardSkillBuilder.withSkillId(devoSkillId);
+        } else {
+            log.info("Build the skill without skill Id filter since no skill Id provided in property config file.");
+        }
+        return standardSkillBuilder.build();
+    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {

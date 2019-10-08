@@ -108,13 +108,16 @@ See the [lambda maven plugin homepage](https://github.com/SeanRoy/lambda-maven-p
 
 1. Go to the [Amazon Developer Console > Alexa](http://developer.amazon.com/edw/home.html)
 1. Add a new skill.  Set _Skill Type_ to `Custom Interaction Model`, set _Invocation Name_ to "one bus away". _Name_ can be anything since this is your development version.
-1. Paste the contents of file `interaction model/schema.json` into "Intent Schema" text box.
-1. Under "Custom Slot Types," click on "Add Slot Type".  Under "Enter type", add `TRANSIT_MODES`.  Under "Enter values", paste the contents of the file `interaction model/customSlotTypes/TRANSIT_MODES`.
-1. Under "Custom Slot Types," click on "Add Slot Type".  Under "Enter type", add `AMAZON.US_CITY`.  Under "Enter values", paste the contents of the file `interaction model/customSlotTypes/AMAZON.US_CITY`.
-1. Into "Sample Utterances" text box, paste the contents of file `interaction model/utterances.txt`.
-1. On Configuration page set up your endpoint by plugging in your Lambda function's ARN.
+1. Paste the contents of file `interaction model/newSchema.json` into "JSON Editor" under interaction model.
+1. Save and build the model.
+1. On Endpoint page set up your endpoint by plugging in your Lambda function's ARN.
    Go Next.  That creates the skill, however it is not functional yet.
 1. At the top of the screen note application _ID_. You will use it to configure Lambda code.
+
+#### Listen to skill event (OPTIONAL)
+* Currently OneBusAway support [SkillEnabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-enabled-event) and [SkillDisabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-disabled-event). You can follow ["Add Events to Your Skill
+"](https://developer.amazon.com/docs/smapi/add-events-to-your-skill-with-smapi.html) to enable skill listen and handle events.
+
 
 ### 5. Configure, rebuild and redeploy Lambda function
 1. Create `src/main/resources/onebusaway.properties` with the following parameters:

@@ -23,6 +23,9 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
 
+/**
+ * AWS Spring config, which contains DynamoDB client.
+ */
 @Configuration
 public class DaoConfig {
     @Resource
