@@ -114,10 +114,77 @@ See the [lambda maven plugin homepage](https://github.com/SeanRoy/lambda-maven-p
    Go Next.  That creates the skill, however it is not functional yet.
 1. At the top of the screen note application _ID_. You will use it to configure Lambda code.
 
-#### Listen to skill event (OPTIONAL)
-* Currently OneBusAway support [SkillEnabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-enabled-event) and [SkillDisabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-disabled-event). You can follow ["Add Events to Your Skill
-"](https://developer.amazon.com/docs/smapi/add-events-to-your-skill-with-smapi.html) to enable skill listen and handle events.
+#### 4.1 Listen to skill event (OPTIONAL)
+1. Currently OneBusAway supports [SkillEnabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-enabled-event) and [SkillDisabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-disabled-event) events.
+1. The **ONLY WAY** to enable your test skill to listen to events is using Skill Management API (SMAPI), please follow the [Quick Start: Alexa Skills Kit Command Line Interface (ASK CLI)](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html) to install ASK CLI.
+1. After you setup CLI, please using `ask api get-skill -s {skillId} > skill.json` to get your skill schema in `skill.json` file, add the event subscription JSON blob below to skill.json, and run
+`ask api update-skill -s {skillId} -f skill.json > skill.json` to update the schema, [reference: Add Events to Your Skill
+](https://developer.amazon.com/docs/smapi/add-events-to-your-skill-with-smapi.html)
 
+Event subscription JSON blob.
+```json
+"event": {
+  "endpoint": {
+    "uri": "{lambdaExecutionRoleARN}"
+  },
+  "regions": {
+    "NA": {
+      "endpoint": {
+        "uri": "{lambdaExecutionRoleARN}"
+      }
+    }
+  },
+  "subscriptions": [
+    {
+      "eventName": "SKILL_ENABLED"
+    },
+    {
+      "eventName": "SKILL_DISABLED"
+    }
+  ]
+}
+```
+Example of skill schema with event subscription.
+```json
+{
+  "manifest": {
+    "apis": {
+      "...":"..."
+    },
+    "events": {
+      "subscriptions": [
+        {
+          "eventName": "SKILL_ENABLED"
+        },
+        {
+          "eventName": "SKILL_DISABLED"
+        }
+      ],
+      "regions": {
+        "NA": {
+          "endpoint": {
+            "uri": "{lambdaExecutionRoleARN}"
+          }
+        }
+      },
+      "endpoint": {
+        "uri": "{lambdaExecutionRoleARN}"
+      }
+    },
+    "manifestVersion": "x.x",
+    "permissions": [
+      {"...":"..."}
+    ],
+    "privacyAndCompliance": {
+      "...":"..."
+      },
+      "...":"..."
+    },
+    "...":"..."
+  }
+}
+
+```
 
 ### 5. Configure, rebuild and redeploy Lambda function
 1. Create `src/main/resources/onebusaway.properties` with the following parameters:

@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,8 +29,6 @@ import static org.onebusaway.alexa.constant.Prompt.USER_EXIT;
 public class CancelIntentHandler extends IntentHandler {
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public String getIntentRequestName() {
@@ -38,8 +37,6 @@ public class CancelIntentHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithObaData(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient) {
@@ -48,8 +45,6 @@ public class CancelIntentHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithoutObaData() {

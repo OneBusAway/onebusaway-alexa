@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -119,7 +120,7 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Populates Alexa skill session with Oba user data.
      *
-     * @param obaUserDataItem
+     * @param obaUserDataItem OneBusAway User Data item
      */
     private void populateAlexaSessionAttributes(final Optional<ObaUserDataItem> obaUserDataItem) {
         SessionUtil.populateAttributes(attributesManager, obaUserDataItem);
@@ -128,7 +129,7 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Helper method to fulfill city and stop number to on-board user.
      *
-     * @return
+     * @return alexa response based on cityName and stopId
      */
     protected Optional<Response> fulfillCityAndStop() {
         final String userId = personalization.getPrincipleId();
@@ -139,8 +140,8 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Helper method to add or update session attribute.
      *
-     * @param key
-     * @param value
+     * @param key key name in the session
+     * @param value value associated with the key
      */
     protected void addOrUpdateSessionAttribute(String key, Object value) {
         SessionUtil.addOrUpdateSessionAttribute(this.attributesManager, key, value);
@@ -149,10 +150,9 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Helper method to get the session attribute.
      *
-     * @param key
-     * @param clazz
-     * @param <T>
-     * @return
+     * @param key key name in the session
+     * @param clazz session attribute type
+     * @return alexa session attribute
      */
     protected <T> T getSessionAttribute(String key, Class<T> clazz) {
         return SessionUtil.getSessionAttribute(this.attributesManager, key, clazz);
@@ -161,11 +161,10 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Helper method to get the session attribute, it will return default value when the session attribute is not exist.
      *
-     * @param key
-     * @param clazz
-     * @param defaultValue
-     * @param <T>
-     * @return
+     * @param key key name in the session
+     * @param clazz session attribute type
+     * @param defaultValue default value if session value doesn't exist
+     * @return alexa session attribute, will return default value if session attribute is none
      */
     protected <T> T getSessionAttribute(String key, Class<T> clazz, T defaultValue) {
         return SessionUtil.getSessionAttribute(this.attributesManager, key, clazz, defaultValue);
@@ -174,23 +173,23 @@ abstract public class IntentHandler extends BaseHandler {
     /**
      * Gets the intent request name.
      *
-     * @return
+     * @return intent request name
      */
     abstract public String getIntentRequestName();
 
     /**
      * Handle the request when ObaUserDataItem available.
      *
-     * @param obaUserDataItem
-     * @param obaUserClient
-     * @return
+     * @param obaUserDataItem OneBusAway User Data item
+     * @param obaUserClient client used to access the OBA REST API for a local OBA server
+     * @return alexa response
      */
     abstract public Optional<Response> handleWithObaData(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient);
 
     /**
      * Handle the request without ObaUserDataItem.
      *
-     * @return
+     * @return alexa response
      */
     abstract public Optional<Response> handleWithoutObaData();
 }

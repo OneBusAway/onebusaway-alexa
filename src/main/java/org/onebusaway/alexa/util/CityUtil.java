@@ -1,12 +1,11 @@
 /*
- * Copyright 2017 Sean J. Barbeau (sjbarbeau@gmail.com)
- *
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +75,7 @@ public class CityUtil {
     /**
      * Returns the text for listing all supported regions to the user.
      *
-     * @param regions                    a list of all ObaRegions
+     * @param regions a list of all ObaRegions
      * @param includeExperimentalRegions true if experimental (beta) regions should be included, false if they should not
      * @return the text for listing all supported regions to the user
      * @throws IOException
@@ -106,12 +105,12 @@ public class CityUtil {
     /**
      * Onboarding user if city and stop number is in the AlexaSession.
      *
-     * @param userId
+     * @param userId identifier for the current user
      * @param attributesManager manager to add or remove attribute from Alexa session
-     * @param googleMaps
-     * @param obaClient
-     * @param obaDao
-     * @return
+     * @param googleMaps client to access Google web APIs
+     * @param obaClient client used to access the OBA REST API for a local OBA server
+     * @param obaDao OneBusAway data access object
+     * @return alexa response based on cityName and stopId
      */
     public static Optional<Response> fulfillCityAndStop(String userId, AttributesManager attributesManager, GoogleMaps googleMaps, ObaClient obaClient, ObaDao obaDao) {
         String cityName = SessionUtil.getSessionAttribute(attributesManager, CITY_NAME, String.class, StringUtils.EMPTY);
@@ -180,11 +179,11 @@ public class CityUtil {
     /**
      * Tell arrival information with provided user data (stop number, city name, timezone in obaUserDataItem).
      *
-     * @param obaUserDataItem
-     * @param obaUserClient
-     * @param attributesManager
-     * @param obaDao
-     * @return
+     * @param obaUserDataItem OneBusAway User Data item
+     * @param obaUserClient client used to access the OBA REST API for a local OBA server
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param obaDao OneBusAway data access object
+     * @return tell arrival response
      */
     public static Optional<Response> tellArrivals(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient, final AttributesManager attributesManager, final ObaDao obaDao) {
         ObaArrivalInfoResponse response;
@@ -227,7 +226,7 @@ public class CityUtil {
     /**
      * Helper method to return ask for city response.
      *
-     * @return
+     * @return ask user for city response
      */
     public static Optional<Response> askForCityResponse() {
         return promptHelper.getResponse(WELCOME_MESSAGE, ASK_FOR_CITY);
@@ -236,10 +235,10 @@ public class CityUtil {
     /**
      * Helper method to re-ask user for city because the city user giving is not being supported by OneBusAway.
      *
-     * @param cityName
-     * @param attributesManager
-     * @param obaClient
-     * @return
+     * @param cityName the name of the city that get from user
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param obaClient client used to access the OBA REST API for a local OBA server
+     * @return ask for city response with city name in it
      */
     public static Optional<Response> askForCityResponse(final String cityName, final AttributesManager attributesManager, final ObaClient obaClient) {
         if (StringUtils.isBlank(cityName)) {

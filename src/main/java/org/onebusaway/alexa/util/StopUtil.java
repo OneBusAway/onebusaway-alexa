@@ -1,12 +1,11 @@
 /*
- * Copyright 2017 Sean J. Barbeau (sjbarbeau@gmail.com)
- *
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,12 +58,12 @@ public class StopUtil {
      * Handles the response from the user when responding to the duplicate stop dialog, including determining if the user
      * needs to be asked again or if we've found the stop they are interested in, and returning the proper response to user
      *
-     * @param userId
-     * @param attributesManager
-     * @param stopFound
-     * @param googleMaps
-     * @param obaClient
-     * @param obaDao
+     * @param userId identifier for the current user
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param stopFound boolean flag to tell if the stop was found or not
+     * @param googleMaps client to access Google web APIs
+     * @param obaClient client used to access the OBA REST API for a local OBA server
+     * @param obaDao OneBusAway data access object
      * @return the proper response to the user for the duplicate stop dialog (e.g., did we find the stop, or do we need to ask again)
      */
     public static Optional<Response> handleDuplicateStopResponse(String userId, AttributesManager attributesManager, boolean stopFound, GoogleMaps googleMaps, ObaClient obaClient, ObaDao obaDao) {
@@ -115,7 +114,7 @@ public class StopUtil {
      * the user in this dialog), or stored in the session attribute DIALOG_FOUND_STOPS (if we've already asked the user this once)
      *
      * @param attributesManager manager to add or remove attribute from Alexa session
-     * @param stops             the array of stops with duplicate stop_codes, if we haven't yet asked the user about a stop in this dialog, or null if we've already asked
+     * @param stops the array of stops with duplicate stop_codes, if we haven't yet asked the user about a stop in this dialog, or null if we've already asked
      * @return the appropriate dialog message to the user for selecting the proper stop, given the state of the dialog drive by the parameters
      */
     public static Optional<Response> askUserAboutDuplicateStops(AttributesManager attributesManager, ObaStop[] stops) {

@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,9 +29,9 @@ import java.util.Optional;
 public class GenericExceptionHandler implements ExceptionHandler {
     /**
      * Always returns true for all exceptions.
-     * @param handlerInput
-     * @param throwable
-     * @return
+     * @param handlerInput request received from Alexa
+     * @param throwable exception received during the execution of OneBusAway skill
+     * @return alexa response
      */
     @Override
     public boolean canHandle(final HandlerInput handlerInput, final Throwable throwable) {
@@ -39,9 +40,9 @@ public class GenericExceptionHandler implements ExceptionHandler {
 
     /**
      * Handle the exception request.
-     * @param handlerInput
-     * @param throwable
-     * @return
+     * @param handlerInput request received from Alexa
+     * @param throwable exception received during the execution of OneBusAway skill
+     * @return alexa response
      */
     @Override
     public Optional<Response> handle(final HandlerInput handlerInput, final Throwable throwable) {

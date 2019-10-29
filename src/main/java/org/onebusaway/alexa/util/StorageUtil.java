@@ -1,12 +1,11 @@
 /*
- * Copyright 2017 Sean J. Barbeau (sjbarbeau@gmail.com)
- *
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -179,9 +178,9 @@ public class StorageUtil {
     /**
      * Saves the provided text as the last text spoken to user, so it can be retrieved if the user asks for a repeat
      *
-     * @param output   text to be saved as the last spoken text to user
-     * @param userData
-     * @param obaDao
+     * @param output text to be saved as the last spoken text to user
+     * @param userData OneBusAway User Data item
+     * @param obaDao OneBusAway data access object
      */
     public static void saveOutputForRepeat(String output, ObaDao obaDao, ObaUserDataItem userData) {
         log.debug("Caching output for repeat = " + output);

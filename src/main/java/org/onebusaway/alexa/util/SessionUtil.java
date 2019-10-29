@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.onebusaway.alexa.util;
 
 
@@ -85,9 +100,9 @@ public class SessionUtil {
     /**
      * Add or update(if attribute exist) the Alexa session attribute.
      *
-     * @param attributesManager
-     * @param key
-     * @param value
+     * @param attributesManager attributes manager provide by alexa for session management
+     * @param key key name in the session
+     * @param value value associated with the key
      */
     public static void addOrUpdateSessionAttribute(AttributesManager attributesManager, String key, Object value) {
         Optional.ofNullable(attributesManager)
@@ -102,10 +117,10 @@ public class SessionUtil {
     /**
      * Method to get the attribute from Alexa session.
      *
-     * @param attributesManager
-     * @param key
-     * @param clazz             return type
-     * @return Alexa session attribute
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param key key name in the session
+     * @param clazz session attribute type
+     * @return alexa session attribute
      */
     public static <T> T getSessionAttribute(AttributesManager attributesManager, String key, Class<T> clazz) {
         if (clazz == null) {
@@ -126,11 +141,11 @@ public class SessionUtil {
     /**
      * Method to get the attribute from Alexa session, will return the default value when failed to cast to specific type.
      *
-     * @param attributesManager
-     * @param key
-     * @param clazz
-     * @param defaultValue
-     * @return
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param key key name in the session
+     * @param clazz session attribute type
+     * @param defaultValue default value when session attribute is none
+     * @return alexa session attribute, will return default value if session attribute is none
      */
     public static <T> T getSessionAttribute(AttributesManager attributesManager, String key, Class<T> clazz, T defaultValue) {
         if (clazz == null) {

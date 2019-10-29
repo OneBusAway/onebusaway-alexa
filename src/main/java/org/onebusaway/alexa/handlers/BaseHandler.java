@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,15 +43,15 @@ abstract public class BaseHandler implements RequestHandler {
     /**
      * Gets the intent name that handler can handle.
      *
-     * @return
+     * @return the request name
      */
     abstract public String getRequestName();
 
     /**
      * Determines whether the giving handler can handle the request.
      *
-     * @param handlerInput
-     * @return true if the request can be handled, otherwise false
+     * @param handlerInput request received from Alexa
+     * @return returns true if the request can be handled by giving handler, otherwise returns false
      */
     @Override
     public boolean canHandle(final HandlerInput handlerInput) {
@@ -67,8 +68,8 @@ abstract public class BaseHandler implements RequestHandler {
     /**
      * Process the giving input and return the alexa response(speech, reprompt, audio and etc).
      *
-     * @param handlerInput
-     * @return
+     * @param handlerInput request received from Alexa
+     * @return alexa response
      */
     @Override
     public Optional<Response> handle(final HandlerInput handlerInput) {
@@ -79,7 +80,7 @@ abstract public class BaseHandler implements RequestHandler {
             return handle();
         } catch (Exception e) {
             log.error("Exception thrown while processing the request", e);
-            //Let the exception handler to handle the request
+            // Let the exception handler to handle the request
             throw e;
         }
     }
@@ -87,7 +88,7 @@ abstract public class BaseHandler implements RequestHandler {
     /**
      * Process the giving input and return the alexa response(speech, reprompt, audio and etc).
      *
-     * @return
+     * @return alexa response
      */
     public abstract Optional<Response> handle();
 }

@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,8 +47,6 @@ import static org.onebusaway.alexa.constant.SessionAttribute.REGION_NAME;
 public class SetCityIntentHandler extends IntentHandler {
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public String getIntentRequestName() {
@@ -56,8 +55,6 @@ public class SetCityIntentHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithObaData(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient) {
@@ -66,8 +63,6 @@ public class SetCityIntentHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithoutObaData() {
@@ -81,7 +76,7 @@ public class SetCityIntentHandler extends IntentHandler {
         boolean experimentalRegions = getSessionAttribute(EXPERIMENTAL_REGIONS, Boolean.class, false);
         Optional<Location> location = googleMaps.geocode(cityName);
 
-        //location can be null if there is an exception from Google GeocodingApi.
+        // location can be null if there is an exception from Google GeocodingApi.
         if (!location.isPresent()) {
             log.debug("Location is not present.");
             return CityUtil.askForCityResponse();
@@ -109,7 +104,7 @@ public class SetCityIntentHandler extends IntentHandler {
     /**
      * Helper method to get the city name from Alexa request.
      *
-     * @return
+     * @return name of city if exist, otherwise null
      */
     private String getCityNameFromRequest() {
         return Optional.of(handlerInput)
@@ -125,8 +120,8 @@ public class SetCityIntentHandler extends IntentHandler {
     /**
      * Helper method to update the Alexa session with city related attributes.
      *
-     * @param cityName
-     * @param obaRegion
+     * @param cityName  name of city got from user
+     * @param obaRegion OneBusAway region
      */
     private void updateSessionWithCityInfo(String cityName, ObaRegion obaRegion) {
         addOrUpdateSessionAttribute(CITY_NAME, cityName);

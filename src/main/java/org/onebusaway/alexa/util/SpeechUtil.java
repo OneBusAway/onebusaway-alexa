@@ -1,13 +1,11 @@
 /*
- * Copyright 2016-2017 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
- *
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,10 +50,10 @@ public class SpeechUtil {
     /**
      * Format the arrival info for speach
      *
-     * @param arrivals        arrival information
+     * @param arrivals arrival information
      * @param arrivalScanMins number of minutes ahead that the arrival information was requested for
-     * @param currentTime     the time when this arrival information was generated
-     * @param routesToFilter  a set of routeIds for routes that should NOT be read to the user
+     * @param currentTime the time when this arrival information was generated
+     * @param routesToFilter a set of routeIds for routes that should NOT be read to the user
      * @return the arrival info text formatted for speech
      */
     public static String getArrivalText(ObaArrivalInfo[] arrivals, int arrivalScanMins, long currentTime, long clockTime, TimeZone timeZone, HashSet<String> routesToFilter) {
@@ -88,9 +86,9 @@ public class SpeechUtil {
      * Returns the set of routes to filter for the given user and stop ID saved to the provided session or DAO
      * (in that order), or null if there is no filter for the given STOP_ID
      *
-     * @param obaDao
-     * @param userId       partition key to retrieve ObaUserDataItem
-     * @param alexaSession
+     * @param obaDao OneBusAway data access object
+     * @param userId partition key to retrieve ObaUserDataItem
+     * @param alexaSession alexa skill session
      * @return the set of routes to filter for the provided STOP_ID in the session or DAO for this user, or null if
      * there is no filter for the given STOP_ID
      */
@@ -146,8 +144,8 @@ public class SpeechUtil {
      * Util to replace all special characters with whitespace. Stop name will contains spacial character such as '&',
      * which will break the Alexa SSML.
      *
-     * @param address
-     * @return
+     * @param address the address get from Oba service
+     * @return address without symbols
      * @see <a href="https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#supported-symbols"></a>
      */
     public static String removeSpecialCharactersFromAddress(final String address) {

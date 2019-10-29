@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,8 +32,6 @@ import static org.onebusaway.alexa.constant.SessionAttribute.PREVIOUS_RESPONSE;
 public class RepeatIntentHandler extends IntentHandler {
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public String getIntentRequestName() {
@@ -41,25 +40,21 @@ public class RepeatIntentHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithObaData(ObaUserDataItem obaUserDataItem, ObaUserClient obaUserClient) {
-        return promptHelper.getResponse(getLastReponse(obaUserDataItem));
+        return promptHelper.getResponse(getLastResponse(obaUserDataItem));
     }
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithoutObaData() {
         return CityUtil.askForCityResponse();
     }
 
-    private String getLastReponse(ObaUserDataItem obaUserDataItem) {
+    private String getLastResponse(ObaUserDataItem obaUserDataItem) {
         String lastOutput = getSessionAttribute(PREVIOUS_RESPONSE, String.class);
         if (StringUtils.isNotBlank(lastOutput)) {
             return lastOutput;

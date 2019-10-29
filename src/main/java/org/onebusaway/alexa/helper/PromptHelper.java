@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.onebusaway.alexa.helper;
 
 import com.amazon.ask.model.Response;
@@ -34,9 +49,9 @@ public class PromptHelper {
     /**
      * Get the prompt string, it will replace the parameters with the string placeholder in resource bundle.
      *
-     * @param prompt
-     * @param parameters
-     * @return
+     * @param prompt speech prompt
+     * @param parameters parameters to replace the placeholder in string
+     * @return the string in resource bundle
      */
     public String getPrompt(final Prompt prompt, final String... parameters) {
         String response = "";
@@ -57,8 +72,8 @@ public class PromptHelper {
     /**
      * Get the prompt string.
      *
-     * @param prompt
-     * @return
+     * @param prompt speech prompt
+     * @return the string in resource bundle
      */
     public String getPrompt(Prompt prompt) {
         String response = "";
@@ -76,9 +91,9 @@ public class PromptHelper {
      * Helper method to create the Alexa response with prompt and reprompt,
      * should end session flag will be set to false.
      *
-     * @param prompt
-     * @param reprompt
-     * @return
+     * @param prompt speech prompt
+     * @param reprompt reprompt to reask user for response
+     * @return alexa response with speech, reprompt and should end session flag set to false
      */
     public Optional<Response> getResponse(final Prompt prompt, final Prompt reprompt) {
         return new ResponseBuilder()
@@ -92,8 +107,8 @@ public class PromptHelper {
      * Helper method to create the Alexa response with prompt,
      * should end session flag will be set to true.
      *
-     * @param prompt
-     * @return
+     * @param prompt speech prompt
+     * @return alexa response with speech and should end session flag set to true
      */
     public Optional<Response> getResponse(final Prompt prompt) {
         return new ResponseBuilder()
@@ -107,7 +122,7 @@ public class PromptHelper {
      * should end session flag will be set to true.
      *
      * @param speech
-     * @return
+     * @return alexa response with speech and should end session flag set to true
      */
     public Optional<Response> getResponse(final String speech) {
         return new ResponseBuilder()
@@ -122,7 +137,7 @@ public class PromptHelper {
      *
      * @param speech
      * @param reprompt
-     * @return
+     * @return alexa response with speech, reprompt and should end session flag set to false
      */
     public Optional<Response> getResponse(final String speech, final String reprompt) {
         return new ResponseBuilder()

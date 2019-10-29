@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "One bus away",
+      "invocationName": "one bus away",
       "intents": [
         {
           "name": "AMAZON.FallbackIntent",

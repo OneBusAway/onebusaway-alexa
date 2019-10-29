@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +19,7 @@ package org.onebusaway.alexa.constant;
  * Stores OneBusAway prompts and re-prompts string IDs associated with ResourceBundle.
  */
 public enum Prompt {
-    //skill prompts
+    // skill prompts
     WELCOME_MESSAGE("welcomeMessage", true),
     FOUND_CITY("foundCity", true),
     CANNOT_LOCATE_CITY("cannotLocateCity", true),
@@ -52,7 +53,7 @@ public enum Prompt {
     GENERAL_ERROR_MESSAGE("generalErrorMessage"),
     COMMUNICATION_ERROR_MESSAGE("communicationErrorMessage"),
 
-    //skill reprompts
+    // skill reprompts
     ASK_FOR_CITY("askForCity"),
     ASK_FOR_STOP("askForStop"),
     VERIFY_STOP("verifyStop"),
@@ -82,7 +83,7 @@ public enum Prompt {
     /**
      * Gets the prompt resource ID.
      *
-     * @return
+     * @return the id in resource bundle for string
      */
     public String getResourceId() {
         return resourceId;
@@ -91,7 +92,7 @@ public enum Prompt {
     /**
      * Checks whether the prompt is personalized or not.
      *
-     * @return
+     * @return true if the prompt is personalized(e.g. Hi {firstname}), otherwise false
      */
     public boolean isPersonalizedPrompt() {
         return isPersonalizedPrompt;
@@ -100,7 +101,7 @@ public enum Prompt {
     /**
      * Gets the personalized prompt resource ID.
      *
-     * @return
+     * @return the personalized id in resource bundle for string if isPersonalizedPrompt is true, otherwise returns the resource Id
      */
     public String getPersonalizedResourceId() {
         if (this.isPersonalizedPrompt) {

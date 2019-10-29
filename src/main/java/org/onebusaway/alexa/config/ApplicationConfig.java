@@ -1,12 +1,11 @@
 /*
- * Copyright 2016 Philip M. White (philip@mailworks.org)
- *
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *      http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +65,7 @@ public class ApplicationConfig {
     public Skill oneBusAwaySkill() {
         StandardSkillBuilder standardSkillBuilder = Skills.standard()
                 .addRequestHandlers(
-                        //Intent handlers.
+                        // Intent handlers.
                         handlerConfig.launchRequestHandler(),
                         handlerConfig.cancelIntentHandler(),
                         handlerConfig.disableClockTimeHandler(),
@@ -84,10 +83,10 @@ public class ApplicationConfig {
                         handlerConfig.setStopNumberIntentHandler(),
                         handlerConfig.yesIntentHandler(),
                         handlerConfig.stopIntentHandler(),
-                        //Event handlers.
+                        // Event handlers.
                         handlerConfig.skillEnableEventHandler(),
                         handlerConfig.skillDisableEventHandler(),
-                        //NOTE unknown request handler has to be at last
+                        // NOTE unknown request handler has to be at last
                         // to handle recognized request because canHandle always return true.
                         handlerConfig.unknownRequestHandler())
                 .addExceptionHandler(handlerConfig.genericExceptionHandler());

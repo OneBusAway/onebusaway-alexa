@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.onebusaway.alexa.constant;
 
 /**
  * OneBusAway Alexa session attributes.
  */
 public class SessionAttribute {
-    //PRINCIPLE_ID in session can be personId or userId depends which one is available.
+    // PRINCIPLE_ID in session can be personId or userId depends which one is available.
     public static final String PRINCIPLE_ID = "principleId";
     public static final String CITY_NAME = "cityName";
     public static final String STOP_ID = "stopNumber";
@@ -39,7 +41,7 @@ public class SessionAttribute {
 
     // Strangely, we can't save HashSets or HashMaps to sessions (Amazon Alexa converts them to ArrayLists, which
     // generates a ClassCastException when trying to retrieve them.  This prevents us from saving route filters to sessions.
-    //public static final String ROUTES_TO_FILTER = "routesToFilterOut";
+    // public static final String ROUTES_TO_FILTER = "routesToFilterOut";
 
     public enum AskState {
         NONE,

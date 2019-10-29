@@ -1,12 +1,11 @@
 /*
- * Copyright 2017 Sean J. Barbeau (sjbarbeau@gmail.com)
- *
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,8 +56,8 @@ public class RouteFilterUtil {
     /**
      * Ask the user if they want to hear arrivals for the first route, from the provided list of routes
      *
-     * @param attributesManager
-     * @param routes            list of routes from which the first route will be taken
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param routes list of routes from which the first route will be taken
      * @return response to be read to the user asking if they want to hear arrivals for the first route in the provided list of routes
      */
     public static Optional<Response> askUserAboutFilterRoute(AttributesManager attributesManager, List<ObaRoute> routes) {
@@ -87,10 +86,10 @@ public class RouteFilterUtil {
      * particular stop (STOP_ID of session) and a paricular route (the 0 index route in the SessionAttribute
      * DIALOG_ROUTES_TO_ASK_ABOUT ArrayList)
      *
-     * @param attributesManager
-     * @param hearArrivals      true if the user wanted to hear arrivals about the 0 index route, false if they did not.
-     * @param obaDao
-     * @param obaUserDataItem
+     * @param attributesManager manager to add or remove attribute from Alexa session
+     * @param hearArrivals true if the user wanted to hear arrivals about the 0 index route, false if they did not.
+     * @param obaDao OneBusAway data access object
+     * @param obaUserDataItem OneBusAway User Data item
      * @return
      */
     public static Optional<Response> handleFilterRouteResponse(AttributesManager attributesManager, boolean hearArrivals, ObaDao obaDao, ObaUserDataItem obaUserDataItem) {

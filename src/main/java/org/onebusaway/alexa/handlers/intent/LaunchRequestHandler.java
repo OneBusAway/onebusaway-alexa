@@ -1,6 +1,7 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,10 +39,12 @@ import static org.onebusaway.alexa.constant.Prompt.WELCOME_MESSAGE;
  */
 @Log4j
 public class LaunchRequestHandler extends IntentHandler {
-
-    // Alexa Launch request has to be matched by type instead of request name. Override the canHandle logic from super class.
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean canHandle(final HandlerInput handlerInput) {
+        // Alexa Launch request has to be matched by type instead of request name. Override the canHandle logic from super class.
         boolean canHandleRequest = handlerInput.matches(Predicates.requestType(LaunchRequest.class));
         final String requestType = Optional.ofNullable(handlerInput).map(HandlerInput::getRequest).map(Request::getType).orElse("Launch");
         log.info(String.format("%s handler canHandle returns %s for %s", this.getClass().getSimpleName(), canHandleRequest, requestType));
@@ -50,8 +53,6 @@ public class LaunchRequestHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public String getIntentRequestName() {
@@ -60,8 +61,6 @@ public class LaunchRequestHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithObaData(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient) {
@@ -70,8 +69,6 @@ public class LaunchRequestHandler extends IntentHandler {
 
     /**
      * {@inheritDoc}
-     *
-     * @return
      */
     @Override
     public Optional<Response> handleWithoutObaData() {
