@@ -30,7 +30,7 @@ import java.util.Optional;
 import static org.onebusaway.alexa.constant.Prompt.COMMUNICATION_ERROR_MESSAGE;
 import static org.onebusaway.alexa.constant.Prompt.GET_STOP;
 import static org.onebusaway.alexa.helper.PromptHelper.ADDRESS_SSML_FORMAT;
-import static org.onebusaway.alexa.util.SpeechUtil.removeSpecialCharactersFromAddress;
+import static org.onebusaway.alexa.util.SpeechUtil.replaceSpecialCharactersFromAddress;
 
 /**
  * Handler for GetStopNumber intent request (e.g. "ask OneBusAway what is my stop").
@@ -52,7 +52,7 @@ public class GetStopNumberIntentHandler extends IntentHandler {
     public Optional<Response> handleWithObaData(final ObaUserDataItem obaUserDataItem, final ObaUserClient obaUserClient) {
         try {
             final ObaStopResponse stop = obaUserClient.getStopDetails(obaUserDataItem.getStopId());
-            final String stopName = removeSpecialCharactersFromAddress(stop.getName());
+            final String stopName = replaceSpecialCharactersFromAddress(stop.getName());
             final String speech =
                     promptHelper.getPrompt(GET_STOP, Integer.toString(stop.getCode()), String.format(ADDRESS_SSML_FORMAT, stopName));
             StorageUtil.saveOutputForRepeat(speech, obaDao, obaUserDataItem);

@@ -43,7 +43,7 @@ import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
 import static org.onebusaway.alexa.constant.SessionAttribute.CITY_NAME;
 import static org.onebusaway.alexa.constant.SessionAttribute.DIALOG_FOUND_STOPS;
 import static org.onebusaway.alexa.helper.PromptHelper.ADDRESS_SSML_FORMAT;
-import static org.onebusaway.alexa.util.SpeechUtil.removeSpecialCharactersFromAddress;
+import static org.onebusaway.alexa.util.SpeechUtil.replaceSpecialCharactersFromAddress;
 
 /**
  * Utilities to support the dialog with the user for selecting a stop, including given multiple stops with the same stop_code.
@@ -122,12 +122,12 @@ public class StopUtil {
         String speech = "";
         if (stops != null && stops.length > 0) {
             SessionUtil.addOrUpdateSessionAttribute(attributesManager, DIALOG_FOUND_STOPS, stops);
-            stopName = String.format(ADDRESS_SSML_FORMAT, removeSpecialCharactersFromAddress(stops[0].getName()));
+            stopName = String.format(ADDRESS_SSML_FORMAT, replaceSpecialCharactersFromAddress(stops[0].getName()));
             speech = promptHelper.getPrompt(DUPLICATED_STOPS, Integer.toString(stops.length), stopName);
         } else {
             ArrayList<ObaStop> foundStops = SessionUtil.getSessionAttribute(attributesManager, DIALOG_FOUND_STOPS, ArrayList.class);
             LinkedHashMap<String, String> stopData = (LinkedHashMap<String, String>) foundStops.get(0);
-            stopName = String.format(ADDRESS_SSML_FORMAT, removeSpecialCharactersFromAddress(stopData.get("name")));
+            stopName = String.format(ADDRESS_SSML_FORMAT, replaceSpecialCharactersFromAddress(stopData.get("name")));
             speech = promptHelper.getPrompt(DUPLICATED_STOP_CONFIRM, stopName);
         }
         String reprompt = promptHelper.getPrompt(VERIFY_STOP, stopName);

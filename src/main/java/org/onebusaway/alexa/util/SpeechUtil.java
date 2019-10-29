@@ -15,6 +15,7 @@
 package org.onebusaway.alexa.util;
 
 import com.amazon.ask.attributes.AttributesManager;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.TextUtils;
@@ -141,20 +142,26 @@ public class SpeechUtil {
     }
 
     /**
-     * Util to replace all special characters with whitespace. Stop name will contains spacial character such as '&',
-     * which will break the Alexa SSML.
+     * Util to replace & with 'and', '+' with 'and', '@' with 'at', and replace other special characters with whitespace.
      *
      * @param address the address get from Oba service
      * @return address without symbols
      * @see <a href="https://developer.amazon.com/docs/custom-skills/speech-synthesis-markup-language-ssml-reference.html#supported-symbols"></a>
      */
-    public static String removeSpecialCharactersFromAddress(final String address) {
-        char[] addressCharArray = address.toCharArray();
-        for (int idx = 0; idx < addressCharArray.length; idx++) {
-            if (!Character.isAlphabetic(addressCharArray[idx]) && !Character.isDigit(addressCharArray[idx])) {
-                addressCharArray[idx] = ' ';
+    public static String replaceSpecialCharactersFromAddress(final String address) {
+        ImmutableMap<Character, String> mapping = ImmutableMap.<Character, String>builder()
+                .put('&', "and")
+                .put('+', "and")
+                .put('@', "at")
+                .build();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Character c : address.toCharArray()) {
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c)) {
+                stringBuilder.append(mapping.getOrDefault(c, " "));
+            } else {
+                stringBuilder.append(c);
             }
         }
-        return new String(addressCharArray);
+        return stringBuilder.toString();
     }
 }

@@ -19,6 +19,10 @@
             <name>Philip White</name>
             <url>http://github.com/philipmw</url>
         </developer>
+        <developer>
+            <name>Chunzhang Mo</name>
+            <url>http://github.com/victormocz</url>
+        </developer>
     </developers>
     <dependencies>
         <dependency>
