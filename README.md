@@ -113,8 +113,18 @@ See the [lambda maven plugin homepage](https://github.com/SeanRoy/lambda-maven-p
 1. On Endpoint page set up your endpoint by plugging in your Lambda function's ARN.
    Go Next.  That creates the skill, however it is not functional yet.
 1. At the top of the screen note application _ID_. You will use it to configure Lambda code.
+#### 4.1 Personalize your skill
+To set up your skill to support personalization, you must follow these steps.
 
-#### 4.1 Listen to skill event (OPTIONAL)
+1. Set up your skill to request personalization permissions.When you create or edit a custom skill, you can turn on permissions for Skill Personalization in the developer console.
+    * In the developer console, create or open your skill. 
+    * Select the Build tab, and select Permissions at the bottom left.
+    * In the Permissions section, turn on the toggle for Skill Personalization.
+    * You can also edit the permissions in the skill manifest for your skill directly to add the personalization scope alexa::person_id:read if you are using SMAPI or ASK CLI to build your skill.
+1. Set up your skill service to use personalization in its responses, if Personalize skills is toggled on for a recognized user.
+1. Make sure your skill service gracefully handles those cases where a user is not recognized, or a user refuses permission for personalization.
+
+#### 4.2 Listen to skill event (OPTIONAL)
 1. Currently OneBusAway supports [SkillEnabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-enabled-event) and [SkillDisabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-disabled-event) events.
 1. The **ONLY WAY** to enable your test skill to listen to events is using Skill Management API (SMAPI), please follow the [Quick Start: Alexa Skills Kit Command Line Interface (ASK CLI)](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html) to install ASK CLI.
 1. After you setup CLI, please using `ask api get-skill -s {skillId} > skill.json` to get your skill schema in `skill.json` file, add the event subscription JSON blob below to skill.json, and run
