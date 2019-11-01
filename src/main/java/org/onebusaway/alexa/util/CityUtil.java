@@ -170,7 +170,9 @@ public class CityUtil {
         } else if (searchResults.length > 1) {
             SessionUtil.addOrUpdateSessionAttribute(attributesManager, DIALOG_FOUND_STOPS, searchResults);
             SessionUtil.addOrUpdateSessionAttribute(attributesManager, ASK_STATE, VERIFYSTOP);
-            return promptHelper.getResponse(DUPLICATED_STOPS, VERIFY_STOP);
+            final String speech = promptHelper.getPrompt(DUPLICATED_STOPS, Integer.toString(searchResults.length), SpeechUtil.replaceSpecialCharactersFromAddress(searchResults[0].getName()));
+            final String reprompt = promptHelper.getPrompt(VERIFY_STOP);
+            return promptHelper.getResponse(speech, reprompt);
         } else {
             return StorageUtil.finishOnboard(userId, cityName, searchResults[0].getId(), searchResults[0].getStopCode(), region.get(), obaUserClient, obaDao, attributesManager);
         }
