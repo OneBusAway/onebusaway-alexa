@@ -239,7 +239,7 @@
                         {
                         "functionName": "onebusaway-alexa",
                         "description": "OneBusAway Alexa skill",
-                        "handler": "org.onebusaway.alexa.OneBusAwaySkill",
+                        "handler": "org.onebusaway.alexa.OneBusAwayAlexa",
                         "timeout": 25,
                         "memorySize": 256
                         }
