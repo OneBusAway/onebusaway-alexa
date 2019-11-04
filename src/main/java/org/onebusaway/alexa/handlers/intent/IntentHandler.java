@@ -17,7 +17,6 @@ package org.onebusaway.alexa.handlers.intent;
 
 import com.amazon.ask.model.Response;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang3.StringUtils;
 import org.onebusaway.alexa.constant.SessionAttribute.AskState;
 import org.onebusaway.alexa.exception.OneBusAwayException;
 import org.onebusaway.alexa.handlers.BaseHandler;
@@ -78,7 +77,7 @@ abstract public class IntentHandler extends BaseHandler {
     @Override
     public Optional<Response> handle() {
         personalizationInitialization();
-        final Optional<ObaUserDataItem> obaUserDataItem = retrieveAndReplicateObaData();
+        final Optional<ObaUserDataItem> obaUserDataItem = obaDao.getUserData(personalization.getPrincipleId());
         populateAlexaSessionAttributes(obaUserDataItem);
         this.askState = AskState.valueOf(getSessionAttribute(ASK_STATE, String.class, NONE.toString()));
         log.info(String.format("askState is %s when request start", askState));
@@ -118,29 +117,18 @@ abstract public class IntentHandler extends BaseHandler {
     }
 
     /**
-     * Retrieve the ObaUserDataItem from DynamoDB,
-     * this method will replicate ObaData from default(user level) and apply it to person
-     * when user opted in personalization without stop information.
+     * Retrieve the ObaUserDataItem from DynamoDB.
      *
      * @return
      */
-    private Optional<ObaUserDataItem> retrieveAndReplicateObaData() {
+    private Optional<ObaUserDataItem> retrieveObaData() {
         Optional<ObaUserDataItem> obaUserDataItem = Optional.empty();
         if (personalization.isPersonalized()) {
             log.info("Retrieving person level ObaData.");
             obaUserDataItem = obaDao.getUserData(personalization.getPersonId());
-        }
-        // Try to retrieve default(user level) ObaData when person level data is not available.
-        if (!obaUserDataItem.isPresent()) {
+        } else {
             log.info("Retrieving user level ObaData.");
             obaUserDataItem = obaDao.getUserData(personalization.getUserId());
-            // If user level data is available and person opted in personalization, replicate data to person level.
-            if (obaUserDataItem.isPresent() && personalization.isPersonalized()) {
-                log.info("Replicate data to person level.");
-                obaUserDataItem.get().setUserId(personalization.getPersonId());
-                obaUserDataItem.get().setPreviousResponse(StringUtils.EMPTY);
-                obaDao.saveUserData(obaUserDataItem.get());
-            }
         }
         return obaUserDataItem;
     }

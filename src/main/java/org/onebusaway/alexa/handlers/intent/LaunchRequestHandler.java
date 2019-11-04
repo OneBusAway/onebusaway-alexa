@@ -31,8 +31,11 @@ import java.util.Optional;
 
 import static org.onebusaway.alexa.constant.Prompt.ASK_FOR_CITY;
 import static org.onebusaway.alexa.constant.Prompt.ASK_FOR_STOP;
+import static org.onebusaway.alexa.constant.Prompt.COPY_CONFIRMATION;
 import static org.onebusaway.alexa.constant.Prompt.REASK_FOR_STOP;
+import static org.onebusaway.alexa.constant.Prompt.COPY_PROFILE;
 import static org.onebusaway.alexa.constant.Prompt.WELCOME_MESSAGE;
+import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
 
 /**
  * Handler for Launch request (e.g. "open OneBusAway").
@@ -72,6 +75,15 @@ public class LaunchRequestHandler extends IntentHandler {
      */
     @Override
     public Optional<Response> handleWithoutObaData() {
+        if (this.personalization.isPersonalized()) {
+            Optional<ObaUserDataItem> obaUserDataItem = this.obaDao.getUserData(personalization.getUserId());
+            if (obaUserDataItem.isPresent()) {
+                addOrUpdateSessionAttribute(ASK_STATE, SessionAttribute.AskState.COPY_PROFILE_CONFIRM.toString());
+                final String speech = promptHelper.getPrompt(COPY_PROFILE, obaUserDataItem.get().getCity(), obaUserDataItem.get().getStopId());
+                final String reprompt = promptHelper.getPrompt(COPY_CONFIRMATION);
+                return promptHelper.getResponse(speech, reprompt);
+            }
+        }
         if (StringUtils.isBlank(getSessionAttribute(SessionAttribute.CITY_NAME, String.class))) {
             return promptHelper.getResponse(WELCOME_MESSAGE, ASK_FOR_CITY);
         } else {

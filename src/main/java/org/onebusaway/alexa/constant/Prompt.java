@@ -48,6 +48,7 @@ public enum Prompt {
     ASK_FOR_CITY_AFTER_STOP("askForCityAfterStop", true),
     DUPLICATED_STOPS("duplicatedStops"),
     DUPLICATED_STOP_CONFIRM("duplicatedStopConfirm"),
+    COPY_PROFILE("copyProfile", true),
     NO_REPEAT("noRepeat", true),
     UNKNOWN_INTENT_MESSAGE("unknownIntentMessage"),
     GENERAL_ERROR_MESSAGE("generalErrorMessage"),
@@ -56,6 +57,7 @@ public enum Prompt {
     // skill reprompts
     ASK_FOR_CITY("askForCity"),
     ASK_FOR_STOP("askForStop"),
+    COPY_CONFIRMATION("copyConfirmation"),
     VERIFY_STOP("verifyStop"),
     VERIFY_FILTER("verifyFilter");
 

@@ -78,6 +78,7 @@ public class SpeechUtil {
                 // If all currently running routes were filtered out, provide no arrivals message
                 output = promptHelper.getPrompt(NO_ARRIVALS_AFTER_FILTER, Integer.toString(arrivalScanMins));
             }
+            output = replaceSpecialCharactersFromAddress(output);
             log.info("ArrivalInfo: " + output);
         }
         return output;
@@ -153,6 +154,10 @@ public class SpeechUtil {
                 .put('&', "and")
                 .put('+', "and")
                 .put('@', "at")
+                .put('.', ".")
+                .put(',', ",")
+                // pause for 1/4 second.
+                .put('-', "<break time='250ms'/>")
                 .build();
         StringBuilder stringBuilder = new StringBuilder();
         for (Character c : address.toCharArray()) {

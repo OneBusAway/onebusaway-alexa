@@ -178,9 +178,9 @@ public class StorageUtil {
     /**
      * Saves the provided text as the last text spoken to user, so it can be retrieved if the user asks for a repeat
      *
-     * @param output text to be saved as the last spoken text to user
+     * @param output   text to be saved as the last spoken text to user
      * @param userData OneBusAway User Data item
-     * @param obaDao OneBusAway data access object
+     * @param obaDao   OneBusAway data access object
      */
     public static void saveOutputForRepeat(String output, ObaDao obaDao, ObaUserDataItem userData) {
         log.debug("Caching output for repeat = " + output);

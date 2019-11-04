@@ -68,9 +68,12 @@ public class NoIntentHandler extends IntentHandler {
     @Override
     public Optional<Response> handleWithoutObaData() {
         if (askState == SessionAttribute.AskState.VERIFYSTOP) {
-            String userId = handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getUserId();
-            return StopUtil.handleDuplicateStopResponse(userId, this.attributesManager, false, googleMaps, obaClient, obaDao);
+            return StopUtil.handleDuplicateStopResponse(personalization.getPrincipleId(), this.attributesManager, false, googleMaps, obaClient, obaDao);
         }
+        if (askState == SessionAttribute.AskState.COPY_PROFILE_CONFIRM && personalization.isPersonalized()) {
+            return CityUtil.askForCityResponse();
+        }
+
         log.error("Received no intent without a question.");
         return CityUtil.askForCityResponse();
     }

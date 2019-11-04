@@ -17,8 +17,10 @@ package org.onebusaway.alexa.handlers.intent;
 
 import com.amazon.ask.model.Response;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.StringUtils;
 import org.onebusaway.alexa.constant.Prompt;
 import org.onebusaway.alexa.constant.SessionAttribute;
+import org.onebusaway.alexa.exception.OneBusAwayException;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.alexa.util.CityUtil;
@@ -66,8 +68,23 @@ public class YesIntentHandler extends IntentHandler {
     @Override
     public Optional<Response> handleWithoutObaData() {
         if (askState == SessionAttribute.AskState.VERIFYSTOP) {
-            return StopUtil.handleDuplicateStopResponse(handlerInput.getRequestEnvelope().getContext().getSystem().getUser().getUserId(), attributesManager, true, googleMaps, obaClient, obaDao);
+            return StopUtil.handleDuplicateStopResponse(personalization.getPrincipleId(), attributesManager, true, googleMaps, obaClient, obaDao);
         }
+
+        if (askState == SessionAttribute.AskState.COPY_PROFILE_CONFIRM && personalization.isPersonalized()) {
+            try {
+                Optional<ObaUserDataItem> obaUserDataItem = this.obaDao.getUserData(personalization.getUserId());
+                obaUserDataItem.get().setUserId(personalization.getPersonId());
+                obaUserDataItem.get().setPreviousResponse(StringUtils.EMPTY);
+                ObaUserClient obaUserClient = new ObaUserClient(obaUserDataItem.get().getObaBaseUrl());
+                this.obaDao.saveUserData(obaUserDataItem.get());
+                return CityUtil.tellArrivals(obaUserDataItem.get(), obaUserClient, attributesManager, obaDao);
+            } catch (Exception e) {
+                log.error(e);
+                throw new OneBusAwayException(promptHelper.getPrompt(Prompt.COMMUNICATION_ERROR_MESSAGE), e);
+            }
+        }
+
         log.error("Received yes intent without a question.");
         return CityUtil.askForCityResponse();
     }

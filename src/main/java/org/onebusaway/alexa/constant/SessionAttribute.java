@@ -47,6 +47,7 @@ public class SessionAttribute {
         NONE,
         VERIFYSTOP,
         STOP_BEFORE_CITY,
-        FILTER_INDIVIDUAL_ROUTE
+        FILTER_INDIVIDUAL_ROUTE,
+        COPY_PROFILE_CONFIRM
     }
 }
