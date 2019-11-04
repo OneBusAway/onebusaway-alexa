@@ -24,16 +24,23 @@ import org.mockito.InjectMocks;
 import org.onebusaway.alexa.config.PromptsConfig;
 import org.onebusaway.alexa.constant.Prompt;
 import org.onebusaway.alexa.helper.PromptHelper;
+import org.onebusaway.alexa.util.CityUtil;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@PrepareForTest({
+        CityUtil.class
+})
 public class RepeatIntentHandlerTest extends IntentRequestTestBase {
     @Captor
     private ArgumentCaptor<String> argumentCaptor;
@@ -43,6 +50,12 @@ public class RepeatIntentHandlerTest extends IntentRequestTestBase {
 
     private static final String REPEAT_INTENT_NAME = "AMAZON.RepeatIntent";
     private static final String PREVIOUS_RESPONSE_KEY = "previousResponse";
+
+    @Override
+    protected void setup() throws Exception {
+        PowerMockito.mockStatic(CityUtil.class);
+        when(CityUtil.askForCityResponse()).thenReturn(Optional.empty());
+    }
 
     @Test
     public void getIntentRequestName_withoutInput_getRequestName() {
@@ -75,12 +88,14 @@ public class RepeatIntentHandlerTest extends IntentRequestTestBase {
 
     @Test
     public void handle_withoutObaData_returnAskForCityResponse() {
+        PromptHelper promptHelper = new AnnotationConfigApplicationContext(PromptsConfig.class).getBean("promptHelper", PromptHelper.class);
         when(obaDao.getUserData(eq(USER_ID))).thenReturn(Optional.empty());
+        when(CityUtil.askForCityResponse()).thenReturn(promptHelper.getResponse(Prompt.WELCOME_MESSAGE, Prompt.ASK_FOR_CITY));
         Optional<Response> response = repeatIntentHandler.handle(handlerInput);
         assertTrue(response.isPresent());
         SsmlOutputSpeech ssmlOutputSpeech = (SsmlOutputSpeech) response.get().getOutputSpeech();
         String expetecdWelcomeMessage =
-                new AnnotationConfigApplicationContext(PromptsConfig.class).getBean("promptHelper", PromptHelper.class).getPrompt(Prompt.WELCOME_MESSAGE);
+                promptHelper.getPrompt(Prompt.WELCOME_MESSAGE);
         assertEquals(String.format(SSML_FORMAT, expetecdWelcomeMessage), ssmlOutputSpeech.getSsml());
     }
 }

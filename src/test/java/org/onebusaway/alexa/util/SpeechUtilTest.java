@@ -15,11 +15,30 @@
 
 package org.onebusaway.alexa.util;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.onebusaway.alexa.config.ApplicationConfig;
+import org.onebusaway.alexa.config.SpringContext;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.powermock.api.mockito.PowerMockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({
+        SpeechUtil.class,
+        SpringContext.class
+})
 public class SpeechUtilTest {
+    @Mock
+    AnnotationConfigApplicationContext annotationConfigApplicationContext;
+
     private static final String TEST_ADDRESS_1 = "131st Street & 2nd Avenue";
     private static final String EXPECTES_ADDRESS_1 = "131st Street and 2nd Avenue";
     private static final String TEST_ADDRESS_2 = "131st Street + 2nd Avenue";
@@ -29,6 +48,12 @@ public class SpeechUtilTest {
     private static final String TEST_ADDRESS_4 = "131st Street !#$%^ 2nd Avenue";
     private static final String EXPECTES_ADDRESS_4 = "131st Street       2nd Avenue";
 
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        PowerMockito.mockStatic(SpringContext.class);
+        when(SpringContext.getInstance()).thenReturn(annotationConfigApplicationContext);
+    }
 
     @Test
     public void replaceSpecialCharactersFromAddress_withAmpersandInString_replacedWithAnd() {

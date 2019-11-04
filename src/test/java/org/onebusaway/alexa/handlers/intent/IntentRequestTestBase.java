@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.onebusaway.alexa.config.SpringContext;
 import org.onebusaway.alexa.constant.SessionAttribute;
 import org.onebusaway.alexa.helper.PromptHelper;
 import org.onebusaway.alexa.lib.GoogleMaps;
@@ -38,6 +38,8 @@ import org.onebusaway.alexa.storage.ObaDao;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -46,9 +48,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        ObaUserClient.class
+        ObaUserClient.class,
+        SpringContext.class
 })
 abstract public class IntentRequestTestBase {
     @Mock
@@ -67,6 +70,8 @@ abstract public class IntentRequestTestBase {
     protected ObaUserDataItem obaUserDataItem;
     @Mock
     protected ObaUserClient obaUserClient;
+    @Mock
+    protected AnnotationConfigApplicationContext annotationConfigApplicationContext;
     @Spy
     protected HashMap<String, Object> sessionAttributes = new HashMap();
 
@@ -93,9 +98,9 @@ abstract public class IntentRequestTestBase {
     protected static final boolean EXPERIMENTAL_REGIONS = false;
 
     @Before
-    public void presetup() throws Exception{
+    public void presetup() throws Exception {
         MockitoAnnotations.initMocks(this);
-        PowerMockito.whenNew(ObaUserClient.class).withAnyArguments().thenReturn(obaUserClient);
+        mockStaticUtils();
         mockHandlerInput();
         mockObaUserData();
         mockAlexaSessionAttribute();
@@ -106,7 +111,16 @@ abstract public class IntentRequestTestBase {
     /**
      * Can be override by child class for customized initialization logic. not required if using the default mocks.
      */
-    protected void setup() throws Exception{
+    protected void setup() throws Exception {
+    }
+
+    /**
+     * Helper method to mock static Utilities.
+     */
+    protected void mockStaticUtils() throws Exception{
+        PowerMockito.mockStatic(SpringContext.class);
+        PowerMockito.whenNew(ObaUserClient.class).withAnyArguments().thenReturn(obaUserClient);
+        PowerMockito.when(SpringContext.getInstance()).thenReturn(annotationConfigApplicationContext);
     }
 
     /**

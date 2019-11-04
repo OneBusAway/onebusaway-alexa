@@ -25,12 +25,16 @@ import org.mockito.InjectMocks;
 import org.onebusaway.alexa.constant.Prompt;
 import org.onebusaway.alexa.util.CityUtil;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@PrepareForTest({
+        CityUtil.class
+})
 public class LaunchRequestHandlerTest extends IntentRequestTestBase {
     @Captor
     private ArgumentCaptor<Prompt> argumentCaptor;
