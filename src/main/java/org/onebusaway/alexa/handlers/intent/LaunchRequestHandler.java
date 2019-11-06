@@ -23,17 +23,20 @@ import com.amazon.ask.request.Predicates;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.lang3.StringUtils;
 import org.onebusaway.alexa.constant.SessionAttribute;
+import org.onebusaway.alexa.exception.OneBusAwayException;
 import org.onebusaway.alexa.lib.ObaUserClient;
 import org.onebusaway.alexa.storage.ObaUserDataItem;
 import org.onebusaway.alexa.util.CityUtil;
+import org.onebusaway.io.client.request.ObaStopResponse;
 
 import java.util.Optional;
 
 import static org.onebusaway.alexa.constant.Prompt.ASK_FOR_CITY;
 import static org.onebusaway.alexa.constant.Prompt.ASK_FOR_STOP;
+import static org.onebusaway.alexa.constant.Prompt.COMMUNICATION_ERROR_MESSAGE;
 import static org.onebusaway.alexa.constant.Prompt.COPY_CONFIRMATION;
-import static org.onebusaway.alexa.constant.Prompt.REASK_FOR_STOP;
 import static org.onebusaway.alexa.constant.Prompt.COPY_PROFILE;
+import static org.onebusaway.alexa.constant.Prompt.REASK_FOR_STOP;
 import static org.onebusaway.alexa.constant.Prompt.WELCOME_MESSAGE;
 import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
 
@@ -78,10 +81,18 @@ public class LaunchRequestHandler extends IntentHandler {
         if (this.personalization.isPersonalized()) {
             Optional<ObaUserDataItem> obaUserDataItem = this.obaDao.getUserData(personalization.getUserId());
             if (obaUserDataItem.isPresent()) {
-                addOrUpdateSessionAttribute(ASK_STATE, SessionAttribute.AskState.COPY_PROFILE_CONFIRM.toString());
-                final String speech = promptHelper.getPrompt(COPY_PROFILE, obaUserDataItem.get().getCity(), obaUserDataItem.get().getStopId());
-                final String reprompt = promptHelper.getPrompt(COPY_CONFIRMATION);
-                return promptHelper.getResponse(speech, reprompt);
+                try {
+                    ObaUserClient obaUserClient = new ObaUserClient(obaUserDataItem.get().getObaBaseUrl());
+                    final ObaStopResponse stop = obaUserClient.getStopDetails(obaUserDataItem.get().getStopId());
+                    addOrUpdateSessionAttribute(ASK_STATE, SessionAttribute.AskState.COPY_PROFILE_CONFIRM.toString());
+                    final String speech =
+                            promptHelper.getPrompt(COPY_PROFILE, obaUserDataItem.get().getCity(), stop.getStopCode());
+                    final String reprompt = promptHelper.getPrompt(COPY_CONFIRMATION);
+                    return promptHelper.getResponse(speech, reprompt);
+                } catch (Exception e) {
+                    log.error(e);
+                    throw new OneBusAwayException(promptHelper.getPrompt(COMMUNICATION_ERROR_MESSAGE));
+                }
             }
         }
         if (StringUtils.isBlank(getSessionAttribute(SessionAttribute.CITY_NAME, String.class))) {

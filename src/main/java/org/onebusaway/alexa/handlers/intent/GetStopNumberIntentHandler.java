@@ -54,7 +54,7 @@ public class GetStopNumberIntentHandler extends IntentHandler {
             final ObaStopResponse stop = obaUserClient.getStopDetails(obaUserDataItem.getStopId());
             final String stopName = replaceSpecialCharactersFromAddress(stop.getName());
             final String speech =
-                    promptHelper.getPrompt(GET_STOP, Integer.toString(stop.getCode()), String.format(ADDRESS_SSML_FORMAT, stopName));
+                    promptHelper.getPrompt(GET_STOP, stop.getStopCode(), String.format(ADDRESS_SSML_FORMAT, stopName));
             StorageUtil.saveOutputForRepeat(speech, obaDao, obaUserDataItem);
             return promptHelper.getResponse(speech);
         } catch (IOException e) {

@@ -65,7 +65,7 @@ public class SetRouteFilterIntentHandler extends IntentHandler {
             final ObaStopResponse response = obaUserClient.getStop(stopId);
             final List<ObaRoute> routes = response.getRoutes();
             if (routes.size() <= 1) {
-                final String speech = promptHelper.getPrompt(ONLY_ONE_ROUTE, Integer.toString(response.getCode()));
+                final String speech = promptHelper.getPrompt(ONLY_ONE_ROUTE, response.getStopCode());
                 StorageUtil.saveOutputForRepeat(speech, obaDao, obaUserDataItem);
                 return promptHelper.getResponse(speech);
             }
