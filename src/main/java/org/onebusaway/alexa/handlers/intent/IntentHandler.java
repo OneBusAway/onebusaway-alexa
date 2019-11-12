@@ -138,7 +138,7 @@ abstract public class IntentHandler extends BaseHandler {
      *
      * @param obaUserDataItem OneBusAway User Data item
      */
-    private void populateAlexaSessionAttributes(final Optional<ObaUserDataItem> obaUserDataItem) {
+    protected void populateAlexaSessionAttributes(final Optional<ObaUserDataItem> obaUserDataItem) {
         SessionUtil.populateAttributes(attributesManager, obaUserDataItem);
     }
 

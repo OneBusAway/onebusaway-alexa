@@ -205,21 +205,9 @@ public class CityUtil {
 
             String output = SpeechUtil.getArrivalText(response.getArrivalInfo(), ARRIVALS_SCAN_MINS,
                     response.getCurrentTime(), obaUserDataItem.getSpeakClockTime(), timeZone, routesToFilter);
+            StorageUtil.saveOutputForRepeat(promptHelper.getPrompt(ARRIVAL_INFO_FORMAT, output), obaDao, obaUserDataItem);
 
-
-            // Build the full text response to the user
-            StringBuilder builder = new StringBuilder();
-            builder.append(SpeechUtil.getAnnounceFeaturev1_1_0Text(attributesManager));
-            builder.append(output);
-
-            // Save that we've already read the tutorial info to the user
-            obaUserDataItem.setAnnouncedIntroduction(1L);
-            obaUserDataItem.setAnnouncedFeaturesv1_1_0(1L);
-            obaDao.saveUserData(obaUserDataItem);
-
-            StorageUtil.saveOutputForRepeat(builder.toString(), obaDao, obaUserDataItem);
-
-            return promptHelper.getResponse(promptHelper.getPrompt(ARRIVAL_INFO_FORMAT, output.toString()));
+            return promptHelper.getResponse(promptHelper.getPrompt(ARRIVAL_INFO_FORMAT, output));
         } catch (IOException e) {
             throw new OneBusAwayException(promptHelper.getPrompt(COMMUNICATION_ERROR_MESSAGE));
         }

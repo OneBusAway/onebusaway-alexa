@@ -121,9 +121,9 @@ public class SpeechUtil {
      * @return v1.1.0 feature text if session attribute ANNOUNCED_FEATURES_V1_1_0 is 0, or empty string if is 1
      */
     public static String getAnnounceFeaturev1_1_0Text(AttributesManager attributesManager) {
-        int announcedFeaturesv1_1_0 = SessionUtil.getSessionAttribute(attributesManager, ANNOUNCED_FEATURES_V1_1_0, Integer.class, 0);
+        long announcedFeaturesv1_1_0 = SessionUtil.getSessionAttribute(attributesManager, ANNOUNCED_FEATURES_V1_1_0, Long.class, 0L);
 
-        if (announcedFeaturesv1_1_0 == 0) {
+        if (announcedFeaturesv1_1_0 == 0L) {
             // We haven't told the user about new v1.1.0 features yet - update the session and return the text
             SessionUtil.addOrUpdateSessionAttribute(attributesManager, ANNOUNCED_FEATURES_V1_1_0, 1L);
             return promptHelper.getPrompt(Prompt.ANNOUNCE_FEATURE);

@@ -84,7 +84,7 @@ public class StorageUtil {
             throw new OneBusAwayException(promptHelper.getPrompt(COMMUNICATION_ERROR_MESSAGE));
         }
 
-        int speakClockTime = SessionUtil.getSessionAttribute(attributesManager, CLOCK_TIME, Integer.class, 0);
+        long speakClockTime = SessionUtil.getSessionAttribute(attributesManager, CLOCK_TIME, Long.class, 0L);
 
         TimeZone timeZone;
         try {
@@ -105,7 +105,7 @@ public class StorageUtil {
 
         log.info("Full arrival text output: " + arrivalInfoText);
 
-        int announcedIntroduction = SessionUtil.getSessionAttribute(attributesManager, ANNOUNCED_INTRODUCTION, Integer.class, 0);
+        long announcedIntroduction = SessionUtil.getSessionAttribute(attributesManager, ANNOUNCED_INTRODUCTION, Long.class, 0L);
         String introduction = announcedIntroduction > 0 ?
                 StringUtils.EMPTY : promptHelper.getPrompt(INTRODUCTION);
 

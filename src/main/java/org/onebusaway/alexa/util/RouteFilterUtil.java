@@ -136,6 +136,8 @@ public class RouteFilterUtil {
 
         String stopCode = SessionUtil.getSessionAttribute(attributesManager, STOP_CODE, String.class);
         String speech = promptHelper.getPrompt(SAVE_ROUTE_FILTER, stopCode);
+        StorageUtil.saveOutputForRepeat(speech, obaDao, obaUserDataItem);
+
         return responseBuilder.withSpeech(speech)
                 .withShouldEndSession(true)
                 .build();

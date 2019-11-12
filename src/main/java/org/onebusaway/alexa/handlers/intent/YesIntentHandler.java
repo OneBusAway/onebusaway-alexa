@@ -78,6 +78,7 @@ public class YesIntentHandler extends IntentHandler {
                 obaUserDataItem.get().setPreviousResponse(StringUtils.EMPTY);
                 ObaUserClient obaUserClient = new ObaUserClient(obaUserDataItem.get().getObaBaseUrl());
                 this.obaDao.saveUserData(obaUserDataItem.get());
+                populateAlexaSessionAttributes(obaUserDataItem);
                 return CityUtil.tellArrivals(obaUserDataItem.get(), obaUserClient, attributesManager, obaDao);
             } catch (Exception e) {
                 log.error(e);
