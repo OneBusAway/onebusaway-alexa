@@ -1,0 +1,416 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "one bus away",
+      "intents": [
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "SetCityIntent",
+          "slots": [
+            {
+              "name": "cityName",
+              "type": "AMAZON.US_CITY"
+            }
+          ],
+          "samples": [
+            "{cityName}",
+            "i live in {cityName}",
+            "my home is in {cityName}",
+            "my region is {cityName}",
+            "my home is {cityName}",
+            "my city is {cityName}",
+            "region is {cityName}",
+            "city is {cityName}",
+            "change my city to {cityName}",
+            "change my region to {cityName}",
+            "set my city to {cityName}",
+            "set my city",
+            "set my region to {cityName}",
+            "change my city",
+            "change my region"
+          ]
+        },
+        {
+          "name": "GetCityIntent",
+          "slots": [],
+          "samples": [
+            "what region are you in",
+            "what city are you in",
+            "what region am I in",
+            "what city am I in",
+            "where are you",
+            "where am I",
+            "what is my city",
+            "what is my region",
+            "get my city",
+            "get my region",
+            "get my current city",
+            "tell me my current city",
+            "tell me my region",
+            "tell me my current region",
+            "my current region"
+          ]
+        },
+        {
+          "name": "SetStopNumberIntent",
+          "slots": [
+            {
+              "name": "stopNumber",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "samples": [
+            "change my stop",
+            "change my stop to {stopNumber}",
+            "set my stop",
+            "set my stop to {stopNumber}",
+            "set my current stop",
+            "set my current stop to {stopNumber}",
+            "stop {stopNumber}",
+            "stop is {stopNumber}",
+            "my stop is {stopNumber}",
+            "stop i. d. {stopNumber}",
+            "my stop i. d. {stopNumber}",
+            "stop code is {stopNumber}",
+            "my stop code is {stopNumber}",
+            "stop number is {stopNumber}",
+            "my stop number is {stopNumber}"
+          ]
+        },
+        {
+          "name": "GetStopNumberIntent",
+          "slots": [],
+          "samples": [
+            "what is my stop",
+            "what is my current stop",
+            "what is my stop name",
+            "what is my stop code",
+            "what is my current stop name",
+            "what is my current stop code",
+            "get my stop",
+            "get my current stop",
+            "get stop i. d.",
+            "get my stop i. d.",
+            "get stop code",
+            "get my stop code",
+            "get stop name",
+            "get current stop name",
+            "get my stop name",
+            "get my current stop name",
+            "get stop info",
+            "get my stop info",
+            "get current stop info",
+            "get my current stop info",
+            "tell me what my stop is",
+            "tell me what my stop i. d. is",
+            "tell me what my current stop is",
+            "tell me what my stop name is",
+            "tell me what my stop code is",
+            "my current stop",
+            "my stop",
+            "my stop i. d.",
+            "my stop code",
+            "my stop name",
+            "what's my current stop",
+            "what's my stop",
+            "what's my stop i.d.",
+            "what's my stop name",
+            "what my stop is",
+            "what my stop i.d. is",
+            "what my stop name is"
+          ]
+        },
+        {
+          "name": "EnableClockTime",
+          "slots": [],
+          "samples": [
+            "enable clock time",
+            "enable clock times",
+            "turn on clock time",
+            "turn on clock times"
+          ]
+        },
+        {
+          "name": "DisableClockTime",
+          "slots": [],
+          "samples": [
+            "turn off clock times",
+            "turn off clock time",
+            "disable clock times",
+            "disable clock time"
+          ]
+        },
+        {
+          "name": "SetRouteFilter",
+          "slots": [],
+          "samples": [
+            "filter out routes",
+            "filter routes",
+            "create my route filter",
+            "create a route filter",
+            "set my route filter",
+            "set a route filter"
+          ]
+        },
+        {
+          "name": "EnableExperimentalRegions",
+          "slots": [],
+          "samples": [
+            "turn on beta regions",
+            "turn on beta region",
+            "enable beta regions",
+            "enable beta region",
+            "turn on experimental regions",
+            "turn on experimental region",
+            "enable experimental regions",
+            "enable experimental region"
+          ]
+        },
+        {
+          "name": "DisableExperimentalRegions",
+          "slots": [],
+          "samples": [
+            "turn off beta regions",
+            "turn off beta region",
+            "disable beta regions",
+            "disable beta region",
+            "turn off experimental regions",
+            "turn off experimental region",
+            "disable experimental regions",
+            "disable experimental region"
+          ]
+        },
+        {
+          "name": "GetArrivalsIntent",
+          "slots": [
+            {
+              "name": "TransitMode",
+              "type": "TRANSIT_MODES"
+            }
+          ],
+          "samples": [
+            "where is my {TransitMode}",
+            "where's my {TransitMode}",
+            "when is my {TransitMode}",
+            "where is the {TransitMode}",
+            "when is the {TransitMode}",
+            "when is the next {TransitMode}",
+            "when does the {TransitMode} get here",
+            "when does my {TransitMode} get here",
+            "when does my {TransitMode} arrive",
+            "when will my {TransitMode} arrive",
+            "what time will my {TransitMode} arrive",
+            "when does the {TransitMode} arrive",
+            "when is my {TransitMode} arriving",
+            "when is the {TransitMode} arriving",
+            "when is the {TransitMode} coming",
+            "when is the {TransitMode} approaching",
+            "when is my {TransitMode} coming",
+            "when is my {TransitMode} approaching",
+            "what time does the {TransitMode} get to my current location",
+            "what time does my {TransitMode} get to my current location",
+            "when is the next {TransitMode} coming",
+            "when is the next {TransitMode} approaching",
+            "when is the next {TransitMode} arriving",
+            "when is the next {TransitMode}",
+            "what time is my {TransitMode}",
+            "what time is the {TransitMode}",
+            "what time does my {TransitMode} arrive",
+            "what time does the {TransitMode} arrive",
+            "how far away is the {TransitMode}",
+            "how long until the {TransitMode} arrives",
+            "when does my {TransitMode} depart",
+            "when does the {TransitMode} depart",
+            "when is my {TransitMode} departing",
+            "when is the {TransitMode} departing",
+            "when is the next {TransitMode} departing",
+            "what time does my {TransitMode} depart",
+            "when will my {TransitMode} depart",
+            "what time will my {TransitMode} depart",
+            "what time does the {TransitMode} depart",
+            "how long until the {TransitMode} departs",
+            "when does my {TransitMode} leave",
+            "when does the {TransitMode} leave",
+            "when will my {TransitMode} leave",
+            "what time will my {TransitMode} leave",
+            "when is my {TransitMode} leaving",
+            "when is the {TransitMode} leaving",
+            "when is the next {TransitMode} leaving",
+            "what time does my {TransitMode} leave",
+            "what time does the {TransitMode} leave",
+            "how long until the {TransitMode} leaves",
+            "give me arrival times",
+            "arrival times",
+            "for arrival times",
+            "the arrivals",
+            "for arrivals",
+            "give me departure times",
+            "departure times",
+            "for departure times",
+            "the departures",
+            "for departures",
+            "get me arrival times",
+            "get me departure times",
+            "the arrival times of my {TransitMode}",
+            "the departure times of my {TransitMode}",
+            "{TransitMode} times",
+            "where my {TransitMode} is"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "AMAZON.US_CITY",
+          "values": [
+            {
+              "name": {
+                "value": "san diego m. t. s."
+              }
+            },
+            {
+              "name": {
+                "value": "puget sound"
+              }
+            },
+            {
+              "name": {
+                "value": "temple terrace"
+              }
+            },
+            {
+              "name": {
+                "value": "st. petersburg"
+              }
+            },
+            {
+              "name": {
+                "value": "clear water"
+              }
+            },
+            {
+              "name": {
+                "value": "tampa bay"
+              }
+            },
+            {
+              "name": {
+                "value": "york region"
+              }
+            },
+            {
+              "name": {
+                "value": "york"
+              }
+            },
+            {
+              "name": {
+                "value": "rogue valley"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TRANSIT_MODES",
+          "values": [
+            {
+              "name": {
+                "value": "ride"
+              }
+            },
+            {
+              "name": {
+                "value": "trolley"
+              }
+            },
+            {
+              "name": {
+                "value": "gondola"
+              }
+            },
+            {
+              "name": {
+                "value": "cable car"
+              }
+            },
+            {
+              "name": {
+                "value": "ferry"
+              }
+            },
+            {
+              "name": {
+                "value": "rail"
+              }
+            },
+            {
+              "name": {
+                "value": "metro"
+              }
+            },
+            {
+              "name": {
+                "value": "subway"
+              }
+            },
+            {
+              "name": {
+                "value": "light rail"
+              }
+            },
+            {
+              "name": {
+                "value": "street car"
+              }
+            },
+            {
+              "name": {
+                "value": "tram"
+              }
+            },
+            {
+              "name": {
+                "value": "train"
+              }
+            },
+            {
+              "name": {
+                "value": "bus"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

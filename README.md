@@ -108,13 +108,93 @@ See the [lambda maven plugin homepage](https://github.com/SeanRoy/lambda-maven-p
 
 1. Go to the [Amazon Developer Console > Alexa](http://developer.amazon.com/edw/home.html)
 1. Add a new skill.  Set _Skill Type_ to `Custom Interaction Model`, set _Invocation Name_ to "one bus away". _Name_ can be anything since this is your development version.
-1. Paste the contents of file `interaction model/schema.json` into "Intent Schema" text box.
-1. Under "Custom Slot Types," click on "Add Slot Type".  Under "Enter type", add `TRANSIT_MODES`.  Under "Enter values", paste the contents of the file `interaction model/customSlotTypes/TRANSIT_MODES`.
-1. Under "Custom Slot Types," click on "Add Slot Type".  Under "Enter type", add `AMAZON.US_CITY`.  Under "Enter values", paste the contents of the file `interaction model/customSlotTypes/AMAZON.US_CITY`.
-1. Into "Sample Utterances" text box, paste the contents of file `interaction model/utterances.txt`.
-1. On Configuration page set up your endpoint by plugging in your Lambda function's ARN.
+1. Paste the contents of file `interaction model/newSchema.json` into "JSON Editor" under interaction model.
+1. Save and build the model.
+1. On Endpoint page set up your endpoint by plugging in your Lambda function's ARN.
    Go Next.  That creates the skill, however it is not functional yet.
 1. At the top of the screen note application _ID_. You will use it to configure Lambda code.
+#### 4.1 Personalize your skill
+To set up your skill to support personalization, you must follow these steps.
+
+1. Set up your skill to request personalization permissions.When you create or edit a custom skill, you can turn on permissions for Skill Personalization in the developer console.
+    * In the developer console, create or open your skill. 
+    * Select the Build tab, and select Permissions at the bottom left.
+    * In the Permissions section, turn on the toggle for Skill Personalization.
+    * You can also edit the permissions in the skill manifest for your skill directly to add the personalization scope alexa::person_id:read if you are using SMAPI or ASK CLI to build your skill.
+1. Set up your skill service to use personalization in its responses, if Personalize skills is toggled on for a recognized user.
+1. Make sure your skill service gracefully handles those cases where a user is not recognized, or a user refuses permission for personalization.
+
+#### 4.2 Listen to skill event (OPTIONAL)
+1. Currently OneBusAway supports [SkillEnabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-enabled-event) and [SkillDisabled](https://developer.amazon.com/docs/smapi/skill-events-in-alexa-skills.html#skill-disabled-event) events.
+1. The **ONLY WAY** to enable your test skill to listen to events is using Skill Management API (SMAPI), please follow the [Quick Start: Alexa Skills Kit Command Line Interface (ASK CLI)](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html) to install ASK CLI.
+1. After you setup CLI, please using `ask api get-skill -s {skillId} > skill.json` to get your skill schema in `skill.json` file, add the event subscription JSON blob below to skill.json, and run
+`ask api update-skill -s {skillId} -f skill.json > skill.json` to update the schema, [reference: Add Events to Your Skill
+](https://developer.amazon.com/docs/smapi/add-events-to-your-skill-with-smapi.html)
+
+Event subscription JSON blob.
+```json
+"event": {
+  "endpoint": {
+    "uri": "{lambdaExecutionRoleARN}"
+  },
+  "regions": {
+    "NA": {
+      "endpoint": {
+        "uri": "{lambdaExecutionRoleARN}"
+      }
+    }
+  },
+  "subscriptions": [
+    {
+      "eventName": "SKILL_ENABLED"
+    },
+    {
+      "eventName": "SKILL_DISABLED"
+    }
+  ]
+}
+```
+Example of skill schema with event subscription.
+```json
+{
+  "manifest": {
+    "apis": {
+      "...":"..."
+    },
+    "events": {
+      "subscriptions": [
+        {
+          "eventName": "SKILL_ENABLED"
+        },
+        {
+          "eventName": "SKILL_DISABLED"
+        }
+      ],
+      "regions": {
+        "NA": {
+          "endpoint": {
+            "uri": "{lambdaExecutionRoleARN}"
+          }
+        }
+      },
+      "endpoint": {
+        "uri": "{lambdaExecutionRoleARN}"
+      }
+    },
+    "manifestVersion": "x.x",
+    "permissions": [
+      {"...":"..."}
+    ],
+    "privacyAndCompliance": {
+      "...":"..."
+      },
+      "...":"..."
+    },
+    "...":"..."
+  }
+}
+
+```
 
 ### 5. Configure, rebuild and redeploy Lambda function
 1. Create `src/main/resources/onebusaway.properties` with the following parameters:

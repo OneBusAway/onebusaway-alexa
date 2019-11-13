@@ -1,13 +1,11 @@
 /*
- * Copyright 2016 Sean J. Barbeau (sjbarbeau@gmail.com),
+ * Copyright 2016-2019 Sean J. Barbeau (sjbarbeau@gmail.com),
  * Philip M. White (philip@mailworks.org)
- *
+ * Chunzhang Mo (victormocz@gmail.com)
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +14,6 @@
  */
 package org.onebusaway.alexa.lib;
 
-import com.amazon.speech.speechlet.SpeechletException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import org.onebusaway.io.client.ObaApi;
@@ -34,6 +31,9 @@ import java.util.stream.Collectors;
 
 import static org.onebusaway.alexa.util.CityUtil.NEW_YORK_REGION_ID;
 
+/**
+ * Super class for ObaUserClient and ObaClient, which contains general helper method for subclasses.
+ */
 @Log4j
 public abstract class ObaClientSharedCode {
 
@@ -59,9 +59,10 @@ public abstract class ObaClientSharedCode {
 
     /**
      * Get all OBA regions from the Regions API ((http://regions.onebusaway.org/regions-v3.json))
+     *
      * @param includeExperimentalRegions true if experimental (beta) regions should be included, false if they should not
      * @return all OBA regions
-     * @throws SpeechletException
+     * @throws IOException
      */
     public List<ObaRegion> getAllRegions(boolean includeExperimentalRegions) throws IOException {
         ObaRegionsResponse response = ObaRegionsRequest.newRequest().call();

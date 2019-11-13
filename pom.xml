@@ -19,14 +19,16 @@
             <name>Philip White</name>
             <url>http://github.com/philipmw</url>
         </developer>
+        <developer>
+            <name>Chunzhang Mo</name>
+            <url>http://github.com/victormocz</url>
+        </developer>
     </developers>
-
     <dependencies>
         <dependency>
             <groupId>com.amazon.alexa</groupId>
-            <artifactId>alexa-skills-kit</artifactId>
-            <version>1.1.2</version>
-            <scope>compile</scope>
+            <artifactId>ask-sdk</artifactId>
+            <version>2.25.0</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -123,16 +125,55 @@
             <artifactId>spring-test</artifactId>
             <version>4.2.4.RELEASE</version>
         </dependency>
+        <!-- Explicit dependency for Jackson to make it compatible with AWS 1.9.40 and Alexa Java SDK V2 -->
         <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>1.22</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.9.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.9.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.9.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-core</artifactId>
+            <version>1.7.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.7.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.7.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -198,7 +239,7 @@
                         {
                         "functionName": "onebusaway-alexa",
                         "description": "OneBusAway Alexa skill",
-                        "handler": "org.onebusaway.alexa.LambdaFunctionHandler",
+                        "handler": "org.onebusaway.alexa.OneBusAwayAlexa",
                         "timeout": 25,
                         "memorySize": 256
                         }
