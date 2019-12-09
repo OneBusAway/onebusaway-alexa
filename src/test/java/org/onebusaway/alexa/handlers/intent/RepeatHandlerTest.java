@@ -23,6 +23,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.onebusaway.alexa.config.PromptsConfig;
 import org.onebusaway.alexa.constant.Prompt;
+import org.onebusaway.alexa.handlers.TestBase;
 import org.onebusaway.alexa.helper.PromptHelper;
 import org.onebusaway.alexa.util.CityUtil;
 import org.powermock.api.mockito.PowerMockito;
@@ -33,7 +34,6 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 @PrepareForTest({
         CityUtil.class
 })
-public class RepeatIntentHandlerTest extends IntentRequestTestBase {
+public class RepeatHandlerTest extends TestBase {
     @Captor
     private ArgumentCaptor<String> argumentCaptor;
 

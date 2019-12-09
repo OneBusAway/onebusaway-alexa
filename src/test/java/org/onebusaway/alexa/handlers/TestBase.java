@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-package org.onebusaway.alexa.handlers.intent;
+package org.onebusaway.alexa.handlers;
 
 import com.amazon.ask.attributes.AttributesManager;
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.LaunchRequest;
-import com.amazon.ask.model.RequestEnvelope;
-import com.amazon.ask.model.Session;
-import com.amazon.ask.model.User;
+import com.amazon.ask.model.*;
+import com.amazon.ask.model.interfaces.system.SystemState;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -43,7 +41,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.SimpleTimeZone;
 
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
@@ -53,7 +53,7 @@ import static org.onebusaway.alexa.constant.SessionAttribute.ASK_STATE;
         ObaUserClient.class,
         SpringContext.class
 })
-abstract public class IntentRequestTestBase {
+abstract public class TestBase {
     @Mock
     protected ObaDao obaDao;
     @Mock
@@ -81,9 +81,16 @@ abstract public class IntentRequestTestBase {
 
     protected User user;
 
+    protected Person person;
+
+    protected SystemState system;
+
+    protected Context context;
+
     protected static final String SSML_FORMAT = "<speak>%s</speak>";
 
     protected static final String USER_ID = "userId";
+    protected static final String PERSON_ID = "personId";
     protected static final String CITY_NAME = "cityName";
     protected static final String STOP_ID = "stopId";
     protected static final long REGION_ID = 1;
@@ -127,10 +134,14 @@ abstract public class IntentRequestTestBase {
      * Helper method to mock handler input.
      */
     protected void mockHandlerInput() {
+        person = Person.builder().withPersonId(PERSON_ID).build();
         user = User.builder().withUserId(USER_ID).build();
+        system = SystemState.builder().withUser(user).build();
+        context = Context.builder().withSystem(system).build();
         session = Session.builder().withUser(user).build();
         requestEnvelope = RequestEnvelope.builder()
                 .withRequest(LaunchRequest.builder().build())
+                .withContext(context)
                 .withSession(session).build();
         when(handlerInput.getAttributesManager()).thenReturn(attributesManager);
         when(handlerInput.getRequestEnvelope()).thenReturn(requestEnvelope);
@@ -142,7 +153,7 @@ abstract public class IntentRequestTestBase {
     /**
      * Helper method to mock handler input.
      */
-    protected void mockObaUserData() {
+    protected void mockObaUserData() throws Exception{
         when(obaUserDataItem.getCity()).thenReturn(CITY_NAME);
         when(obaUserDataItem.getStopId()).thenReturn(STOP_ID);
         when(obaUserDataItem.getRegionId()).thenReturn(REGION_ID);
@@ -156,6 +167,7 @@ abstract public class IntentRequestTestBase {
         when(obaUserDataItem.getAnnouncedFeaturesv1_1_0()).thenReturn(ANNOUNCED_FEATURES_V1_1_0);
         when(obaUserDataItem.isExperimentalRegions()).thenReturn(EXPERIMENTAL_REGIONS);
         when(obaUserDataItem.getRegionName()).thenReturn(REGION_NAME);
+        when(obaUserClient.getTimeZone()).thenReturn(new SimpleTimeZone(0, "timezone"));
     }
 
     /**

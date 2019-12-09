@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.onebusaway.alexa.constant.Prompt;
+import org.onebusaway.alexa.handlers.TestBase;
 import org.onebusaway.alexa.util.CityUtil;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 @PrepareForTest({
         CityUtil.class
 })
-public class LaunchRequestHandlerTest extends IntentRequestTestBase {
+public class LaunchHandlerTest extends TestBase {
     @Captor
     private ArgumentCaptor<Prompt> argumentCaptor;
     @InjectMocks
@@ -55,8 +56,8 @@ public class LaunchRequestHandlerTest extends IntentRequestTestBase {
 
     @Test
     public void canHandle_withLauchRequest_returnsTrue() {
-        handlerInput = HandlerInput.builder().withRequestEnvelope(requestEnvelope).build();
         requestEnvelope = RequestEnvelope.builder().withRequest(LaunchRequest.builder().build()).build();
+        handlerInput = HandlerInput.builder().withRequestEnvelope(requestEnvelope).build();
         assertTrue(launchRequestHandler.canHandle(handlerInput));
     }
 
