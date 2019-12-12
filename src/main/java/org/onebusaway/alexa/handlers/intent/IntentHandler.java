@@ -117,23 +117,6 @@ abstract public class IntentHandler extends BaseHandler {
     }
 
     /**
-     * Retrieve the ObaUserDataItem from DynamoDB.
-     *
-     * @return
-     */
-    private Optional<ObaUserDataItem> retrieveObaData() {
-        Optional<ObaUserDataItem> obaUserDataItem = Optional.empty();
-        if (personalization.isPersonalized()) {
-            log.info("Retrieving person level ObaData.");
-            obaUserDataItem = obaDao.getUserData(personalization.getPersonId());
-        } else {
-            log.info("Retrieving user level ObaData.");
-            obaUserDataItem = obaDao.getUserData(personalization.getUserId());
-        }
-        return obaUserDataItem;
-    }
-
-    /**
      * Populates Alexa skill session with Oba user data.
      *
      * @param obaUserDataItem OneBusAway User Data item

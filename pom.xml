@@ -258,6 +258,14 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.6.201602180812</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/onebusaway/alexa/constant/**</exclude>
+                        <exclude>org/onebusaway/alexa/config/**</exclude>
+                        <exclude>org/onebusaway/alexa/exception/**</exclude>
+                        <exclude>org/onebusaway/alexa/lib/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
