@@ -27,7 +27,7 @@ Other features - say `Alexa, ask OneBusAway to...`:
 * `...set my stop to X` to change your stop to the specified number
 * `...set my city to X` to change your city to the specified city
 * `...repeat` to repeat the last message
-* `...enable experimental regions` to enable regions that may be unstable and without real-time info. Note that you first need to set up the skill with a non-experimental region and stop that are supported by default before invoking this command - see [this post] for details.
+* `...enable experimental regions` to enable regions that may be unstable and without real-time info. Note that you first need to set up the skill with a non-experimental region and stop that are supported by default before invoking this command - see [this post](https://github.com/OneBusAway/onebusaway-alexa/issues/124#issuecomment-641601063) for details.
 
 Refer to [`interaction model/utterances.txt`](interaction%20model/utterances.txt) for the full list of spoken phrases we support.
 
